@@ -33,7 +33,7 @@ import AboutPage from './pages/Aboutpage'
 import UserManagement from './admin/UserManagement'
 import OAuthRedirectHandler from './pages/OAuthRedirectHandler'
 import AdminManagement from './admin/AdminManagement'
-
+import ProgressTracking from './admin/progrssTacking'
 
 function App() {
   return (
@@ -77,6 +77,7 @@ function App() {
 
           <Route path='/admin/user-management' element={<UserManagement />} />
           <Route path='/admin/admin-management' element={<AdminManagement />} />
+          <Route path='/admin/progress-tracking' element={<AdminManagement />} />
 
 
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
