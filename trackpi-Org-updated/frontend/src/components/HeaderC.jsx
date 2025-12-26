@@ -79,12 +79,26 @@ const HeaderC = () => {
           </div>
 
           {/* Progress Tracking */}
-          <div className="flex items-center gap-[15px] px-[43px] py-[10px] h-[44px] rounded-[18px] hover:bg-[#FFE29D] cursor-pointer">
+          {/* <div className="flex items-center gap-[15px] px-[43px] py-[10px] h-[44px] rounded-[18px] hover:bg-[#FFE29D] cursor-pointer">
             <FaChartBar className="w-[24px] h-[24px] text-[#0A0A0A]" />
             <span className="text-[#0A0A0A] text-[16px] font-[400] tracking-[0.02em] leading-[100%]">
               Progress Tracking
             </span>
-          </div>
+          </div> */}
+
+<Link
+            to="/admin/progress-tracking"
+            className={`flex items-center gap-[15px] px-[43px] py-[10px] h-[44px] rounded-[18px] cursor-pointer ${
+              location.pathname === '/admin/progress-tracking'
+                ? 'bg-[#FFB300]'
+                : 'hover:bg-[#FFE29D]'
+            }`}
+          >
+            <FaChartBar className="w-[24px] h-[24px] text-[#0A0A0A]" />
+            <span className="text-[#0A0A0A] text-[16px] font-[400] tracking-[0.02em] leading-[100%]">
+              Progress Tracking
+            </span>
+          </Link>``
 
           {/* Feedback */}
           <div className="flex items-center gap-[15px] px-[43px] py-[10px] h-[44px] rounded-[18px] hover:bg-[#FFE29D] cursor-pointer">
