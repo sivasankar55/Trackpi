@@ -1,0 +1,160 @@
+ <div className='nested routes'>
+    <div className='my-5 px-5 flex justify-between gap-5 lg:justify-end'>
+        <button className='rounded-[40px] px-12.5 py-3 bg-[#FF9D00] text-white text-[12px] sm:text-base font-medium cursor-pointer roboto'>Courses</button>
+        <button className='rounded-[40px] px-12.5 py-3 border border-[#FF9D00] text-[#FF9D00]  font-medium sm:text-base cursor-pointer roboto'>Assessment</button>
+    </div>
+
+    {/* nested sections */}
+
+
+
+  </div>
+
+
+section Video
+ <div className="w-full flex-1 flex flex-col items-end pr-0 lg:pr-4 order-1 lg:order-none">
+        {/* Search bar */}
+        <div className="w-full max-w-[350px] h-[44px] rounded-[15px] border border-[#676464] bg-[#8D8B8B1A] flex items-center px-[15px] gap-[15px] mb-3">
+          <span className="text-[#B3B6B6] text-[20px]">
+            <CiSearch />
+          </span>
+          <span className="text-[#B3B6B6] text-[16px] font-medium font-['Roboto']">
+            Search...
+          </span>
+        </div>
+
+        {/* Video Box */}
+        <div className="rounded-xl px-0 py-0 flex flex-col gap-3 w-full max-w-[990px] mx-auto">
+          <div className="w-full h-[330px] lg:h-[500px] bg-[#3A3A3A] rounded-[6.7px] relative flex flex-col justify-center items-center px-[20px] pt-[1px] pb-[15px] gap-[20px]">
+            
+            {/* Video Element */}
+            <video
+              src={videos[0]?.url}
+              controls={false}
+              muted
+              preload="metadata"
+              className="absolute inset-0 w-full h-full object-cover rounded-[6.7px]"
+            />
+
+            {/* Play Button Overlay */}
+            <button
+              className="absolute inset-0 flex items-center justify-center bg-transparent text-white text-4xl cursor-pointer z-10"
+              aria-label="Play"
+            >
+              <div className="w-[150px] h-[150px] flex items-center justify-center">
+                <div className="w-[112.5px] h-[112.5px] border-[5px] border-white rounded-full flex items-center justify-center">
+                  <FaPlay className="w-8 h-8 ml-1" />
+                </div>
+              </div>
+            </button>
+
+            {/* Timeline + Controls */}
+            <div className="w-full flex flex-col gap-[5px] z-10 mt-auto">
+              {/* Timeline */}
+              <div className="w-full h-[29px] flex items-center gap-[10px]">
+                <span className="w-[40px] text-[16px] font-medium font-['Urbanist'] text-white">
+                  00:40
+                </span>
+                <div className="flex-1 h-[6px] bg-white rounded">
+                  <div className="h-full w-[33%] bg-orange-500 rounded" />
+                </div>
+                <span className="w-[40px] text-[16px] font-medium font-['Urbanist'] text-white text-right">
+                  02:00
+                </span>
+              </div>
+
+              {/* Controls */}
+              <div className="w-full flex justify-between items-center">
+                <div className="w-[30px] h-[30px] flex items-center justify-center">
+                  <MdOutlineReplay className="w-[22.5px] h-[22.5px]" />
+                </div>
+                <div className="w-[30px] h-[30px] flex items-center justify-center">
+                  <FaExpand className="w-[22.5px] h-[22.5px]" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Title & Description */}
+          <div className="text-left w-full text-white px-2 ">
+            <h3 className="text-[30px] font-semibold font-['Roboto'] leading-[100%]">
+              {videos[0]?.title || "Introduction Video"}
+            </h3>
+            <p className="text-[22px] font-medium font-['Roboto'] leading-[100%] mt-2">
+              {videos[0]?.description || "Introduction Video for the section of course"}
+            </p>
+          </div>
+        </div>
+      </div>
+
+
+
+      pogress section
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+        {selectedCourse.sections.map((section, i) => {
+          const totalVideos = section.videos.length;
+          const watched = section.videos.filter((video) =>
+            progress?.watchedVideos?.includes(video._id)
+          ).length;
+          const percentage = Math.floor((watched / totalVideos) * 100);
+
+          return (
+            <div
+              key={section._id}
+              onClick={() => navigate(`/video-section/${section._id}`)}
+              className="w-[170px] h-[90px] sm:h-[150px] sm:w-[260px] rounded-[100px] bg-[#0A0A0A] text-white relative overflow-hidden flex flex-col justify-center"
+            >
+              {/* Step Number */}
+              <span className="absolute top-4 sm:top-6 left-3 sm:left-4 text-[55px] sm:text-[75px] text-white/10 font-bold z-10">
+                {i + 1}
+              </span>
+
+              {/* Main Content */}
+              <h3 className="text-sm sm:text-lg font-semibold relative z-20 text-center leading-tight sm:leading-normal">
+                {section.title}
+              </h3>
+              <div className="flex justify-center gap-2 sm:gap-4 text-xs sm:text-sm mt-1 relative z-20">
+                <span>
+                  {watched} / {totalVideos} Videos
+                </span>
+                <span>|</span>
+                <span>{section.duration}</span>
+              </div>
+
+              {/* Animated Wave */}
+              {percentage > 0 && (
+                <div className="absolute bottom-0 left-0  w-full h-full overflow-hidden">
+                  <div className="wave-move absolute bottom-0 left-0 w-full transition-all duration-700 ease-in-out" style={{ height: `${percentage}%` }}>
+                    <svg
+                      width="520"
+                      height="76"
+                      viewBox="0 0 520 76"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M-3 0.0365618C-3 0.0365618 16.8655 6.42503 30 6.53343C43.7097 6.64659 50.7989 0.532465 64.5 0.0365618C81.4722 -0.577735 90.5181 6.75526 107.5 6.53343C123.132 6.32924 131.367 0.0365618 147 0.0365618C162.633 0.0365618 170.87 6.85416 186.5 6.53343C200.399 6.24822 207.602 0.376764 221.5 0.0365618C237.514 -0.355436 245.984 6.25742 262 6.53343C279.947 6.84271 289.553 -0.238475 307.5 0.0365618C323.71 0.28497 332.289 6.66178 348.5 6.53343C363.94 6.4112 372.063 -0.288654 387.5 0.0365618C401.207 0.325331 408.29 6.4978 422 6.53343C435.902 6.56957 457 0.0365618 457 0.0365618V0.999971C457 42.4213 423.421 76 382 76H72C30.5787 76 -3 42.4213 -3 0.999972V0.0365618Z"
+                        fill="url(#paint0_linear_4563_8922)"
+                        fillOpacity="0.7"
+                      />
+                      <defs>
+                        <linearGradient
+                          id="paint0_linear_4563_8922"
+                          x1="-3"
+                          y1="38.0188"
+                          x2="257"
+                          y2="38.0188"
+                          gradientUnits="userSpaceOnUse"
+                        >
+                          <stop offset="0.0866666" stopColor="#17005E" />
+                          <stop offset="1" stopColor="#FF9D00" />
+                        </linearGradient>
+                      </defs>
+                    </svg>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>

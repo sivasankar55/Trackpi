@@ -1,0 +1,32 @@
+/* LayoutB.css or global stylesheet */
+.background-b {
+  min-height: 100vh;
+  position: relative;
+  background: linear-gradient(
+    225.01deg,
+    #b7730666 20%,           /* brown-orange tint */
+    #0a0e1a80 45%,          /* semi-transparent deep navy-black */
+    #000b34 100%            /* dark blue base */
+  );
+  overflow: hidden;
+  color: white;
+}
+
+.background-b::before {
+  content: "";
+  position: absolute;
+  top: -25%;
+  left: -35%;
+  width: 180%;
+  height: 180%;
+  border-radius: 35%;
+  backdrop-filter: blur(80px);
+  background: linear-gradient(
+    225.01deg,
+    #ff9d0066 0%,           /* orange glow */
+    #000e4d4d 10%,
+    #000e4dff 10%
+  );
+  z-index: -1;
+  opacity: 0.9;
+}

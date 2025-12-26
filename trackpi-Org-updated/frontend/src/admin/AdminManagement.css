@@ -1,0 +1,17 @@
+/* AdminManagement.css */
+.admin-role-badge {
+  background-color: #fcd34d; /* Tailwind's yellow-300 */
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.table-actions svg {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.table-actions svg:hover {
+  transform: scale(1.1);
+}
