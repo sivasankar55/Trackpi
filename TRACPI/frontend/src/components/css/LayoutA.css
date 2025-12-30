@@ -1,0 +1,24 @@
+
+.background-a {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  background: linear-gradient(135deg, #4C3030 0%, #7A4D2E 50%, #4E3130 100%);
+}
+
+/* Glowing ellipse from Figma */
+.glow-ellipse {
+  position: absolute;
+  top: -218px;
+  left: -679px;
+  width: 2450.11px;
+  height: 2982.78px;
+  transform: rotate(-145.32deg);
+  /* background: linear-gradient(148.3deg, #FF9D00 -3.43%, rgba(105, 72, 198, 0) 88.74%); */
+  filter: blur(500px);
+  opacity: 1;
+  z-index: 0;
+  pointer-events: none;
+}
+  
+  

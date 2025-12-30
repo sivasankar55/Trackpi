@@ -1,0 +1,81 @@
+mongodb+srv://adarshsoman29:krywQzOHYE0TaeDl@cluster0.fjbldzi.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+
+
+// src/context/AuthContext.jsx
+import React, { createContext, useState, useEffect } from 'react';
+
+export const AuthContext = createContext();
+
+export const AuthProvider = ({ children }) => {
+  const [token, setToken] = useState(() => localStorage.getItem('token'));
+  const [user, setUser] = useState(null);
+
+  // Optionally, fetch user info when token changes
+  useEffect(() => {
+    if (token) {
+      // Fetch user info from backend using the token
+      fetch('http://localhost:5000/api/users/me', {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+        .then(res => res.json())
+        .then(data => setUser(data))
+        .catch(() => setUser(null));
+    } else {
+      setUser(null);
+    }
+  }, [token]);
+
+  const login = (newToken) => {
+    setToken(newToken);
+    localStorage.setItem('token', newToken);
+  };
+
+  const logout = () => {
+    setToken(null);
+    setUser(null);
+    localStorage.removeItem('token');
+  };
+
+  return (
+    <AuthContext.Provider value={{ token, user, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+// src/pages/OAuthRedirectHandler.jsx
+import { useEffect, useContext } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
+
+export default function OAuthRedirectHandler({ redirectTo }) {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { login } = useContext(AuthContext);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const token = params.get('token');
+    if (token) {
+      login(token); // Save token in context and localStorage
+      navigate(redirectTo); // e.g., '/start-course' or '/phone-number'
+    } else {
+      navigate('/login');
+    }
+  }, [location, login, navigate, redirectTo]);
+
+  return <div>Loading...</div>;
+}
+
+<Route path="/phone-number" element={<OAuthRedirectHandler redirectTo="/phone-number" />} />
+<Route path="/start-course" element={<OAuthRedirectHandler redirectTo="/start-course" />} />
+
+import { useContext } from 'react';
+import { AuthContext } from '../context/AuthContext';
+import { Navigate } from 'react-router-dom';
+
+function ProtectedRoute({ children }) {
+  const { token } = useContext(AuthContext);
+  if (!token) return <Navigate to="/login" />;
+  return children;
+}

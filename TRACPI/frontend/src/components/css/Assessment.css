@@ -1,0 +1,31 @@
+/* src/components/css/Assessment.css */
+/* .background-b {
+  min-height: 100vh ;
+  position: relative ;
+    background: linear-gradient(
+    225.01deg,
+    #6e470966 0%,
+    #0000004d 45%,
+    rgb(0, 12, 59) 100%
+  ) ;
+
+  overflow: hidden;
+}
+
+.background-b::before {
+  content: "";
+  position: absolute;
+  top: -20%;
+  left: -30%;
+  width: 180%;
+  height: 180%;
+  border-radius: 30%;
+  backdrop-filter: blur(80px);
+  background: linear-gradient(
+    225.01deg,
+    #FF9D0066 0%,
+    #000E4D4D 55%,
+    #000E4DFF 100%
+  ) ;
+  z-index: -1;
+} */
