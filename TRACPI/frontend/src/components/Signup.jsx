@@ -1,6 +1,6 @@
 import React from 'react'
 import googleLogo from '../assets/google.png';
-import socialLogo from '../assets/group.png';
+import signupIllustration from '../assets/signuppage.png';
 import sectionImage from '../assets/sectionImage.png';
 
 const Signup = () => {
@@ -24,7 +24,7 @@ const Signup = () => {
             </h1>
 
             <img
-              src={socialLogo}
+              src={signupIllustration}
               alt="Freelancer Illustration"
               className="w-[300px] lg:w-[450px] h-auto mb-6"
             />
@@ -65,11 +65,6 @@ const Signup = () => {
               <img src={googleLogo} alt="Google" className="w-5 h-5 object-contain" />
               Login with Google
             </button>
-
-
-            <p className="text-xs text-gray-300 mt-4">
-              Don’t have an Account? <span className="underline cursor-pointer text-blue-400">Sign up</span>
-            </p>
           </div>
         </div>
       </div>
