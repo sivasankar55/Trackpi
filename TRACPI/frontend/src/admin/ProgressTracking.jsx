@@ -496,21 +496,22 @@ const ProgressTracking = ({ onEditAdmin }) => {
                 <div className="flex justify-center">
                   <button
                     style={{
-                      width: '93px',
+                      width: '96px',
                       height: '34px',
                       borderRadius: '20px',
                       borderWidth: '1px',
-                      paddingTop: '10px',
+                      paddingTop: '9px',
                       paddingRight: '20px',
                       paddingBottom: '10px',
                       paddingLeft: '20px',
+
                       background: 'var(--Main-color, #FFB300)',
                       border: '1px solid var(--dark-orange, #FF9D00)',
                       boxShadow: '0px 0px 4px 1px #FF9D0080'
                     }}
                     className="text-white text-xs font-medium"
                   >
-                    More Info
+                    More info
                   </button>
                 </div>
               </div>

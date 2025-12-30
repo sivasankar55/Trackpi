@@ -20,7 +20,8 @@ import SearchIcon from '../assets/search2.png';
 
 const AdminManagement = () => {
     const navigate = useNavigate();
-    const { logout } = useContext(AdminAuthContext);
+    const { logout, adminInfo } = useContext(AdminAuthContext);
+    const currentUserRole = adminInfo?.adminType?.toLowerCase();
 
     // Popup States
     const [showAddAdmin, setShowAddAdmin] = useState(false);
@@ -87,10 +88,16 @@ const AdminManagement = () => {
         navigate('/admin/login');
     };
 
-    const handleAddAdmin = () => setShowAddAdmin(true);
+    const handleAddAdmin = () => {
+        if (currentUserRole === 'editor') return;
+        setShowAddAdmin(true);
+    };
     const handleCloseAddAdmin = () => setShowAddAdmin(false);
 
     const handleEditAdmin = (admin) => {
+        const canManage = currentUserRole === 'super admin' ||
+            (currentUserRole === 'admin' && admin.adminType?.toLowerCase() === 'editor');
+        if (!canManage) return;
         setAdminToEdit(admin);
         setShowEditAdmin(true);
     };
@@ -101,6 +108,9 @@ const AdminManagement = () => {
     };
 
     const handleDeleteAdmin = (admin) => {
+        const canManage = currentUserRole === 'super admin' ||
+            (currentUserRole === 'admin' && admin.adminType?.toLowerCase() === 'editor');
+        if (!canManage) return;
         setAdminToDelete(admin);
         setShowDeleteAdmin(true);
         setDeletePopupVisible(true);
@@ -122,6 +132,9 @@ const AdminManagement = () => {
     };
 
     const handleSuspendAdmin = (admin) => {
+        const canManage = currentUserRole === 'super admin' ||
+            (currentUserRole === 'admin' && admin.adminType?.toLowerCase() === 'editor');
+        if (!canManage) return;
         setAdminToSuspend(admin);
         setShowSuspendAdmin(true);
     };
@@ -252,13 +265,15 @@ const AdminManagement = () => {
                         </div>
 
                         <div className="flex gap-2">
-                            <button
-                                onClick={handleAddAdmin}
-                                className="bg-[#FF9D00] text-white px-4 py-2 rounded-lg shadow-md hover:bg-[#FF8A00] transition-colors font-bold flex items-center gap-2"
-                            >
-                                <img src={PlusIcon} alt="Add" className="w-4 h-4 brightness-0 invert" />
-                                <span>Add Admin</span>
-                            </button>
+                            {currentUserRole !== 'editor' && (
+                                <button
+                                    onClick={handleAddAdmin}
+                                    className="bg-[#FF9D00] text-white px-4 py-2 rounded-lg shadow-md hover:bg-[#FF8A00] transition-colors font-bold flex items-center gap-2"
+                                >
+                                    <img src={PlusIcon} alt="Add" className="w-4 h-4 brightness-0 invert" />
+                                    <span>Add Admin</span>
+                                </button>
+                            )}
                             <button
                                 onClick={() => setRefreshKey(prev => prev + 1)}
                                 className="bg-white border text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 shadow-sm transition"
@@ -381,24 +396,40 @@ const AdminManagement = () => {
                                                     </td>
                                                     <td className="px-4 py-2 rounded-r-[10px] border-r border-t border-b border-[#FFB300] pr-6">
                                                         <div className="flex justify-center items-center gap-4">
-                                                            <button
-                                                                className="w-5 h-5 opacity-80 hover:opacity-100 transition-opacity"
-                                                                onClick={() => handleDeleteAdmin(admin)}
-                                                            >
-                                                                <img src={TrashIcon} alt="Delete" className="w-full h-full object-contain" />
-                                                            </button>
-                                                            <button
-                                                                className="w-5 h-5 opacity-80 hover:opacity-100 transition-opacity"
-                                                                onClick={() => handleEditAdmin(admin)}
-                                                            >
-                                                                <img src={EditIcon} alt="Edit" className="w-full h-full object-contain" />
-                                                            </button>
-                                                            <button
-                                                                className="w-5 h-5 opacity-80 hover:opacity-100 transition-opacity"
-                                                                onClick={() => handleSuspendAdmin(admin)}
-                                                            >
-                                                                <img src={LockIcon} alt="Lock" className="w-full h-full object-contain" />
-                                                            </button>
+                                                            {(() => {
+                                                                const targetRole = admin.adminType?.toLowerCase();
+                                                                const canManage =
+                                                                    currentUserRole === 'super admin' ||
+                                                                    (currentUserRole === 'admin' && targetRole === 'editor');
+
+                                                                if (!canManage) return <span className="text-gray-400 text-xs">No Actions</span>;
+
+                                                                return (
+                                                                    <>
+                                                                        <button
+                                                                            className="w-5 h-5 opacity-80 hover:opacity-100 transition-opacity"
+                                                                            onClick={() => handleDeleteAdmin(admin)}
+                                                                            title="Delete"
+                                                                        >
+                                                                            <img src={TrashIcon} alt="Delete" className="w-full h-full object-contain" />
+                                                                        </button>
+                                                                        <button
+                                                                            className="w-5 h-5 opacity-80 hover:opacity-100 transition-opacity"
+                                                                            onClick={() => handleEditAdmin(admin)}
+                                                                            title="Edit"
+                                                                        >
+                                                                            <img src={EditIcon} alt="Edit" className="w-full h-full object-contain" />
+                                                                        </button>
+                                                                        <button
+                                                                            className="w-5 h-5 opacity-80 hover:opacity-100 transition-opacity"
+                                                                            onClick={() => handleSuspendAdmin(admin)}
+                                                                            title="Suspend"
+                                                                        >
+                                                                            <img src={LockIcon} alt="Lock" className="w-full h-full object-contain" />
+                                                                        </button>
+                                                                    </>
+                                                                );
+                                                            })()}
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -474,7 +505,11 @@ const AdminManagement = () => {
 
             {/* Popups */}
             {showAddAdmin && (
-                <AddAdmin onClose={handleCloseAddAdmin} onAdminAdded={() => setRefreshKey(prev => prev + 1)} />
+                <AddAdmin
+                    onClose={handleCloseAddAdmin}
+                    onAdminAdded={() => setRefreshKey(prev => prev + 1)}
+                    currentUserRole={currentUserRole}
+                />
             )}
 
             {showDeleteAdmin && deletePopupVisible && (

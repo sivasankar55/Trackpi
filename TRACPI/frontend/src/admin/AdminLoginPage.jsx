@@ -37,7 +37,7 @@ const AdminLoginPage = () => {
       if (response.data.message === 'Login successful') {
         // Use the context to store admin info
         login(response.data.admin);
-        navigate('/admin-dashboard');
+        navigate('/admin/admin-management');
       }
     } catch (err) {
       setError(err.response?.data?.error || 'Login failed. Please try again.');
