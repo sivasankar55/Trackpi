@@ -32,29 +32,43 @@ const HeaderC = () => {
       {/* Main Nav Links */}
       <div className="flex flex-col gap-4 px-6 flex-1">
         {[
-          { icon: <MdDashboard size={22} />, label: 'Dashboard', path: '/admin-dashboard' },
+          { icon: <MdDashboard size={22} />, label: 'Dashboard', path: null },
           { icon: <FaUserCog size={22} />, label: 'Admin Management', path: '/admin/admin-management' },
           { icon: <FaUsers size={22} />, label: 'User Management', path: '/admin/user-management' },
           { icon: <FaChalkboardTeacher size={22} />, label: 'Course Management', path: '/admin/course-management' },
           { icon: <FaChartBar size={22} />, label: 'Progress Tracking', path: '/admin/progress-tracking' },
           { icon: <FaCommentDots size={22} />, label: 'Feedback', path: '/feedback' },
         ].map((item) => (
-          <Link
-            key={item.label}
-            to={item.path}
-            className={`flex items-center gap-4 px-6 py-3 rounded-[15px] transition-all duration-300 ${(item.path === '/admin/user-management' && isUserManagementActive) || (item.path !== '/admin/user-management' && location.pathname === item.path) || (item.label === 'Course Management' && isCourseActive)
-              ? 'bg-[#FF9D00] text-white shadow-md'
-              : 'text-gray-700 hover:bg-[#FFB30020]'
-              }`}
-          >
-            <span className={item.path === location.pathname || (item.path === '/admin/user-management' && isUserManagementActive) ? 'text-white' : 'text-gray-600'}>
-              {item.icon}
-            </span>
-            <span className={`text-[15px] font-medium tracking-wide ${(item.path === '/admin/user-management' && isUserManagementActive) || (item.path !== '/admin/user-management' && location.pathname === item.path) ? 'text-white' : 'text-gray-700'
-              }`}>
-              {item.label}
-            </span>
-          </Link>
+          item.path ? (
+            <Link
+              key={item.label}
+              to={item.path}
+              className={`flex items-center gap-4 px-6 py-3 rounded-[15px] transition-all duration-300 ${(item.path === '/admin/user-management' && isUserManagementActive) || (item.path !== '/admin/user-management' && location.pathname === item.path) || (item.label === 'Course Management' && isCourseActive)
+                ? 'bg-[#FF9D00] text-white shadow-md'
+                : 'text-gray-700 hover:bg-[#FFB30020]'
+                }`}
+            >
+              <span className={item.path === location.pathname || (item.path === '/admin/user-management' && isUserManagementActive) ? 'text-white' : 'text-gray-600'}>
+                {item.icon}
+              </span>
+              <span className={`text-[15px] font-medium tracking-wide ${(item.path === '/admin/user-management' && isUserManagementActive) || (item.path !== '/admin/user-management' && location.pathname === item.path) ? 'text-white' : 'text-gray-700'
+                }`}>
+                {item.label}
+              </span>
+            </Link>
+          ) : (
+            <div
+              key={item.label}
+              className="flex items-center gap-4 px-6 py-3 rounded-[15px] text-gray-700 cursor-default"
+            >
+              <span className="text-gray-600">
+                {item.icon}
+              </span>
+              <span className="text-[15px] font-medium tracking-wide text-gray-700">
+                {item.label}
+              </span>
+            </div>
+          )
         ))}
       </div>
 
