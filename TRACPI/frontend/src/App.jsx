@@ -18,6 +18,7 @@ import AssessmentTimeUpCongrats from './pages/AssessmentTimeupCongrats'
 import ContactPage from './pages/ContactPage'
 
 // admin components
+import CourseProgressDetails from './admin/CourseProgressDetails'
 import AdminDashboard from './admin/AdminDashboard'
 import AddAdmin from './admin/AddAdmin'
 import EditAdmin from "./admin/EditAdmin";
@@ -88,6 +89,7 @@ function App() {
           <Route path='/admin/admin-management' element={<AdminManagement />} />
           <Route path='/admin/course-management' element={<CourseManagement />} />
           <Route path='/admin/progress-tracking' element={<ProgressTracking />} />
+          <Route path='/admin/progress-tracking/details' element={<CourseProgressDetails />} />
           <Route path='/admin/add-course' element={<AddCoursePage />} />
           <Route path='/admin/profile' element={<Profile />} />
 

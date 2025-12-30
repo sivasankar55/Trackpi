@@ -229,8 +229,8 @@ const ProgressTracking = ({ onEditAdmin }) => {
               key={i + 1}
               onClick={() => setCurrentPage(i + 1)}
               className={`px-3 py-1 rounded ${currentPage === i + 1
-                  ? 'bg-yellow-500 text-white'
-                  : 'bg-yellow-100'
+                ? 'bg-yellow-500 text-white'
+                : 'bg-yellow-100'
                 }`}
             >
               {i + 1}
@@ -495,6 +495,7 @@ const ProgressTracking = ({ onEditAdmin }) => {
                 {/* More Info Button */}
                 <div className="flex justify-center">
                   <button
+                    onClick={() => navigate('/admin/progress-tracking/details')}
                     style={{
                       width: '96px',
                       height: '34px',
