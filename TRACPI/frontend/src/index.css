@@ -3,23 +3,32 @@
 
 /* Hide scrollbar for modern browsers */
 .no-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
-  .no-scrollbar {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;     /* Firefox */
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
+}
+
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
   }
 
-  /* @keyframes scroll-right {
-    0% {
-      transform: translateX(-100%);
-    }
-    100% {
-      transform: translateX(100%);
-    }
+  100% {
+    transform: translateX(-50%);
   }
-  
-  .scroll-animation {
-    animation: scroll-right 20s linear infinite;
-  }
-   */
+}
+
+.scroll-animation {
+  display: flex !important;
+  width: max-content;
+  animation: scroll 40s linear infinite;
+}
+
+.scroll-animation:hover {
+  animation-play-state: paused;
+}

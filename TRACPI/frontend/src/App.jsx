@@ -14,6 +14,9 @@ import AssessmentTimeUpCongrats from './pages/AssessmentTimeupCongrats'
 
 
 
+// components
+import ContactPage from './pages/ContactPage'
+
 // admin components
 import AdminDashboard from './admin/AdminDashboard'
 import AddAdmin from './admin/AddAdmin'
@@ -49,6 +52,7 @@ function App() {
           <Route path='/phone-number' element={<OAuthRedirectHandler />} />
           <Route path='/phone-number/enter' element={<PhoneNUmber />} />
           <Route path='/about' element={<AboutPage />} />
+          <Route path='/connect-us' element={<ContactPage />} />
         </Route>
 
         {/* Layout B */}

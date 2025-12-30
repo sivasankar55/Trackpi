@@ -1,4 +1,5 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import Signup from '../components/Signup';
 import hero from '../assets/hero.png';
 import freeLancer from '../assets/freelancer.png';
@@ -13,6 +14,20 @@ import { Play, Volume2 } from 'lucide-react';
 
 function Home() {
   const companyArray = [luminar, IIDM, tech, trade];
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.state && location.state.scrollToSignup) {
+      const section = document.getElementById('signup-section');
+      if (section) {
+        setTimeout(() => {
+          section.scrollIntoView({ behavior: 'smooth' });
+        }, 500); // Delay as requested
+      }
+      // Clear state to prevent scroll on refresh (optional but good practice, though React Router state usually persists. 
+      // We can manually clear it but it's tricky without navigating again. For now, this is fine.)
+    }
+  }, [location]);
 
   return (
     <div className="bg-gradient-to-br from-[#09060E] via-[#2D1D29] to-[#694230]">
@@ -62,7 +77,7 @@ function Home() {
             </h2>
 
             <p className="libre-franklin text-white font-semibold text-lg md:text-xl text-justify md:text-justify leading-snug max-w-[783px] mx-auto">
-              Are you ready to start your freelancing journey today? Gain control over <br/>your career? We make it easy for you to start.
+              Are you ready to start your freelancing journey today? Gain control over <br />your career? We make it easy for you to start.
             </p>
 
             <p className="libre-franklin text-white font-semibold text-[20px] leading-[100%] text-justify max-w-[595px] mx-auto">
@@ -89,11 +104,11 @@ function Home() {
       <section className="banner my-10">
         <div className="overflow-hidden w-full bg-gradient-to-r from-[#FFC100] to-[#FF9D00] py-5">
           <div className="whitespace-nowrap scroll-animation flex gap-5 px-4">
-            {companyArray.map((img, index) => (
-              <img key={index} src={img} alt={`company-${index}`} className="w-[150px] h-[60px] inline-block object-contain" />
-            ))}
-            {companyArray.map((img, index) => (
-              <img key={`copy-${index}`} src={img} alt={`company-copy-${index}`} className="w-[150px] h-[60px] inline-block object-contain" />
+            {/* Render enough copies to fill wide screens */}
+            {[...Array(10)].map((_, i) => (
+              companyArray.map((img, index) => (
+                <img key={`${i}-${index}`} src={img} alt={`company-${i}-${index}`} className="w-[150px] h-[60px] inline-block object-contain" />
+              ))
             ))}
           </div>
         </div>
@@ -146,7 +161,7 @@ function Home() {
           </div>
           <img src={group3} alt="group image" className='w-[300px] h-[200px] md:w-[500px] md:h-[400px] rounded-[10px] object-cover' />
         </div>
-        
+
 
         <div className='flex flex-col md:flex-row-reverse gap-30 mb-20'>
           <div className='flex flex-col justify-center gap-5 md:w-1/2'>
@@ -157,10 +172,12 @@ function Home() {
           </div>
           <img src={group4} alt="group image" className="w-[300px] h-[200px] md:w-[500px] md:h-[400px] rounded-[10px] object-cover" />
         </div>
-        
+
       </section>
 
-      <Signup />
+      <div id="signup-section">
+        <Signup />
+      </div>
     </div>
   );
 }
