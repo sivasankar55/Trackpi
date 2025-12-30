@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 const ExportAdminPopup = ({ onClose, data }) => {
     const [exportFormat, setExportFormat] = useState('CSV');
@@ -10,8 +12,7 @@ const ExportAdminPopup = ({ onClose, data }) => {
         if (exportFormat === 'CSV') {
             exportToCSV(data);
         } else {
-            // PDF Export placeholder - typically needs jspdf
-            alert('PDF Export selected. In a real application, this would generate a PDF file.');
+            exportToPDF(data);
         }
         onClose();
     };
@@ -48,6 +49,48 @@ const ExportAdminPopup = ({ onClose, data }) => {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+    };
+
+    const exportToPDF = (adminData) => {
+        if (!adminData || adminData.length === 0) return;
+
+        const doc = new jsPDF();
+
+        // Add title
+        doc.setFontSize(18);
+        doc.text('Admin Management Report', 14, 22);
+
+        doc.setFontSize(11);
+        doc.setTextColor(100);
+
+        // Add date
+        const date = new Date().toLocaleDateString();
+        doc.text(`Generated on: ${date}`, 14, 30);
+
+        // Define headers
+        const headers = [['Username', 'Full Name', 'Email', 'Admin Type', 'Status', 'Last Login']];
+
+        // Map data to rows
+        const rows = adminData.map(admin => [
+            admin.username || '',
+            admin.fullname || '',
+            admin.email || '',
+            admin.adminType || '',
+            admin.status || 'Active',
+            admin.lastLogin || 'Never'
+        ]);
+
+        // Generate table
+        autoTable(doc, {
+            head: headers,
+            body: rows,
+            startY: 40,
+            styles: { fontSize: 9 },
+            headStyles: { fillColor: [255, 130, 0] }, // Matching #FF8200
+        });
+
+        // Save PDF
+        doc.save(`Admins_Export_${date}.pdf`);
     };
 
     return (
