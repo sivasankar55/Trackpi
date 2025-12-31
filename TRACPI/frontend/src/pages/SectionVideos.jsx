@@ -4,7 +4,7 @@ import axios from "axios";
 import Player from "@vimeo/player";
 import { AuthContext } from '../context/AuthContext'
 import { ProgressContext } from "../context/ProgressContext";
-import { Play, Search, RotateCcw, Lock } from 'lucide-react';
+import { Play, Pause, Search, RotateCcw, Lock, Maximize, Minimize } from 'lucide-react';
 import squareLock from '../assets/square-lock-02.png';
 
 const SectionVideos = () => {
@@ -15,12 +15,19 @@ const SectionVideos = () => {
   const [completedVideos, setCompletedVideos] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
 
+  // Player State
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [isFullScreen, setIsFullScreen] = useState(false);
+
   const { courseId, sectionId } = useParams();
   const navigate = useNavigate();
   const { token } = useContext(AuthContext)
   const { notifyProgressChanged } = useContext(ProgressContext)
 
   const playerRef = useRef(null);
+  const videoContainerRef = useRef(null);
 
   //fetch section + progress
   useEffect(() => {
@@ -59,19 +66,41 @@ const SectionVideos = () => {
   useEffect(() => {
     if (!selectedVideo) return;
 
+    // Reset states
+    setIsPlaying(false);
+    setCurrentTime(0);
+    setDuration(0);
+    setShowPopup(false);
+
     if (playerRef.current) {
       playerRef.current.destroy();
     }
 
     const player = new Player("vimeo-player", {
       id: selectedVideo.videoID,
-      responsive: true, // Enables responsive resizing
-      start: 0,
+      responsive: true,
+      controls: false, // Try to hide default controls to show ours
+      title: false,
+      byline: false,
+      portrait: false
     });
 
     playerRef.current = player;
 
-    player.on("ended", () => setShowPopup(true));
+    player.on("play", () => setIsPlaying(true));
+    player.on("pause", () => setIsPlaying(false));
+    player.on("timeupdate", (data) => setCurrentTime(data.seconds));
+    player.on("loaded", () => {
+      player.getDuration().then((d) => setDuration(d));
+    });
+
+    // Also fetch duration just in case loaded already fired or if it helps
+    player.getDuration().then((d) => setDuration(d)).catch(() => { });
+
+    player.on("ended", () => {
+      setIsPlaying(false);
+      setShowPopup(true)
+    });
 
     return () => player.destroy();
   }, [selectedVideo]);
@@ -81,6 +110,7 @@ const SectionVideos = () => {
     if (playerRef.current) {
       await playerRef.current.setCurrentTime(0);
       playerRef.current.play();
+      setIsPlaying(true);
     }
     setShowPopup(false);
   };
@@ -128,6 +158,63 @@ const SectionVideos = () => {
   const isVideoLocked = (video, idx) => {
     if (idx === 0) return false;
     return !videos.slice(0, idx).every(v => completedVideos.includes(v.videoID));
+  };
+
+  // Custom Controls Handlers
+  const togglePlay = () => {
+    if (!playerRef.current) return;
+    if (isPlaying) {
+      playerRef.current.pause();
+    } else {
+      playerRef.current.play();
+    }
+  };
+
+  const startRewatch = async () => {
+    if (playerRef.current) {
+      await playerRef.current.setCurrentTime(0);
+      playerRef.current.play();
+    }
+  };
+
+  const handleSeek = (e) => {
+    const time = parseFloat(e.target.value);
+    setCurrentTime(time);
+    if (playerRef.current) {
+      playerRef.current.setCurrentTime(time);
+    }
+  };
+
+  const toggleFullScreen = () => {
+    if (!videoContainerRef.current) return;
+
+    if (!document.fullscreenElement) {
+      videoContainerRef.current.requestFullscreen().then(() => {
+        setIsFullScreen(true);
+      }).catch(err => {
+        console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+      });
+    } else {
+      document.exitFullscreen().then(() => {
+        setIsFullScreen(false);
+      });
+    }
+  };
+
+  // Sync fullscreen state with browser events (esc key etc)
+  useEffect(() => {
+    const handleFsChange = () => {
+      setIsFullScreen(!!document.fullscreenElement);
+    };
+    document.addEventListener("fullscreenchange", handleFsChange);
+    return () => document.removeEventListener("fullscreenchange", handleFsChange);
+  }, []);
+
+  const formatTime = (seconds) => {
+    if (!seconds) return "00:00";
+    const m = Math.floor(seconds / 60);
+    const s = Math.floor(seconds % 60);
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
 
@@ -186,7 +273,6 @@ const SectionVideos = () => {
               >
                 {/* Thumbnail Placeholder */}
                 <div className="relative w-[120px] h-[75px] bg-gray-800 rounded-[8px] overflow-hidden flex-shrink-0">
-                  {/* You can replace this with actual thumbnail if available */}
                   <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-700 to-gray-900">
                     {locked ? <Lock size={20} className="text-gray-500" /> : <Play size={24} className={`fill-current ${isSelected ? 'text-[#FF9D00]' : 'text-gray-400 group-hover:text-white'}`} />}
                   </div>
@@ -211,8 +297,70 @@ const SectionVideos = () => {
           {selectedVideo ? (
             <>
               {/* Video Container */}
-              <div className="relative w-full aspect-video bg-black rounded-[20px] overflow-hidden border border-[#222] shadow-2xl">
-                <div id="vimeo-player" className="w-full h-full"></div>
+              <div
+                ref={videoContainerRef}
+                className="relative w-full aspect-video bg-black rounded-[20px] overflow-hidden border border-[#222] shadow-2xl group/player"
+              >
+                <div id="vimeo-player" className="w-full h-full pointer-events-none"></div>
+
+                {/* Center Play Button Overlay (visible when paused and not ending) */}
+                {!isPlaying && !showPopup && (
+                  <div
+                    onClick={togglePlay}
+                    className="absolute inset-0 z-10 flex items-center justify-center bg-black/30 cursor-pointer group-hover/player:bg-black/40 transition-all"
+                  >
+                    <div className="w-20 h-20 rounded-full border-2 border-white flex items-center justify-center pl-1 bg-black/40 backdrop-blur-sm hover:scale-110 transition-transform">
+                      <Play size={40} className="fill-white text-white" />
+                    </div>
+                  </div>
+                )}
+
+                {/* Clickable Area for Play/Pause when playing */}
+                {isPlaying && !showPopup && (
+                  <div className="absolute inset-0 z-10" onClick={togglePlay}></div>
+                )}
+
+                {/* Custom Control Bar */}
+                <div className={`absolute bottom-0 left-0 right-0 z-20 px-6 py-4 bg-gradient-to-t from-black/90 to-transparent transition-opacity duration-300 ${!isPlaying ? 'opacity-100' : 'opacity-0 group-hover/player:opacity-100'}`}>
+
+                  {/* Progress Bar */}
+                  <input
+                    type="range"
+                    min="0"
+                    max={duration || 100}
+                    value={currentTime}
+                    onChange={handleSeek}
+                    className="w-full h-1 rounded-lg appearance-none cursor-pointer accent-[#FF9D00] mb-4 hover:h-1.5 transition-all"
+                    style={{
+                      background: `linear-gradient(to right, #FF9D00 ${(currentTime / (duration || 1)) * 100}%, rgba(255, 255, 255, 0.2) ${(currentTime / (duration || 1)) * 100}%)`
+                    }}
+                  />
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-6">
+                      {/* Play/Pause Small */}
+                      <button onClick={togglePlay} className="hover:text-[#FF9D00] transition-colors">
+                        {isPlaying ? <Pause size={24} className="fill-current" /> : <Play size={24} className="fill-current" />}
+                      </button>
+
+                      {/* Rewatch */}
+                      <button onClick={startRewatch} className="hover:text-[#FF9D00] transition-colors" title="Rewatch">
+                        <RotateCcw size={20} />
+                      </button>
+
+                      {/* Time */}
+                      <span className="text-sm font-medium text-gray-200">
+                        {formatTime(currentTime)} <span className="text-gray-500 mx-1">/</span> {formatTime(duration)}
+                      </span>
+                    </div>
+
+                    {/* Fullscreen */}
+                    <button onClick={toggleFullScreen} className="hover:text-[#FF9D00] transition-colors">
+                      {isFullScreen ? <Minimize size={24} /> : <Maximize size={24} />}
+                    </button>
+                  </div>
+                </div>
+
 
                 {/* Popup Overlay within the video area if ended */}
                 {showPopup && (
