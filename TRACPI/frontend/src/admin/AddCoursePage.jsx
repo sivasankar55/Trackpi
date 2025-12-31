@@ -3,11 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 // Icons/Assets
-import DashboardIcon from '../assets/dashboard.png';
-import SearchIcon from '../assets/search2.png';
-import BellIcon from '../assets/bell.png';
-import UserIcon from '../assets/user.png';
-import { FiEdit3, FiPlus, FiTrash2, FiShield, FiBell, FiUser } from 'react-icons/fi';
+import { FiEdit3, FiTrash2 } from 'react-icons/fi';
 
 const AddCoursePage = () => {
     const navigate = useNavigate();
@@ -135,41 +131,9 @@ const AddCoursePage = () => {
     };
 
     return (
-        <div className="flex-1 bg-white min-h-screen font-['Poppins'] overflow-x-hidden">
+        <div className="flex-1 bg-white min-h-screen font-['Poppins'] overflow-x-hidden pt-10">
             {/* Top Navigation Bar */}
-            <div className="sticky top-0 z-[1000] bg-white shadow-md flex flex-col sm:flex-row justify-between items-center px-4 sm:px-10 py-6 sm:py-8 gap-4 sm:gap-0">
-                {/* Left: Dashboard Title + Search */}
-                <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-8 w-full sm:w-auto">
-                    <div className="flex items-center gap-3">
-                        <img src={DashboardIcon} alt="Dashboard" className="w-6 h-6 object-contain" />
-                        <span className="text-xl sm:text-[28px] font-bold text-[#333]">Dashboard</span>
-                    </div>
 
-                    <div className="relative w-full sm:w-[400px]">
-                        <input
-                            type="text"
-                            placeholder="Search"
-                            className="w-full h-[45px] pl-6 pr-10 rounded-[12px] border border-gray-300 focus:outline-none focus:border-orange-400 text-gray-600 shadow-sm"
-                        />
-                        <img src={SearchIcon} alt="Search" className="absolute right-4 top-3.5 w-5 h-5 opacity-40" />
-                    </div>
-                </div>
-
-                {/* Right: Icon Group */}
-                <div className="flex items-center gap-3 bg-[#FFF8E7] p-2 px-6 rounded-[15px] border border-[#FFB300] shadow-sm">
-                    <FiPlus className="text-[20px] sm:text-[22px] text-[#E20000] cursor-pointer font-bold" />
-                    <FiTrash2 className="text-[20px] sm:text-[22px] text-[#E20000] cursor-pointer" />
-                    <FiShield className="text-[20px] sm:text-[22px] text-[#E20000] cursor-pointer" />
-                    <FiBell className="text-[20px] sm:text-[22px] text-[#E20000] cursor-pointer" />
-                    <button
-                        onClick={() => navigate('/admin/profile')}
-                        className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border-2 border-[#E20000] flex items-center justify-center p-1 hover:bg-red-50 transition-colors cursor-pointer"
-                        title="Profile"
-                    >
-                        <FiUser className="text-[#E20000] text-lg" />
-                    </button>
-                </div>
-            </div>
 
             {/* Launch Course Button container */}
             {!isAddingSection && (
