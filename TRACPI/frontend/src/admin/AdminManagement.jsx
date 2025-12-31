@@ -265,6 +265,12 @@ const AdminManagement = () => {
                         </div>
 
                         <div className="flex gap-2">
+                            <button
+                                onClick={() => setRefreshKey(prev => prev + 1)}
+                                className="bg-white border text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 shadow-sm transition"
+                            >
+                                Refresh
+                            </button>
                             {currentUserRole !== 'editor' && (
                                 <button
                                     onClick={handleAddAdmin}
@@ -274,12 +280,6 @@ const AdminManagement = () => {
                                     <span>Add Admin</span>
                                 </button>
                             )}
-                            <button
-                                onClick={() => setRefreshKey(prev => prev + 1)}
-                                className="bg-white border text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 shadow-sm transition"
-                            >
-                                Refresh
-                            </button>
                             <div className="relative" ref={filterRef}>
                                 <button
                                     onClick={() => setIsFilterOpen(!isFilterOpen)}

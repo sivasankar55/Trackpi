@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
@@ -6,6 +6,8 @@ import dayjs from 'dayjs';
 // Components
 import DeleteUserPopup from './DeleteUserPopup';
 import SuspendUserPopup from './SuspendUserPopup';
+import AddUserPopup from './AddUserPopup';
+import ExportUserPopup from './ExportUserPopup';
 
 // Icons
 import PlusIcon from '../assets/plus.png';
@@ -33,6 +35,13 @@ const UserManagement = () => {
   const [userToDelete, setUserToDelete] = useState(null);
   const [showSuspendUser, setShowSuspendUser] = useState(false);
   const [userToSuspend, setUserToSuspend] = useState(null);
+  const [showAddUser, setShowAddUser] = useState(false);
+  const [showExportUser, setShowExportUser] = useState(false);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const filterRef = useRef(null);
+  const [selectedSort, setSelectedSort] = useState('Newest');
+  const [isSortOpen, setIsSortOpen] = useState(false);
+  const sortRef = useRef(null);
 
   useEffect(() => {
     fetchUsers();
@@ -79,8 +88,41 @@ const UserManagement = () => {
     if (selectedFilter === 'All') return true;
     if (selectedFilter === 'Suspended') return user.status === 'suspended';
     if (selectedFilter === 'Active') return user.status === 'active';
+    if (selectedFilter === 'Inactive') return user.enrollmentCount > 0 && user.maxProgress < 10;
+    if (selectedFilter === 'Completed') return user.maxProgress === 100;
+    if (selectedFilter === 'Don\'t Start') return !user.enrollmentCount || user.enrollmentCount === 0;
     return true;
   });
+
+  const sortedUsers = [...filteredUsers].sort((a, b) => {
+    if (selectedSort === 'Ascending') {
+      return (a.name || '').localeCompare(b.name || '');
+    }
+    if (selectedSort === 'Descending') {
+      return (b.name || '').localeCompare(a.name || '');
+    }
+    if (selectedSort === 'Newest') {
+      return new Date(b.createdAt) - new Date(a.createdAt);
+    }
+    if (selectedSort === 'Oldest') {
+      return new Date(a.createdAt) - new Date(b.createdAt);
+    }
+    return 0;
+  });
+
+  // Close filter or sort when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (filterRef.current && !filterRef.current.contains(event.target)) {
+        setIsFilterOpen(false);
+      }
+      if (sortRef.current && !sortRef.current.contains(event.target)) {
+        setIsSortOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleSelectAll = () => {
     if (selectedUsers.length === currentUsers.length && currentUsers.length > 0) {
@@ -98,34 +140,109 @@ const UserManagement = () => {
     );
   };
 
-  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+  const totalPages = Math.ceil(sortedUsers.length / itemsPerPage);
   const indexOfLast = currentPage * itemsPerPage;
   const indexOfFirst = indexOfLast - itemsPerPage;
-  const currentUsers = filteredUsers.slice(indexOfFirst, indexOfLast);
+  const currentUsers = sortedUsers.slice(indexOfFirst, indexOfLast);
 
   return (
     <div className="min-h-screen bg-white w-full font-['Poppins'] pb-10">
 
       {/* Main Content Box */}
-      <div className="px-10 mt-6">
-        <div className="border border-[#FFB300] rounded-[30px] bg-[#FDFDFD] p-8 shadow-[0px_4px_30px_rgba(0,0,0,0.02)] min-h-[680px] flex flex-col">
+      <div className="px-10 mt-8">
+        <div className="border border-[#FFB30080] rounded-[30px] bg-white p-8 shadow-[0px_4px_30px_rgba(0,0,0,0.02)] min-h-[680px] flex flex-col">
           {/* Inner Controls */}
-          <div className="flex justify-between items-center mb-10">
+          <div className="flex justify-between items-center mb-8">
             <div className="relative w-[340px] h-[44px]">
               <input
                 type="text"
-                placeholder="Search"
+                placeholder="search"
                 value={innerSearchTerm}
                 onChange={(e) => handleInnerSearch(e.target.value)}
-                className="w-full h-full pl-4 pr-12 rounded-[12px] border border-gray-300 focus:outline-none focus:border-[#FFB300] text-sm text-gray-700 placeholder-gray-400"
+                className="w-full h-full pl-4 pr-12 rounded-[12px] border border-[#FFB300] focus:outline-none bg-white text-sm text-gray-700 placeholder-gray-400"
               />
-              <img src={SearchIcon} alt="Search" className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 opacity-40 text-black" />
+              <img src={SearchIcon} alt="Search" className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 opacity-40" />
             </div>
 
             <div className="flex gap-4">
-              <button className="bg-white border border-gray-300 text-gray-800 px-8 py-2.5 rounded-[12px] text-[15px] font-medium hover:bg-gray-50 transition-colors">Filter</button>
-              <button className="bg-white border border-gray-300 text-gray-800 px-8 py-2.5 rounded-[12px] text-[15px] font-medium hover:bg-gray-50 transition-colors">Sort</button>
-              <button className="bg-[#E20000] text-white px-10 py-2.5 rounded-[12px] text-[15px] font-bold shadow-md hover:bg-[#C10000] transition-colors uppercase tracking-wider">Export</button>
+              <button
+                onClick={() => setShowAddUser(true)}
+                className="bg-[#FF9D00] text-white px-8 py-2.5 rounded-[12px] text-[14px] font-bold shadow-md hover:bg-[#FF8A00] transition-colors flex items-center gap-2"
+              >
+                <img src={PlusIcon} alt="Add" className="w-4 h-4 brightness-0 invert" />
+                <span>Add User</span>
+              </button>
+
+              <div className="relative" ref={filterRef}>
+                <button
+                  onClick={() => setIsFilterOpen(!isFilterOpen)}
+                  className={`bg-white border text-gray-600 px-8 py-2.5 rounded-[12px] text-[14px] font-medium hover:bg-gray-50 transition-all flex items-center gap-4 ${selectedFilter !== 'All' ? 'border-[#FFB300] bg-[#FFF8E7]' : 'border-gray-300'
+                    }`}
+                >
+                  Filter {selectedFilter !== 'All' && `(${selectedFilter})`}
+                  <svg className={`w-4 h-4 transition-transform ${isFilterOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+                </button>
+
+                {isFilterOpen && (
+                  <div className="absolute right-0 mt-3 w-56 bg-white border border-[#FFB300] rounded-2xl shadow-2xl z-[100] overflow-hidden py-1 animate-in fade-in slide-in-from-top-2 duration-200">
+                    {['All', 'Active', 'Suspended', 'Inactive', 'Completed', 'Don\'t Start'].map((filter) => (
+                      <button
+                        key={filter}
+                        onClick={() => {
+                          setSelectedFilter(filter);
+                          setIsFilterOpen(false);
+                          setCurrentPage(1);
+                        }}
+                        className={`w-full text-left px-5 py-3.5 text-sm transition-colors border-b border-gray-50 last:border-0 ${selectedFilter === filter
+                          ? 'bg-[#FFF1CF] font-bold text-[#FF8200]'
+                          : 'text-gray-700 hover:bg-[#FFF8E7]'
+                          }`}
+                      >
+                        {filter}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="relative" ref={sortRef}>
+                <button
+                  onClick={() => setIsSortOpen(!isSortOpen)}
+                  className={`bg-white border text-gray-600 px-8 py-2.5 rounded-[12px] text-[14px] font-medium hover:bg-gray-50 transition-all flex items-center gap-4 ${selectedSort !== 'Newest' ? 'border-[#FFB300] bg-[#FFF8E7]' : 'border-gray-300'
+                    }`}
+                >
+                  Sort {selectedSort !== 'Newest' && `(${selectedSort})`}
+                  <svg className={`w-4 h-4 transition-transform ${isSortOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+                </button>
+
+                {isSortOpen && (
+                  <div className="absolute right-0 mt-3 w-56 bg-white border border-[#FFB300] rounded-2xl shadow-2xl z-[100] overflow-hidden py-1 animate-in fade-in slide-in-from-top-2 duration-200">
+                    {['Ascending', 'Descending', 'Newest', 'Oldest'].map((sort) => (
+                      <button
+                        key={sort}
+                        onClick={() => {
+                          setSelectedSort(sort);
+                          setIsSortOpen(false);
+                          setCurrentPage(1);
+                        }}
+                        className={`w-full text-left px-5 py-3.5 text-sm transition-colors border-b border-gray-50 last:border-0 ${selectedSort === sort
+                          ? 'bg-[#FFF1CF] font-bold text-[#FF8200]'
+                          : 'text-gray-700 hover:bg-[#FFF8E7]'
+                          }`}
+                      >
+                        {sort}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <button
+                onClick={() => setShowExportUser(true)}
+                className="bg-[#E20000] text-white px-10 py-2.5 rounded-[12px] text-[14px] font-bold shadow-md hover:bg-[#C10000] transition-colors uppercase tracking-wider"
+              >
+                Export
+              </button>
             </div>
           </div>
 
@@ -166,7 +283,7 @@ const UserManagement = () => {
                   <tr><td colSpan="8" className="text-center py-20 text-gray-400 italic">No users available</td></tr>
                 ) : (
                   currentUsers.map((user, idx) => (
-                    <tr key={user._id} className={`group hover:shadow-lg transition-all duration-300 shadow-[0px_2px_15px_rgba(0,0,0,0.05)] rounded-[15px] ${selectedUsers.includes(user._id) ? 'bg-[#FFF8E7]' : 'bg-white'}`}>
+                    <tr key={user._id} className={`group hover:shadow-lg transition-all duration-300 shadow-[0px_2px_15px_rgba(0,0,0,0.05)] rounded-[15px] ${selectedUsers.includes(user._id) ? 'bg-[#FFF8E7]' : (idx % 2 === 0 ? 'bg-[#FFF9E1]' : 'bg-white')}`}>
                       <td className="px-6 py-4 rounded-l-[15px] border-l border-t border-b border-gray-100 group-hover:border-[#FFB30040]">
                         <div className="flex items-center gap-4">
                           <button
@@ -180,7 +297,12 @@ const UserManagement = () => {
                               <div className="w-2.5 h-2.5 rounded-full bg-white"></div>
                             )}
                           </button>
-                          <span className="font-bold text-[#333] text-[16px] whitespace-nowrap">{user.name}</span>
+                          <span
+                            onClick={() => navigate(`/admin/user-details/${user._id}`)}
+                            className="font-bold text-[#333] text-[16px] whitespace-nowrap cursor-pointer hover:text-[#FF9D00] transition-colors"
+                          >
+                            {user.name}
+                          </span>
                         </div>
                       </td>
                       <td className="px-6 py-4 border-t border-b border-gray-100 group-hover:border-[#FFB30040] text-gray-600 font-medium text-[16px]">@{user.email.split('@')[0]}</td>
@@ -195,18 +317,18 @@ const UserManagement = () => {
                         </span>
                       </td>
                       <td className="px-6 py-4 rounded-r-[15px] border-r border-t border-b border-gray-100 group-hover:border-[#FFB30040]">
-                        <div className="flex justify-center items-center gap-6">
+                        <div className="flex justify-center items-center gap-4">
                           <button
                             onClick={() => { setUserToDelete(user); setShowDeleteUser(true); }}
-                            className="hover:scale-110 transition-transform"
+                            className="w-10 h-10 flex items-center justify-center rounded-[10px] border border-red-100 hover:bg-red-50 transition-colors"
                           >
-                            <img src={TrashIcon} alt="Delete" className="w-[18px] h-[18px]" style={{ filter: 'opacity(0.8) contrast(1.2)' }} />
+                            <img src={TrashIcon} alt="Delete" className="w-[18px] h-[18px]" style={{ filter: 'invert(16%) sepia(89%) saturate(6054%) hue-rotate(358deg) brightness(97%) contrast(113%)' }} />
                           </button>
                           <button
                             onClick={() => { setUserToSuspend(user); setShowSuspendUser(true); }}
-                            className="hover:scale-110 transition-transform"
+                            className="w-10 h-10 flex items-center justify-center rounded-[10px] border border-orange-100 hover:bg-orange-50 transition-colors"
                           >
-                            <img src={LockIcon} alt="Suspend" className="w-[18px] h-[18px] opacity-40" />
+                            <img src={LockIcon} alt="Suspend" className="w-[18px] h-[18px]" style={{ filter: 'invert(59%) sepia(93%) saturate(1450%) hue-rotate(5deg) brightness(102%) contrast(106%)' }} />
                           </button>
                         </div>
                       </td>
@@ -219,7 +341,7 @@ const UserManagement = () => {
 
           {/* Table Footer Info */}
           <div className="mt-auto pt-6 text-[15px] font-medium text-gray-600 opacity-80">
-            No of Users - {filteredUsers.length} out of {users.length}
+            No of Users - {sortedUsers.length} out of {users.length}
           </div>
         </div>
       </div>
@@ -280,6 +402,20 @@ const UserManagement = () => {
             setUserToSuspend(null);
             setRefreshKey(prev => prev + 1);
           }}
+        />
+      )}
+
+      {showAddUser && (
+        <AddUserPopup
+          onClose={() => setShowAddUser(false)}
+          onUserAdded={() => setRefreshKey(prev => prev + 1)}
+        />
+      )}
+
+      {showExportUser && (
+        <ExportUserPopup
+          onClose={() => setShowExportUser(false)}
+          data={sortedUsers}
         />
       )}
     </div>
