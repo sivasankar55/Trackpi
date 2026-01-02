@@ -93,7 +93,7 @@ function App() {
           <Route path='/admin/progress-tracking' element={<ProgressTracking />} />
           <Route path='/admin/progress-tracking/details' element={<CourseProgressDetails />} />
           <Route path='/admin/add-course' element={<AddCoursePage />} />
-          <Route path='/admin/profile' element={<Profile />} />
+          <Route path='/admin/profile' element={<Profile />} /> 
 
 
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
