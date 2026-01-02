@@ -2,6 +2,8 @@ import { Route, Routes } from 'react-router-dom'
 
 // pages
 import Home from './pages/Home'
+import Discoverus from './pages/Discoverus'
+import HelpCentre from './pages/HelpCentre'
 import StartCourse from './pages/StartCourse'
 import PhoneNUmber from './pages/PhoneNUmber'
 import Faq2 from './pages/Faq2'
@@ -76,6 +78,8 @@ function App() {
           <Route path='/course-section' element={<CourseSection />} />
           <Route path='/course-section/:courseId' element={<CourseSection />} />
           <Route path="/courses/:courseId/sections/:sectionId" element={<SectionVideos />} />
+          <Route path='/discover-us' element={<Discoverus />} />
+          <Route path='/help-centre' element={<HelpCentre />} />
 
         </Route>
 
