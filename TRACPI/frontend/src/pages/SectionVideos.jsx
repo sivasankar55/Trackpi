@@ -20,6 +20,12 @@ const SectionVideos = () => {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isFullScreen, setIsFullScreen] = useState(false);
+  const [showControls, setShowControls] = useState(true);
+  const [isSeeking, setIsSeeking] = useState(false);
+  const controlsTimeoutRef = useRef(null);
+  const progressIntervalRef = useRef(null);
+  const isSeekingRef = useRef(false);
+  const vimeoHostRef = useRef(null);
 
   const { courseId, sectionId } = useParams();
   const navigate = useNavigate();
@@ -62,7 +68,7 @@ const SectionVideos = () => {
   }, [sectionId, courseId, token]);
 
 
-  // 🚀 Vimeo Player Setup (Responsive)
+  // 🚀 Vimeo Player Setup
   useEffect(() => {
     if (!selectedVideo) return;
 
@@ -71,15 +77,16 @@ const SectionVideos = () => {
     setCurrentTime(0);
     setDuration(0);
     setShowPopup(false);
+    isSeekingRef.current = false;
 
     if (playerRef.current) {
       playerRef.current.destroy();
     }
 
-    const player = new Player("vimeo-player", {
+    const player = new Player(vimeoHostRef.current, {
       id: selectedVideo.videoID,
       responsive: true,
-      controls: false, // Try to hide default controls to show ours
+      controls: false,
       title: false,
       byline: false,
       portrait: false
@@ -88,29 +95,91 @@ const SectionVideos = () => {
     playerRef.current = player;
 
     player.on("play", () => setIsPlaying(true));
+    player.on("playing", () => setIsPlaying(true));
     player.on("pause", () => setIsPlaying(false));
-    player.on("timeupdate", (data) => setCurrentTime(data.seconds));
-    player.on("loaded", () => {
-      player.getDuration().then((d) => setDuration(d));
+
+    player.on("timeupdate", (data) => {
+      if (!isSeekingRef.current) {
+        if (data.seconds !== undefined) setCurrentTime(data.seconds);
+      }
+      if (data.duration) setDuration(data.duration);
     });
 
-    // Also fetch duration just in case loaded already fired or if it helps
-    player.getDuration().then((d) => setDuration(d)).catch(() => { });
+    player.on("loaded", async () => {
+      try {
+        const d = await player.getDuration();
+        setDuration(d);
+      } catch (e) { }
+    });
+
+    player.on("durationchange", (data) => {
+      if (data.duration) setDuration(data.duration);
+    });
+
+    player.on("seeking", () => {
+      isSeekingRef.current = true;
+    });
+
+    player.on("seeked", () => {
+      isSeekingRef.current = false;
+    });
 
     player.on("ended", () => {
       setIsPlaying(false);
-      setShowPopup(true)
+      setShowPopup(true);
+      markAsWatched();
     });
 
-    return () => player.destroy();
+    // Initial duration fetch
+    player.getDuration().then((d) => setDuration(d)).catch(() => { });
+
+    return () => {
+      player.destroy();
+    };
   }, [selectedVideo]);
 
+  // Smooth Progress Update Interval
+  useEffect(() => {
+    let interval;
+    if (isPlaying && !showPopup) {
+      interval = setInterval(async () => {
+        if (playerRef.current && !isSeekingRef.current) {
+          try {
+            const time = await playerRef.current.getCurrentTime();
+            setCurrentTime(time);
+          } catch (e) { }
+        }
+      }, 100);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isPlaying, showPopup]);
+
+
+  const markAsWatched = async () => {
+    if (!selectedVideo) return;
+    try {
+      await axios.post(
+        "http://localhost:5000/api/progress/watch-video",
+        { courseId, sectionId, videoId: selectedVideo.videoID },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      notifyProgressChanged();
+      if (!completedVideos.includes(selectedVideo.videoID)) {
+        setCompletedVideos(prev => [...prev, selectedVideo.videoID]);
+      }
+    } catch (err) {
+      console.error("Error marking watched", err);
+    }
+  };
 
   const handlePlayAgain = async () => {
     if (playerRef.current) {
       await playerRef.current.setCurrentTime(0);
       playerRef.current.play();
       setIsPlaying(true);
+      setCurrentTime(0);
     }
     setShowPopup(false);
   };
@@ -164,9 +233,16 @@ const SectionVideos = () => {
   const togglePlay = () => {
     if (!playerRef.current) return;
     if (isPlaying) {
-      playerRef.current.pause();
+      playerRef.current.pause().catch(() => { });
+      setIsPlaying(false);
     } else {
-      playerRef.current.play();
+      playerRef.current.play().catch(err => {
+        console.error("Play failed", err);
+      });
+      setIsPlaying(true);
+      // Auto-hide controls faster when manually playing
+      if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
+      controlsTimeoutRef.current = setTimeout(() => setShowControls(false), 2000);
     }
   };
 
@@ -180,9 +256,19 @@ const SectionVideos = () => {
   const handleSeek = (e) => {
     const time = parseFloat(e.target.value);
     setCurrentTime(time);
+    isSeekingRef.current = true;
     if (playerRef.current) {
-      playerRef.current.setCurrentTime(time);
+      playerRef.current.setCurrentTime(time).catch(() => { });
     }
+  };
+
+  const onSeekMouseDown = () => {
+    isSeekingRef.current = true;
+    setIsSeeking(true);
+  };
+  const onSeekMouseUp = () => {
+    setIsSeeking(false);
+    // isSeekingRef will be reset by 'seeked' event from player
   };
 
   const toggleFullScreen = () => {
@@ -210,6 +296,30 @@ const SectionVideos = () => {
     return () => document.removeEventListener("fullscreenchange", handleFsChange);
   }, []);
 
+  const handleMouseMove = () => {
+    setShowControls(true);
+    if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
+    if (isPlaying) {
+      controlsTimeoutRef.current = setTimeout(() => {
+        setShowControls(false);
+      }, 3000);
+    }
+  };
+
+  useEffect(() => {
+    if (isPlaying) {
+      controlsTimeoutRef.current = setTimeout(() => {
+        setShowControls(false);
+      }, 3000);
+    } else {
+      setShowControls(true);
+      if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
+    }
+    return () => {
+      if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
+    };
+  }, [isPlaying]);
+
   const formatTime = (seconds) => {
     if (!seconds) return "00:00";
     const m = Math.floor(seconds / 60);
@@ -232,11 +342,13 @@ const SectionVideos = () => {
       {/* Header Section */}
       <div className="px-6 lg:px-12 py-8">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-end gap-6">
-            <h1 className="text-2xl font-bold tracking-wide">{section?.sectionName || "Section Name"}</h1>
-            <span className="text-lg text-gray-400 font-medium mb-0.5">
-              {currentVideoIndex !== -1 ? currentVideoIndex + 1 : 0} / {videos.length}
-            </span>
+          <div className="flex flex-col gap-2">
+            <div className="flex items-end gap-6">
+              <h1 className="text-2xl font-bold tracking-wide">{section?.sectionName || "Section Name"}</h1>
+              <span className="text-lg text-gray-400 font-medium mb-0.5">
+                {currentVideoIndex !== -1 ? currentVideoIndex + 1 : 0} / {videos.length}
+              </span>
+            </div>
           </div>
 
           <div className="relative w-full md:w-[350px]">
@@ -263,7 +375,7 @@ const SectionVideos = () => {
               <div
                 key={video.videoID}
                 onClick={() => !locked && setSelectedVideo(video)}
-                className={`flex gap-4 p-3 rounded-[16px] border transition-all cursor-pointer group
+                className={`relative flex gap-4 p-3 rounded-[16px] border transition-all cursor-pointer group overflow-hidden
                     ${isSelected
                     ? 'bg-[#1A1A1A] border-[#FF9D00] shadow-[0_0_15px_rgba(255,157,0,0.1)]'
                     : 'bg-[#0A0A0A] border-[#333] hover:border-gray-500'
@@ -299,9 +411,11 @@ const SectionVideos = () => {
               {/* Video Container */}
               <div
                 ref={videoContainerRef}
-                className="relative w-full aspect-video bg-black rounded-[20px] overflow-hidden border border-[#222] shadow-2xl group/player"
+                onMouseMove={handleMouseMove}
+                onMouseLeave={() => isPlaying && setShowControls(false)}
+                className={`relative w-full aspect-video bg-black rounded-[20px] overflow-hidden border border-[#222] shadow-2xl group/player ${isPlaying && !showControls ? 'cursor-none' : ''}`}
               >
-                <div id="vimeo-player" className="w-full h-full pointer-events-none"></div>
+                <div ref={vimeoHostRef} className="w-full h-full pointer-events-none"></div>
 
                 {/* Center Play Button Overlay (visible when paused and not ending) */}
                 {!isPlaying && !showPopup && (
@@ -321,18 +435,23 @@ const SectionVideos = () => {
                 )}
 
                 {/* Custom Control Bar */}
-                <div className={`absolute bottom-0 left-0 right-0 z-20 px-6 py-4 bg-gradient-to-t from-black/90 to-transparent transition-opacity duration-300 ${!isPlaying ? 'opacity-100' : 'opacity-0 group-hover/player:opacity-100'}`}>
+                <div className={`absolute bottom-0 left-0 right-0 z-20 px-6 py-4 bg-gradient-to-t from-black/90 to-transparent transition-opacity duration-300 ${(!isPlaying || showControls) ? 'opacity-100' : 'opacity-0 overlay-shown'}`}>
+
+
 
                   {/* Progress Bar */}
                   <input
                     type="range"
                     min="0"
-                    max={duration || 100}
+                    step="any"
+                    max={duration || 0}
                     value={currentTime}
-                    onChange={handleSeek}
+                    onInput={handleSeek}
+                    onMouseDown={onSeekMouseDown}
+                    onMouseUp={onSeekMouseUp}
                     className="w-full h-1 rounded-lg appearance-none cursor-pointer accent-[#FF9D00] mb-4 hover:h-1.5 transition-all"
                     style={{
-                      background: `linear-gradient(to right, #FF9D00 ${(currentTime / (duration || 1)) * 100}%, rgba(255, 255, 255, 0.2) ${(currentTime / (duration || 1)) * 100}%)`
+                      background: `linear-gradient(to right, #FF9D00 ${(duration > 0 ? (currentTime / duration) * 100 : 0)}%, rgba(255, 255, 255, 0.1) ${(duration > 0 ? (currentTime / duration) * 100 : 0)}%)`
                     }}
                   />
 
@@ -364,46 +483,42 @@ const SectionVideos = () => {
 
                 {/* Popup Overlay within the video area if ended */}
                 {showPopup && (
-                  <div className="absolute inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center">
-                    <div className="text-center p-8 max-w-md w-full">
-                      {(() => {
-                        const isLast = videos.findIndex(v => v.videoID === selectedVideo?.videoID) === videos.length - 1;
-                        return (
-                          <>
-                            <h3 className="text-2xl font-bold text-white mb-2">
-                              {isLast ? "Section Completed!" : "Video Completed"}
-                            </h3>
-                            <p className="text-gray-300 mb-8 text-sm">
-                              {isLast ? "You have finished this section. Ready for the assessment?" : "Would you like to continue to the next video?"}
-                            </p>
+                  <div className="absolute inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center animate-in fade-in duration-500">
+                    <div className="text-center p-8 max-w-lg w-full">
+                      <p className="text-white text-lg font-medium mb-8 leading-relaxed max-w-[340px] mx-auto">
+                        Would you like to continue to the next video or watch this one once more?
+                      </p>
 
-                            <div className="flex gap-4 justify-center">
+                      <div className="flex flex-row items-center justify-center gap-4">
+                        <button
+                          onClick={handlePlayAgain}
+                          className="flex items-center gap-2 px-6 py-2.5 rounded-[12px] border border-white/40 bg-white/5 hover:bg-white/10 transition-all text-sm font-semibold text-white"
+                        >
+                          <RotateCcw size={18} /> Play Again
+                        </button>
+
+                        {(() => {
+                          const isLast = (videos.findIndex(v => v.videoID === selectedVideo?.videoID) === videos.length - 1);
+                          if (isLast) {
+                            return (
                               <button
-                                onClick={handlePlayAgain}
-                                className="flex items-center gap-2 px-6 py-3 rounded-full border border-white/20 hover:bg-white/10 transition-colors text-sm font-medium"
+                                onClick={handleUnlockAssessment}
+                                className="flex items-center gap-2 px-8 py-2.5 rounded-[12px] bg-[#FF9D00] hover:bg-[#E68900] text-black font-bold text-sm transition-all shadow-[0_4px_20px_rgba(255,157,0,0.3)]"
                               >
-                                <RotateCcw size={16} /> Watch Again
+                                Unlock Assessment
                               </button>
-
-                              {isLast ? (
-                                <button
-                                  onClick={handleUnlockAssessment}
-                                  className="px-8 py-3 rounded-full bg-[#FF9D00] hover:bg-[#E68900] text-black font-bold text-sm transition-colors shadow-lg shadow-orange-500/20"
-                                >
-                                  Unlock Assessment
-                                </button>
-                              ) : (
-                                <button
-                                  onClick={handlePlayNext}
-                                  className="px-8 py-3 rounded-full bg-[#FF9D00] hover:bg-[#E68900] text-black font-bold text-sm transition-colors shadow-lg shadow-orange-500/20"
-                                >
-                                  Next Video
-                                </button>
-                              )}
-                            </div>
-                          </>
-                        )
-                      })()}
+                            );
+                          }
+                          return (
+                            <button
+                              onClick={handlePlayNext}
+                              className="flex items-center gap-2 px-8 py-2.5 rounded-[12px] bg-[#FF9D00] hover:bg-[#E68900] text-black font-bold text-sm transition-all shadow-[0_4px_20px_rgba(255,157,0,0.3)]"
+                            >
+                              <Play size={18} className="fill-black" /> Play Next
+                            </button>
+                          );
+                        })()}
+                      </div>
                     </div>
                   </div>
                 )}
