@@ -2,6 +2,8 @@ import { Route, Routes } from 'react-router-dom'
 
 // pages
 import Home from './pages/Home'
+import Discoverus from './pages/Discoverus'
+import HelpCentre from './pages/HelpCentre'
 import StartCourse from './pages/StartCourse'
 import PhoneNUmber from './pages/PhoneNUmber'
 import Faq2 from './pages/Faq2'
@@ -43,6 +45,7 @@ import CourseManagement from './admin/CourseManagement'
 import ProgressTracking from './admin/ProgressTracking'
 import AddCoursePage from './admin/AddCoursePage'
 import Profile from './admin/Profile'
+import UserDetails from './admin/UserDetails'
 
 
 function App() {
@@ -79,6 +82,8 @@ function App() {
           <Route path='/course-section' element={<CourseSection />} />
           <Route path='/course-section/:courseId' element={<CourseSection />} />
           <Route path="/courses/:courseId/sections/:sectionId" element={<SectionVideos />} />
+          <Route path='/discover-us' element={<Discoverus />} />
+          <Route path='/help-centre' element={<HelpCentre />} />
 
         </Route>
 
@@ -89,6 +94,7 @@ function App() {
         <Route element={<AdminProtectedRoute><LayoutC /></AdminProtectedRoute>}>
 
           <Route path='/admin/user-management' element={<UserManagement />} />
+          <Route path='/admin/user-details/:userId' element={<UserDetails />} />
 
           <Route path='/admin/admin-management' element={<AdminManagement />} />
           <Route path='/admin/course-management' element={<CourseManagement />} />

@@ -451,52 +451,44 @@ const Discoverus = () => {
       </div>
 
 
-      <div
-        className="w-auto  sm:w-[1512px] h-[50.28px] sm:h-[120px] overflow-x-auto whitespace-nowrap scroll-smooth flex items-center gap-[20px] px-4 snap-x snap-mandatory mt-0 md:mt-[90px]"
-        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }} // Firefox/IE
-      >
-        {/* Hide scrollbar for WebKit browsers */}
-        <style jsx>{`
-    div::-webkit-scrollbar {
-      display: none;
-    }
-  `}</style>
+      <div className="w-full overflow-hidden mt-0 md:mt-[90px] py-10">
+        <div className="whitespace-nowrap scroll-animation flex gap-[20px]">
+          {[...Array(10)].map((_, i) => (
+            <React.Fragment key={i}>
+              <div className="w-[75.42px] h-[33.52px] sm:w-[180px] sm:h-[80px] bg-white rounded-md flex items-center justify-center shrink-0">
+                <img
+                  src="/IIDM.png"
+                  alt="IIDM"
+                  className="w-[41.9px] h-[41.9px] sm:w-[100px] sm:h-[100px] object-contain"
+                />
+              </div>
 
-        {[...Array(3)].map((_, i) => (
-          <React.Fragment key={i}>
-            <div className="w-[75.42px] h-[33.52px] sm:w-[180px] sm:h-[80px] bg-white rounded-md flex items-center justify-center snap-start shrink-0">
-              <img
-                src="/IIDM.png"
-                alt="IIDM"
-                className="w-[41.9px] h-[41.9px] sm:w-[100px] sm:h-[100px]"
-              />
-            </div>
+              <div className="w-[75.42px] h-[33.52px] sm:w-[180px] sm:h-[80px] bg-white rounded-md flex items-center justify-center shrink-0">
+                <img
+                  src="/Techmindz.png"
+                  alt="Techmindz"
+                  className="w-[41.9px] h-[41.9px] sm:w-[100px] sm:h-[100px] object-contain"
+                />
+              </div>
 
-            <div className="w-[75.42px] h-[33.52px] sm:w-[180px] sm:h-[80px] bg-white rounded-md flex items-center justify-center snap-start shrink-0">
-              <img
-                src="/Techmindz.png"
-                alt="Techmindz"
-                className="w-[41.9px] h-[41.9px] sm:w-[100px] sm:h-[100px]"
-              />
-            </div>
+              <div className="w-[75.42px] h-[33.52px] sm:w-[180px] sm:h-[80px] bg-white rounded-md flex items-center justify-center shrink-0">
+                <img
+                  src="/Luminar.png"
+                  alt="Luminar"
+                  className="w-[41.9px] h-[41.9px] sm:w-[100px] sm:h-[100px] object-contain"
+                />
+              </div>
 
-            <div className="w-[75.42px] h-[33.52px] sm:w-[180px] sm:h-[80px] bg-white rounded-md flex items-center justify-center snap-start shrink-0">
-              <img
-                src="/Luminar.png"
-                alt="Luminar"
-                className="w-[41.9px] h-[41.9px] sm:w-[100px] sm:h-[100px]"
-              />
-            </div>
-
-            <div className="w-[75.42px] h-[33.52px] sm:w-[180px] sm:h-[80px] bg-white rounded-md flex items-center justify-center snap-start shrink-0">
-              <img
-                src="/trademaxacademy.png"
-                alt="Trademax Academy"
-                className="w-[41.9px] h-[41.9px] sm:w-[100px] sm:h-[100px]"
-              />
-            </div>
-          </React.Fragment>
-        ))}
+              <div className="w-[75.42px] h-[33.52px] sm:w-[180px] sm:h-[80px] bg-white rounded-md flex items-center justify-center shrink-0">
+                <img
+                  src="/trademaxacademy.png"
+                  alt="Trademax Academy"
+                  className="w-[41.9px] h-[41.9px] sm:w-[100px] sm:h-[100px] object-contain"
+                />
+              </div>
+            </React.Fragment>
+          ))}
+        </div>
       </div>
 
 

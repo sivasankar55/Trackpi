@@ -8,7 +8,11 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    if (token) {
+    // Prevent fetching user profile if we are on an admin route
+    // Admin profile is handled separately by AdminAuthContext
+    const isAdminRoute = window.location.pathname.startsWith('/admin');
+
+    if (token && !isAdminRoute) {
       axios.get('http://localhost:5000/api/users/me', {
         headers: { Authorization: `Bearer ${token}` }
       })

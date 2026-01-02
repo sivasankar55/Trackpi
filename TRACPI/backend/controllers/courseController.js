@@ -1,5 +1,38 @@
 import Course from '../models/Course.js';
 import Section from '../models/Section.js';
+import Enrollment from '../models/Enrollment.js';
+
+export const getCourseStats = async (req, res) => {
+  try {
+    const totalCourses = await Course.countDocuments();
+    const allSections = await Section.find();
+
+    const totalSections = allSections.length;
+    let totalUnits = 0;
+    allSections.forEach(s => {
+      totalUnits += (s.units?.length || 0);
+    });
+
+    // Estimate total hours: 15 mins per unit
+    const totalMinutes = totalUnits * 15;
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    const formattedHours = `${hours}:${minutes.toString().padStart(2, '0')}`;
+
+    const currentStudents = (await Enrollment.distinct('user')).length;
+
+    res.json({
+      totalCourses,
+      totalSections,
+      totalUnits,
+      totalHours: formattedHours,
+      currentStudents
+    });
+  } catch (error) {
+    console.error("Error getting course stats:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
 
 export const createCourse = async (req, res) => {
   try {
@@ -20,11 +53,12 @@ export const createCourse = async (req, res) => {
 
       for (const sectionData of sections) {
         // Map units from frontend structure to backend schema
-        const mappedUnits = (sectionData.units || []).map(unit => ({
-          unitName: unit.name || unit.unitName,
-          unitDescription: unit.description || unit.unitDescription,
-          videoID: unit.videoId || unit.videoID
-        }));
+        const mappedUnits = (sectionData.units || []).map(unit =
+          ({
+            unitName: unit.name || unit.unitName,
+            unitDescription: unit.description || unit.unitDescription,
+            videoID: unit.videoId || unit.videoID
+          }));
 
         // Create new Section linked to this course
         const newSection = new Section({
