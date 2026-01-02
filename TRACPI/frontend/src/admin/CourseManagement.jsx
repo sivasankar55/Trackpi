@@ -88,10 +88,10 @@ const CourseManagement = () => {
 
     return (
         <div className="min-h-full bg-white w-full font-['Poppins'] pb-12 relative">
-            {/* Top Navigation Bar - Sticky Fixed to top of content area */}
-            <div className="sticky top-0 z-[100] flex justify-between items-center px-4 sm:px-10 py-4 sm:py-5 bg-white border-b border-gray-100 shadow-sm w-full">
-                <div className="flex items-center gap-3 sm:gap-10 flex-1">
-                    {/* Dashboard Title with 4-square icon */}
+            {/* Top Navigation Bar */}
+            <div className="sticky top-0 z-[1000] flex justify-between items-center px-4 sm:px-10 py-4 sm:py-5 bg-white shadow-md">
+                {/* Left: Dashboard Title + Search */}
+                <div className="flex items-center gap-8 flex-1">
                     <div className="flex items-center gap-3">
                         <div className="grid grid-cols-2 gap-0.5">
                             <div className="w-2.5 h-2.5 rounded-[2px] bg-[#333]"></div>
