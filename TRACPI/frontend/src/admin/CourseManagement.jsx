@@ -87,9 +87,9 @@ const CourseManagement = () => {
     );
 
     return (
-        <div className="min-h-[960px] bg-white w-full font-['Poppins']">
+        <div className="min-h-full bg-white w-full font-['Poppins'] pb-12 relative">
             {/* Top Navigation Bar */}
-            <div className="sticky top-0 z-[1000] flex justify-between items-center px-10 py-8 bg-white shadow-md">
+            <div className="sticky top-0 z-[1000] flex justify-between items-center px-4 sm:px-10 py-4 sm:py-5 bg-white shadow-md">
                 {/* Left: Dashboard Title + Search */}
                 <div className="flex items-center gap-8 flex-1">
                     <div className="flex items-center gap-3">
@@ -131,7 +131,7 @@ const CourseManagement = () => {
                 </div>
             </div>
 
-            <div className="px-10 pb-10">
+            <div className="px-10 pb-10 mt-12">
                 {/* Stats Row */}
                 <div className="flex justify-between gap-6 mb-10 w-full">
                     <StatsCard title="Total Courses" value={courses.length} />

@@ -6,11 +6,13 @@ import StartCourse from './pages/StartCourse'
 import PhoneNUmber from './pages/PhoneNUmber'
 import Faq2 from './pages/Faq2'
 import AssessmentPage from './pages/AssessmentPage'
-// import AssessmentFirstPopup from "./Pages/AssessmentFirstPopup"
+import AssessmentFirstPopup from "./pages/AssessmentFirstPopup"
 import AssessmentPassedPopup from "./pages/AssessmentPassedPopup"
 import AssessmentFailedPopup from "./pages/AssessmentFailedPopup"
 import AssessmentTimeUpPopup from './pages/AssessmentTimeUpPopup'
 import AssessmentTimeUpCongrats from './pages/AssessmentTimeupCongrats'
+import Assessment from './components/Assessment';
+import AssessmentBubble from './pages/AssessmentBubble'
 
 
 
@@ -63,12 +65,14 @@ function App() {
           <Route path='/faq' element={<Faq2 />} />
 
           {/* Assessment Flow */}
-          {/* <Route path='/assessment/start' element={<AssessmentFirstPopup />} /> */}
+          <Route path='/assessment/start' element={<AssessmentFirstPopup />} />
           <Route path='/assessment/passed' element={<AssessmentPassedPopup />} />
           <Route path='/assessment/failed' element={<AssessmentFailedPopup />} />
           <Route path='/assessment/time-up' element={<AssessmentTimeUpPopup />} />
           <Route path='/assessment/congrats' element={<AssessmentTimeUpCongrats />} />
           <Route path='/assessment/:courseId/:sectionId' element={<AssessmentPage />} />
+          <Route path="/assessment/main" element={<Assessment />} />
+
 
 
           {/* Course Routes */}
@@ -91,7 +95,7 @@ function App() {
           <Route path='/admin/progress-tracking' element={<ProgressTracking />} />
           <Route path='/admin/progress-tracking/details' element={<CourseProgressDetails />} />
           <Route path='/admin/add-course' element={<AddCoursePage />} />
-          <Route path='/admin/profile' element={<Profile />} /> 
+          <Route path='/admin/profile' element={<Profile />} />
 
 
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
