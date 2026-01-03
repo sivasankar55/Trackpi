@@ -46,6 +46,7 @@ import ProgressTracking from './admin/ProgressTracking'
 import AddCoursePage from './admin/AddCoursePage'
 import Profile from './admin/Profile'
 import UserDetails from './admin/UserDetails'
+import FormManagement from './admin/FormManagement'
 
 
 function App() {
@@ -95,6 +96,7 @@ function App() {
 
           <Route path='/admin/user-management' element={<UserManagement />} />
           <Route path='/admin/user-details/:userId' element={<UserDetails />} />
+          <Route path='/admin/form-management' element={<FormManagement />} />
 
           <Route path='/admin/admin-management' element={<AdminManagement />} />
           <Route path='/admin/course-management' element={<CourseManagement />} />

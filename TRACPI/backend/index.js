@@ -12,6 +12,7 @@ import userRoutes from './routes/userRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import enrollmentRoutes from './routes/enrollmentRoutes.js';
 import userProgressRoutes from './routes/userProgressRoutes.js';
+import contactRoutes from './routes/contactRoutes.js';
 
 
 dotenv.config();
@@ -52,6 +53,7 @@ app.use('/api/questions', questionRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/enrollments', enrollmentRoutes);
 app.use('/api/progress', userProgressRoutes);
+app.use('/api/contact', contactRoutes);
 app.use('/auth', authRoutes);
 
 app.get('/auth/google', (req, res) => {
@@ -59,9 +61,9 @@ app.get('/auth/google', (req, res) => {
 });
 
 app.get('/', (req, res) => {
-    res.send("hello world")
+  res.send("hello world")
 })
 
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-  }); 
+  console.log(`Server is running on port ${PORT}`);
+}); 

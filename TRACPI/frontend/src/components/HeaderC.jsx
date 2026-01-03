@@ -11,6 +11,7 @@ import {
   FaUser,
   FaCog,
   FaSignOutAlt,
+  FaWpforms,
 } from 'react-icons/fa';
 
 import Logo from '../assets/targetpi logo.png'; // adjust if file is in different folder
@@ -28,6 +29,7 @@ const HeaderC = () => {
     { icon: <FaUsers size={22} />, label: 'User Management', path: '/admin/user-management' },
     { icon: <FaChalkboardTeacher size={22} />, label: 'Course Management', path: '/admin/course-management' },
     { icon: <FaChartBar size={22} />, label: 'Progress Tracking', path: '/admin/progress-tracking' },
+    { icon: <FaWpforms size={22} />, label: 'Form Management', path: '/admin/form-management' },
     { icon: <FaCommentDots size={22} />, label: 'Feedback', path: '/feedback' },
   ];
 

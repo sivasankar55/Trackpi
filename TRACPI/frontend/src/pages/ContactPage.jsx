@@ -1,4 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
+import axios from 'axios';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import hero from '../assets/hero.png';
 import facebook from '../assets/facebook.png';
 import instagram from '../assets/instagram.png';
@@ -8,6 +11,53 @@ import mLogo from '../assets/mLogo.png';
 import search from '../assets/search.png';
 
 const ContactPage = () => {
+  const [formData, setFormData] = useState({
+    fullName: '',
+    contactNumber: '',
+    email: '',
+    location: '',
+    hearAboutUs: '',
+    message: ''
+  });
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.post('http://localhost:5000/api/contact', formData);
+      toast.success('Message sent successfully!', {
+        style: {
+          background: '#2D1D29',
+          color: '#FF9D00',
+          border: '1px solid #FF9D00',
+        },
+        progressStyle: {
+          background: '#FF9D00'
+        }
+      });
+      setFormData({
+        fullName: '',
+        contactNumber: '',
+        email: '',
+        location: '',
+        hearAboutUs: '',
+        message: ''
+      });
+    } catch (error) {
+      console.error(error);
+      toast.error('Failed to send message. Please try again.', {
+        style: {
+          background: '#2D1D29',
+          color: '#FF4545',
+          border: '1px solid #FF4545',
+        }
+      });
+    }
+  };
+
   return (
     <div className="w-full min-h-screen bg-[#2D1D29]">
       {/* Hero Section */}
@@ -84,34 +134,55 @@ const ContactPage = () => {
             effective, human, and equitable amidst growing uncertainty.
           </p>
 
-          <form className="space-y-4">
+          <ToastContainer position="top-right" autoClose={3000} />
+          <form className="space-y-4" onSubmit={handleSubmit}>
             <input
               type="text"
               placeholder="Full Name"
+              name="fullName"
+              value={formData.fullName}
+              onChange={handleChange}
+              required
               className="w-full p-3 rounded-md bg-white text-black outline-none"
             />
             <input
               type="text"
               placeholder="Contact Number"
+              name="contactNumber"
+              value={formData.contactNumber}
+              onChange={handleChange}
+              required
               className="w-full p-3 rounded-md bg-white text-black outline-none"
             />
             <input
               type="email"
               placeholder="Email Address"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
               className="w-full p-3 rounded-md bg-white text-black outline-none"
             />
             <input
               type="text"
               placeholder="Where Are You Located"
+              name="location"
+              value={formData.location}
+              onChange={handleChange}
               className="w-full p-3 rounded-md bg-white text-black outline-none"
             />
 
             <div className="relative">
-              <select className="w-full p-3 rounded-md bg-white text-gray-500 outline-none appearance-none">
-                <option>How Did You Hear About Us?</option>
-                <option>Social Media</option>
-                <option>Friend</option>
-                <option>Other</option>
+              <select
+                name="hearAboutUs"
+                value={formData.hearAboutUs}
+                onChange={handleChange}
+                className="w-full p-3 rounded-md bg-white text-gray-500 outline-none appearance-none"
+              >
+                <option value="">How Did You Hear About Us?</option>
+                <option value="Social Media">Social Media</option>
+                <option value="Friend">Friend</option>
+                <option value="Other">Other</option>
               </select>
               <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
                 <svg
@@ -130,6 +201,10 @@ const ContactPage = () => {
             <textarea
               placeholder="Message"
               rows="4"
+              name="message"
+              value={formData.message}
+              onChange={handleChange}
+              required
               className="w-full p-3 rounded-md bg-white text-black outline-none resize-none"
             ></textarea>
 
