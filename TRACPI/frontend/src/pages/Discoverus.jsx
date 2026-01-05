@@ -2,6 +2,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 
 const Discoverus = () => {
+  const navigate = useNavigate()
   return (
     <div className="main-wrapper">
       {/* Hero Section */}

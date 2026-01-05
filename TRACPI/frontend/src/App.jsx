@@ -22,6 +22,7 @@ import FeedbackForm from './components/FeedbackForm'
 
 // components
 import ContactPage from './pages/ContactPage'
+import ScrollToTop from './components/ScrollToTop'
 
 // admin components
 import CourseProgressDetails from './admin/CourseProgressDetails'
@@ -54,6 +55,7 @@ import FormManagement from './admin/FormManagement'
 function App() {
   return (
     <>
+      <ScrollToTop />
       <Routes>
         {/* Layout A */}
         <Route element={<LayoutA />}>
