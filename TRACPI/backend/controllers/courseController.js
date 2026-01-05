@@ -120,4 +120,60 @@ export const deleteCourseById = async (req, res) => {
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
+};
+
+export const getAllCoursesWithGlobalStats = async (req, res) => {
+  try {
+    const courses = await Course.find().populate('sections');
+    const allEnrollments = await Enrollment.find();
+
+    const globalStats = {
+      totalEnrolled: allEnrollments.length,
+      notStarted: 0,
+      completed: 0,
+      inProgress: 0
+    };
+
+    allEnrollments.forEach(e => {
+      if (e.progress === 0) globalStats.notStarted++;
+      else if (e.progress === 100) globalStats.completed++;
+      else globalStats.inProgress++;
+    });
+
+    const coursesWithStats = courses.map(course => {
+      const courseEnrollments = allEnrollments.filter(e => e.course.toString() === course._id.toString());
+
+      const completedCount = courseEnrollments.filter(e => e.progress === 100).length;
+      const inProgressCount = courseEnrollments.filter(e => e.progress > 0 && e.progress < 100).length;
+
+      let totalUnits = 0;
+      if (course.sections) {
+        course.sections.forEach(s => totalUnits += (s.units?.length || 0));
+      }
+      // estimated 15 mins per unit
+      const totalMinutes = totalUnits * 15;
+      const hours = Math.floor(totalMinutes / 60);
+      const minutes = totalMinutes % 60;
+      // Format duration, e.g. "2 Hours" or "2h 30m" -> Keeping it simple as per UI "5 Hours"
+      const duration = hours > 0 ? `${hours} Hours` : `${minutes} Mins`;
+
+      return {
+        ...course.toObject(),
+        stats: {
+          completed: completedCount,
+          inProgress: inProgressCount
+        },
+        duration: duration
+      };
+    });
+
+    res.json({
+      globalStats,
+      courses: coursesWithStats
+    });
+
+  } catch (error) {
+    console.error("Error getting courses with stats:", error);
+    res.status(500).json({ error: error.message });
+  }
 }; 
