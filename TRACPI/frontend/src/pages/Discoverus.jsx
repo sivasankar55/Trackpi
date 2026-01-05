@@ -1,6 +1,8 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom'
 
 const Discoverus = () => {
+  const navigate = useNavigate()
   return (
     <div className="main-wrapper">
       {/* Hero Section */}
@@ -29,7 +31,9 @@ const Discoverus = () => {
             Trackpi is building Kerala’s largest freelance community, where anyone can join instantly upon completing their freelance course. Focused on innovation and client-centric excellence, Trackpi empowers businesses and individuals for sustainable success.
           </p>
           <div className="button-group mt-7 flex flex-wrap sm:flex-nowrap justify-center sm:justify-start gap-5 w-full sm:w-auto">
-            <button className="bg-yellow-600 px-4 md:px-6 py-3 rounded-md font-bold text-white hover:bg-yellow-700 transition whitespace-nowrap">
+            <button
+              onClick={() => navigate('/help-centre')}
+              className="bg-yellow-600 px-4 md:px-6 py-3 rounded-md font-bold text-white hover:bg-yellow-700 transition whitespace-nowrap">
               Let's Connect
             </button>
             <button className="bg-yellow-600 px-4 md:px-6 py-3 rounded-md font-bold text-white hover:bg-yellow-700 transition whitespace-nowrap">
