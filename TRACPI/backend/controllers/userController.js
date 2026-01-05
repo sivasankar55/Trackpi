@@ -116,6 +116,7 @@ export const updateUser = async (req, res) => {
   }
 };
 
+
 // Delete user (authenticated)
 export const deleteUser = async (req, res) => {
   try {

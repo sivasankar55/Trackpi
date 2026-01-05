@@ -1,22 +1,19 @@
 import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import TrashIcon from '../assets/trash.png';
-import EditIcon from '../assets/edit.png';
-import LockIcon from '../assets/lock.png';
-import SearchIcon from '../assets/search2.png';
+import { Search } from 'lucide-react';
 import CourseImage from '../assets/course.png';
 
 const ProgressTracking = ({ onEditAdmin }) => {
   const navigate = useNavigate();
-  const itemsPerPage = 8;
+  const itemsPerPage = 10; // Updated to match grid size likely
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [admins, setAdmins] = useState([]);
+  const [admins, setAdmins] = useState([]); // Kept for potential future use or if this page evolves
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // Fetch admins from API
+  // Fetch admins from API (Kept as placeholder logic from original file)
   useEffect(() => {
     const fetchAdmins = async () => {
       try {
@@ -38,514 +35,138 @@ const ProgressTracking = ({ onEditAdmin }) => {
     fetchAdmins();
   }, []);
 
-  // Filter admins based on search term
-  const filteredAdmins = admins.filter(
-    (admin) =>
-      admin.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      admin.fullname?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      admin.email?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const indexOfLast = currentPage * itemsPerPage;
-  const indexOfFirst = indexOfLast - itemsPerPage;
-  const currentAdmins = filteredAdmins.slice(indexOfFirst, indexOfLast);
-
-  const totalPages = Math.ceil(filteredAdmins.length / itemsPerPage);
+  const totalPages = 5; // Hardcoded for UI demo as per image
 
   const handleSearch = (term) => {
     setSearchTerm(term);
-    setCurrentPage(1); // Reset to first page when searching
+    setCurrentPage(1);
   };
 
+  // Mock data for display to match image
+  const courses = Array(10).fill({
+    name: 'Course Name',
+    duration: '3 Hours',
+    completed: 10,
+    inProgress: 8
+  });
+
   return (
-    <div className="admin-management p-6 text-black">
-      {/* Error Message */}
-      {error && (
-        <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
-          {error}
-        </div>
-      )}
+    <div className="p-6 md:p-8 min-h-screen bg-transparent font-['Poppins']">
 
-      {/* Loading State */}
-      {loading && (
-        <div className="mb-4 p-4 bg-blue-100 border border-blue-400 text-blue-700 rounded">
-          Loading admin data...
-        </div>
-      )}
+      {/* Stats Cards Section */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+        {[
+          { label: 'Total Users Enrolled', count: '332', icon: 'users' },
+          { label: 'Not Started Yet', count: '50', icon: 'clock' },
+          { label: 'Total Users completed', count: '332', icon: 'check' },
+          { label: 'Total Users InProgress', count: '332', icon: 'play' }
+        ].map((stat, index) => (
+          <div
+            key={index}
+            className="bg-[#FFF1CF] border border-[#FF9D00] rounded-lg p-6 flex flex-col items-center justify-center shadow-md relative overflow-hidden"
+          >
+            {/* Decorative Icons/Shapes mimicking the image */}
+            <div className="flex gap-2 mb-3">
+              <div className="w-6 h-6 bg-black rounded-full flex items-center justify-center">
+                <div className="w-2.5 h-2.5 bg-white rounded-full"></div>
+              </div>
+              <div className="w-6 h-6 bg-black rounded-full flex items-center justify-center">
+                <div className="w-2.5 h-2.5 bg-white rounded-full"></div>
+              </div>
+            </div>
 
-      {/* Top Controls - Sticky */}
-      <div className="sticky top-0 z-[1000] bg-white -mx-6 px-6 py-4 mb-4 shadow-sm flex justify-between items-center">
-        {/* Search Input with Icon on Right */}
-        {/* <div className="relative" style={{ width: "330px", height: "44px" }}>
-                    <input
-                        type="text"
-                        placeholder="Search"
-                        className="w-full h-full pr-10 pl-[10px] py-[13px] rounded-[10px] border border-[#FFB300] bg-white text-black placeholder-gray-500 focus:outline-none focus:ring-0 focus:border-[#FFB300]"
-                    />
-                    <img
-                        src={SearchIcon}
-                        alt="Search Icon"
-                        className="w-5 h-5 absolute right-[10px] top-1/2 transform -translate-y-1/2 pointer-events-none"
-                    />
-                </div> */}
-        <div className="relative" style={{ width: '330px', height: '44px' }}>
+            <div className="text-sm font-medium text-black mb-1 text-center">{stat.label}</div>
+            <div className="text-2xl font-bold text-black">{stat.count}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Search Bar Section */}
+      <div className="mb-8 w-full max-w-2xl">
+        <div className="relative flex items-center w-full h-12 bg-[#FF9D00] rounded px-4 shadow-sm border border-[#e68e00]">
+          <Search className="w-5 h-5 text-white mr-3" />
           <input
             type="text"
-            placeholder="Search"
+            placeholder="Search by student name, course..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full h-full pr-10 pl-[10px] py-[13px] rounded-[10px] border border-[#FFB300] bg-white text-black placeholder-gray-500 focus:outline-none focus:ring-0 focus:border-[#FFB300]"
+            onChange={(e) => handleSearch(e.target.value)}
+            className="w-full bg-transparent border-none text-white placeholder-white/80 focus:ring-0 text-sm font-light"
           />
-          <button
-            onClick={() => handleSearch(searchTerm)} // Optional if needed for trigger
-            className="absolute right-[10px] top-1/2 transform -translate-y-1/2"
-          >
-            <img src={SearchIcon} alt="Search Icon" className="w-5 h-5" />
-          </button>
-        </div>
-
-        {/* Filter & Export Buttons */}
-        <div className="flex gap-2">
-          <button
-            onClick={() => window.location.reload()}
-            className="bg-white border px-4 py-2 rounded hover:bg-gray-50"
-          >
-            Refresh
-          </button>
-
-          <button className="bg-white border px-4 py-2 rounded">Filter</button>
-          <button className="bg-red-600 text-white px-4 py-2 rounded shadow-md">
-            Export
-          </button>
         </div>
       </div>
 
-      {/* Table */}
-      {/* <div className="overflow-x-auto w-[1334px] max-h-full p-[30px] rounded-[20px] bg-white shadow border border-[#FFB300]">
-        <table className="w-full text-left border-separate border-spacing-y-3">
-          <thead className="bg-[#FFB300] text-white h-[60px]">
-            <tr>
-              <th className="px-4 py-2 rounded-tl-[10px] rounded-bl-[10px]">
-                User Name
-              </th>
-              <th className="px-4 py-2">Admin Name</th>
-              <th className="px-4 py-2">Email ID</th>
-              <th className="px-4 py-2">Admin Role</th>
-              <th className="px-4 py-2">Last Login</th>
-              <th className="px-4 py-2 rounded-tr-[10px] rounded-br-[10px]">
-                Action
-              </th>
-            </tr>
-          </thead>
+      {/* Course Grid Section */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-12">
+        {courses.map((course, index) => (
+          <div
+            key={index}
+            className="bg-[#FFF1CF] border border-[#FF9D00] rounded-[15px] overflow-hidden flex flex-col h-full shadow-sm hover:shadow-md transition-shadow"
+          >
+            {/* Card Image Area */}
+            <div className="h-40 bg-gradient-to-br from-indigo-900 to-black p-4 flex items-center justify-center relative">
+              {/* Placeholder for the illustration in the image */}
+              <img src={CourseImage} alt="Course" className="w-full h-full object-contain" />
+            </div>
 
-          <tbody>
-            {currentAdmins.length === 0 ? (
-              <tr>
-                <td colSpan="6" className="px-4 py-8 text-center text-gray-500">
-                  {loading ? 'Loading...' : 'No admins found'}
-                </td>
-              </tr>
-            ) : (
-              currentAdmins.map((admin, idx) => (
-                <tr
-                  key={idx}
-                  className={`h-[64px] border border-[#FFB300] ${
-                    idx % 2 === 0 ? 'bg-[#FFF1CF]' : 'bg-white'
-                  }`}
-                  style={{ borderRadius: '5px', overflow: 'hidden' }}
+            {/* Card Content */}
+            <div className="p-4 flex flex-col flex-1">
+              <div className="flex justify-between items-start mb-2">
+                <h3 className="font-bold text-black text-sm">{course.name}</h3>
+                <span className="text-[10px] text-black shrink-0 mt-0.5">{course.duration}</span>
+              </div>
+
+              <div className="space-y-1 mb-4 flex-1">
+                <p className="text-[11px] text-black">Completed: {course.completed}</p>
+                <p className="text-[11px] text-black">InProgress: {course.inProgress}</p>
+              </div>
+
+              <div className="flex justify-center mt-auto">
+                <button
+                  onClick={() => navigate('/admin/progress-tracking/details')}
+                  className="bg-[#FFB300] text-white text-[10px] font-medium py-2 px-6 rounded-full border border-[#FF9D00] shadow-[0px_0px_4px_1px_rgba(255,157,0,0.5)] active:scale-95 transition-transform"
                 >
-                  <td className="px-4 py-2 rounded-l-[5px]">
-                    <input
-                      type="radio"
-                      className="mr-2 accent-black border-black"
-                    />
-                    {admin.username}
-                  </td>
-                  <td className="px-4 py-2">{admin.fullname}</td>
-                  <td className="px-4 py-2">{admin.email}</td>
-                  <td className="px-4 py-2 ">
-                    <span className="bg-[#FFB30080] px-2 py-1 rounded-3xl text-sm">
-                      {admin.adminType}
-                    </span>
-                  </td>
-                  <td className="px-4 py-2">
-                    <span className="bg-[#FFC33480] px-2 py-1 rounded-3xl text-sm">
-                      {admin.lastLogin || 'Never'}
-                    </span>
-                  </td>
-                  <td className="px-4 py-2 flex gap-3 items-center rounded-r-[5px]">
-                    <button
-                      className="w-5 h-5"
-                      onClick={() => navigate('/admin/delete')}
-                    >
-                      <img
-                        src={TrashIcon}
-                        alt="Delete"
-                        className="w-full h-full object-contain"
-                      />
-                    </button>
-                    <button
-                      className="w-5 h-5"
-                      onClick={() => onEditAdmin && onEditAdmin(admin)}
-                    >
-                      <img
-                        src={EditIcon}
-                        alt="Edit"
-                        className="w-full h-full object-contain"
-                      />
-                    </button>
-                    <button className="w-5 h-5">
-                      <img
-                        src={LockIcon}
-                        alt="Lock"
-                        className="w-full h-full object-contain"
-                      />
-                    </button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div> */}
+                  More info
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
 
       {/* Pagination */}
-      <div className="flex justify-between items-center mt-4">
-        {/* Previous Button on Left */}
-        <div>
-          <button
-            className="bg-[#FFF0CE] text-black rounded-[6px] shadow-[0px_0px_6px_0px_rgba(0,0,0,0.3)] px-[48px] py-[0px] w-[158px] h-[40px] disabled:opacity-50"
-            disabled={currentPage === 1}
-            onClick={() => setCurrentPage(currentPage - 1)}
-          >
-            Previous
-          </button>
-        </div>
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+        <button
+          className="px-8 py-2 bg-[#FFF0CE] rounded shadow-sm text-sm font-medium disabled:opacity-50"
+          disabled={currentPage === 1}
+          onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+        >
+          Previous
+        </button>
 
-        {/* Page Numbers in Center */}
-        <div className="w-[265px] h-[40px] flex items-center justify-center gap-4 backdrop-blur-[500px]">
-          {[...Array(totalPages)].map((_, i) => (
+        <div className="flex gap-2">
+          {[1, 2, 3, 4, 5].map(pageNum => (
             <button
-              key={i + 1}
-              onClick={() => setCurrentPage(i + 1)}
-              className={`px-3 py-1 rounded ${currentPage === i + 1
-                ? 'bg-yellow-500 text-white'
-                : 'bg-yellow-100'
+              key={pageNum}
+              onClick={() => setCurrentPage(pageNum)}
+              className={`w-8 h-8 flex items-center justify-center rounded text-sm font-bold transition-colors ${currentPage === pageNum
+                  ? 'bg-[#FF9D00] text-black'
+                  : 'text-black hover:bg-black/5'
                 }`}
             >
-              {i + 1}
+              {pageNum}
             </button>
           ))}
         </div>
 
-        {/* Next Button on Right */}
-        <div>
-          <button
-            className="bg-[#FF9D00] text-black rounded-[6px] border border-[#FF9D00] shadow-[0px_1px_5px_0px_rgba(0,0,0,0.3)] px-[63px] py-[0px] w-[158px] h-[40px] disabled:opacity-50"
-            disabled={currentPage === totalPages}
-            onClick={() => setCurrentPage(currentPage + 1)}
-          >
-            Next
-          </button>
-        </div>
+        <button
+          className="px-8 py-2 bg-[#FF9D00] rounded shadow-sm text-sm font-bold text-black disabled:opacity-50"
+          disabled={currentPage === totalPages}
+          onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+        >
+          Next
+        </button>
       </div>
 
-      {/* Stats Cards Section */}
-      <div className="flex gap-[58px] mt-8 justify-center">
-        {/* Card 1: Total Users Enrolled */}
-        <div
-          style={{
-            width: '278px',
-            height: '90px',
-            borderRadius: '5px',
-            borderWidth: '1px',
-            paddingTop: '20px',
-            paddingRight: '40px',
-            paddingBottom: '20px',
-            paddingLeft: '40px',
-            gap: '10px',
-            background: '#FFF1CFCC',
-            border: '1px solid var(--dark-orange, #FF9D00)',
-            backdropFilter: 'blur(100px)',
-            boxShadow:
-              '2px 2px 10px 0px #00000040, 1px 1px 10px 0px #FFB30080 inset'
-          }}
-          className="flex flex-col items-center justify-center"
-        >
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-6 h-6 bg-black rounded-full flex items-center justify-center">
-              <div className="w-3 h-3 bg-white rounded-full"></div>
-            </div>
-            <div className="w-6 h-6 bg-black rounded-full flex items-center justify-center">
-              <div className="w-3 h-3 bg-white rounded-full"></div>
-            </div>
-          </div>
-          <div className="text-center">
-            <div className="text-sm text-black mb-1">Total Users Enrolled</div>
-            <div className="text-2xl font-bold text-black">332</div>
-          </div>
-        </div>
-
-        {/* Card 2: Not Started Yet */}
-        <div
-          style={{
-            width: '278px',
-            height: '90px',
-            borderRadius: '5px',
-            borderWidth: '1px',
-            paddingTop: '20px',
-            paddingRight: '40px',
-            paddingBottom: '20px',
-            paddingLeft: '40px',
-            gap: '10px',
-            background: '#FFF1CFCC',
-            border: '1px solid #0066CC',
-            backdropFilter: 'blur(100px)',
-            boxShadow:
-              '2px 2px 10px 0px #00000040, 1px 1px 10px 0px #FFB30080 inset'
-          }}
-          className="flex flex-col items-center justify-center"
-        >
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-6 h-6 bg-black rounded-full flex items-center justify-center relative">
-              <div className="w-3 h-3 bg-white rounded-full"></div>
-              <div className="w-3 h-3 bg-white rounded-full"></div>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-4 h-0.5 bg-red-500 rotate-45"></div>
-                <div className="w-4 h-0.5 bg-red-500 -rotate-45 absolute"></div>
-              </div>
-            </div>
-          </div>
-          <div className="text-center">
-            <div className="text-sm text-black mb-1">Not Started Yet</div>
-            <div className="text-2xl font-bold text-black">50</div>
-          </div>
-        </div>
-
-        {/* Card 3: Total Users Completed */}
-        <div
-          style={{
-            width: '278px',
-            height: '90px',
-            borderRadius: '5px',
-            borderWidth: '1px',
-            paddingTop: '20px',
-            paddingRight: '40px',
-            paddingBottom: '20px',
-            paddingLeft: '40px',
-            gap: '10px',
-            background: '#FFF1CFCC',
-            border: '1px solid #0066CC',
-            backdropFilter: 'blur(100px)',
-            boxShadow:
-              '2px 2px 10px 0px #00000040, 1px 1px 10px 0px #FFB30080 inset'
-          }}
-          className="flex flex-col items-center justify-center relative"
-        >
-          <div
-            style={{
-              position: 'absolute',
-              top: '10px',
-              left: '10px',
-              right: '10px',
-              bottom: '10px',
-              border: '2px dotted #0066CC',
-              borderRadius: '3px'
-            }}
-            className="pointer-events-none"
-          ></div>
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-6 h-6 bg-black rounded-full flex items-center justify-center">
-              <div className="w-3 h-3 bg-white rounded-full"></div>
-            </div>
-            <div className="w-6 h-6 bg-black rounded-full flex items-center justify-center">
-              <div className="w-3 h-3 bg-white rounded-full"></div>
-            </div>
-          </div>
-          <div className="text-center">
-            <div className="text-sm text-black mb-1">Total Users completed</div>
-            <div className="text-2xl font-bold text-black">332</div>
-          </div>
-        </div>
-
-        {/* Card 4: Total Users InProgress */}
-        <div
-          style={{
-            width: '278px',
-            height: '90px',
-            borderRadius: '5px',
-            borderWidth: '1px',
-            paddingTop: '20px',
-            paddingRight: '40px',
-            paddingBottom: '20px',
-            paddingLeft: '40px',
-            gap: '10px',
-            background: '#FFF1CFCC',
-            border: '1px solid var(--dark-orange, #FF9D00)',
-            backdropFilter: 'blur(100px)',
-            boxShadow:
-              '2px 2px 10px 0px #00000040, 1px 1px 10px 0px #FFB30080 inset'
-          }}
-          className="flex flex-col items-center justify-center"
-        >
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-6 h-6 bg-black rounded-full flex items-center justify-center">
-              <div className="w-3 h-3 bg-white rounded-full"></div>
-            </div>
-            <div className="w-6 h-6 bg-black rounded-full flex items-center justify-center">
-              <div className="w-3 h-3 bg-white rounded-full"></div>
-            </div>
-          </div>
-          <div className="text-center">
-            <div className="text-sm text-black mb-1">
-              Total Users InProgress
-            </div>
-            <div className="text-2xl font-bold text-black">332</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Search Box Section */}
-      <div className="flex justify-start mt-8">
-        <div
-          style={{
-            width: '539px',
-            height: '34px',
-            borderRadius: '2px',
-            borderWidth: '1px',
-            paddingTop: '9px',
-            paddingRight: '7px',
-            paddingBottom: '9px',
-            paddingLeft: '7px',
-            gap: '10px',
-            background: 'var(--dark-orange, #FF9D00)',
-            border: '1px solid var(--darker-orange, #BB6002)',
-            boxShadow:
-              '2px 2px 10px 0px #00000040, 2px 2px 10px 0px #2CC19726 inset',
-            backdropFilter: 'blur(100px)'
-          }}
-          className="flex items-center"
-        >
-          {/* Search Lens Icon */}
-          <div className="w-4 h-4 bg-white rounded-full flex items-center justify-center mr-2">
-            <div className="w-2 h-2 bg-black rounded-full"></div>
-          </div>
-
-          <input
-            type="text"
-            placeholder="Search by student name, course…"
-            className="flex-1 bg-transparent text-white placeholder-white/70 outline-none"
-            style={{
-              border: 'none',
-              fontFamily: 'Poppins',
-              fontWeight: '300',
-              fontStyle: 'normal',
-              fontSize: '10px',
-              lineHeight: '100%',
-              letterSpacing: '2%'
-            }}
-          />
-        </div>
-      </div>
-
-      {/* Course Cards Section */}
-      <div className="mt-8">
-        {/* Course Cards Grid */}
-        <div className="grid grid-cols-5 gap-[36px] mb-[48px]">
-          {/* Generate 10 identical course cards */}
-          {[...Array(10)].map((_, index) => (
-            <div
-              key={index}
-              style={{
-                width: '238px',
-                height: '319px',
-                borderRadius: '15px',
-                borderWidth: '1px',
-                paddingBottom: '10px',
-                background: '#FFF1CF',
-                border: '1px solid var(--dark-orange, #FF9D00)'
-              }}
-              className="flex flex-col"
-            >
-              {/* Top Section - Graphic/Image */}
-              <div className="flex-1 bg-gradient-to-br from-blue-900 to-black rounded-t-[15px] p-4 flex items-center justify-center">
-                <img
-                  src={CourseImage}
-                  alt="Course"
-                  className="w-full h-full object-cover rounded-t-[15px]"
-                />
-              </div>
-
-              {/* Bottom Section - Course Details */}
-              <div className="p-4 bg-[#FFF1CF] rounded-b-[15px]">
-                {/* Course Name and Duration */}
-                <div className="flex justify-between items-center mb-2">
-                  <span className="font-bold text-black text-sm">
-                    Course Name
-                  </span>
-                  <span className="text-black text-xs">5 Hours</span>
-                </div>
-
-                {/* Progress Stats */}
-                <div className="space-y-1 mb-4">
-                  <div className="text-black text-xs">Completed: 10</div>
-                  <div className="text-black text-xs">InProgress: 8</div>
-                </div>
-
-                {/* More Info Button */}
-                <div className="flex justify-center">
-                  <button
-                    onClick={() => navigate('/admin/progress-tracking/details')}
-                    style={{
-                      width: '96px',
-                      height: '34px',
-                      borderRadius: '20px',
-                      borderWidth: '1px',
-                      paddingTop: '9px',
-                      paddingRight: '20px',
-                      paddingBottom: '10px',
-                      paddingLeft: '20px',
-
-                      background: 'var(--Main-color, #FFB300)',
-                      border: '1px solid var(--dark-orange, #FF9D00)',
-                      boxShadow: '0px 0px 4px 1px #FF9D0080'
-                    }}
-                    className="text-white text-xs font-medium"
-                  >
-                    More info
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Pagination Section */}
-        <div className="flex justify-between items-center">
-          {/* Previous Button */}
-          <button className="bg-[#FFF0CE] text-black rounded-lg px-6 py-2 font-medium">
-            Previous
-          </button>
-
-          {/* Page Numbers */}
-          <div className="flex gap-2">
-            {[1, 2, 3, 4, 5].map((page) => (
-              <button
-                key={page}
-                className={`w-8 h-8 rounded-lg font-medium ${page === 1 ? 'bg-[#FFB300] text-white' : 'text-black'
-                  }`}
-              >
-                {page}
-              </button>
-            ))}
-          </div>
-
-          {/* Next Button */}
-          <button className="bg-[#FFB300] text-white rounded-lg px-6 py-2 font-medium">
-            Next
-          </button>
-        </div>
-      </div>
     </div>
   );
 };
