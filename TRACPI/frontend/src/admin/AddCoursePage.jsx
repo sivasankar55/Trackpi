@@ -12,6 +12,7 @@ const AddCoursePage = () => {
         courseDetail: ''
     });
     // Changed: Initialize sections as empty array of objects
+    // Changed: Initialize sections as empty array of objects
     const [sections, setSections] = useState([]);
     const [questions, setQuestions] = useState([]);
     const [loading, setLoading] = useState(false);

@@ -16,7 +16,6 @@ import AssessmentTimeUpPopup from './pages/AssessmentTimeUpPopup'
 import AssessmentTimeUpCongrats from './pages/AssessmentTimeupCongrats'
 import Assessment from './components/Assessment';
 import AssessmentBubble from './pages/AssessmentBubble'
-import FeedbackForm from './components/FeedbackForm'
 
 
 
@@ -89,7 +88,6 @@ function App() {
           <Route path="/courses/:courseId/sections/:sectionId" element={<SectionVideos />} />
           <Route path='/discover-us' element={<Discoverus />} />
           <Route path='/help-centre' element={<HelpCentre />} />
-          <Route path='/feedback-form' element={<FeedbackForm />} />
 
         </Route>
 
