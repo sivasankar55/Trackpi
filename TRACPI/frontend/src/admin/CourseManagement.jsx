@@ -3,6 +3,8 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import AddCourse from './AddCourse';
 
+import DeleteCoursePopup from './DeleteCoursePopup';
+
 // Icons
 import DashboardIcon from '../assets/dashboard.png';
 import SearchIcon from '../assets/search2.png';
@@ -24,6 +26,11 @@ const CourseManagement = () => {
     hours: '23:58',
     students: 538
   });
+
+  // Popup States
+  const [deletePopupOpen, setDeletePopupOpen] = useState(false);
+  const [courseToDelete, setCourseToDelete] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const coursesPerPage = 8;
 
@@ -59,6 +66,33 @@ const CourseManagement = () => {
       setLoading(false);
     }
   };
+
+  const handleOpenDeletePopup = (course) => {
+    setCourseToDelete(course);
+    setDeletePopupOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!courseToDelete) return;
+
+    setDeleteLoading(true);
+    try {
+      await axios.delete(`http://localhost:5000/api/courses/${courseToDelete._id}`, {
+        withCredentials: true
+      });
+      // Refresh courses and stats
+      await fetchCourses();
+      setDeletePopupOpen(false);
+      setCourseToDelete(null);
+    } catch (error) {
+      console.error("Error deleting course:", error);
+      alert("Failed to delete course");
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
+
 
   const handleAddCourse = () => {
     navigate('/admin/add-course');
@@ -279,10 +313,14 @@ const CourseManagement = () => {
 
                       {/* Action Buttons */}
                       <div className="flex gap-4 mt-auto mb-8">
-                        <button className="flex-1 bg-[#FFB300] hover:bg-[#FFA000] text-white text-[14px] font-black py-4 rounded-[15px] shadow-md transition-all active:scale-95 uppercase tracking-widest">
+                        <button
+                          onClick={() => navigate(`/admin/edit-course/${course._id}`)}
+                          className="flex-1 bg-[#FFB300] hover:bg-[#FFA000] text-white text-[14px] font-black py-4 rounded-[15px] shadow-md transition-all active:scale-95 uppercase tracking-widest">
                           EDIT
                         </button>
-                        <button className="flex-1 bg-[#FF4B4B] hover:bg-[#E63939] text-white text-[14px] font-black py-4 rounded-[15px] shadow-md transition-all active:scale-95 uppercase tracking-widest">
+                        <button
+                          onClick={() => handleOpenDeletePopup(course)}
+                          className="flex-1 bg-[#FF4B4B] hover:bg-[#E63939] text-white text-[14px] font-black py-4 rounded-[15px] shadow-md transition-all active:scale-95 uppercase tracking-widest">
                           DELETE
                         </button>
                       </div>
@@ -298,11 +336,10 @@ const CourseManagement = () => {
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage === 1}
-                  className={`w-full sm:w-auto px-8 py-2.5 rounded-[12px] bg-[#FFF8E7] text-gray-400 font-bold text-sm shadow-sm transition-all border border-[#FFD9A0]/50 ${
-                    currentPage === 1
-                      ? 'opacity-30 cursor-not-allowed'
-                      : 'hover:bg-[#FFF3D0] hover:text-[#FF9D00]'
-                  }`}
+                  className={`w-full sm:w-auto px-8 py-2.5 rounded-[12px] bg-[#FFF8E7] text-gray-400 font-bold text-sm shadow-sm transition-all border border-[#FFD9A0]/50 ${currentPage === 1
+                    ? 'opacity-30 cursor-not-allowed'
+                    : 'hover:bg-[#FFF3D0] hover:text-[#FF9D00]'
+                    }`}
                 >
                   Previous
                 </button>
@@ -313,11 +350,10 @@ const CourseManagement = () => {
                       <button
                         key={pageNum}
                         onClick={() => handlePageChange(pageNum)}
-                        className={`w-10 h-10 rounded-[12px] flex items-center justify-center text-[15px] font-bold transition-all shadow-sm flex-shrink-0 ${
-                          currentPage === pageNum
-                            ? 'bg-[#FF9D00] text-white shadow-orange-200'
-                            : 'bg-white text-gray-500 hover:text-gray-800'
-                        }`}
+                        className={`w-10 h-10 rounded-[12px] flex items-center justify-center text-[15px] font-bold transition-all shadow-sm flex-shrink-0 ${currentPage === pageNum
+                          ? 'bg-[#FF9D00] text-white shadow-orange-200'
+                          : 'bg-white text-gray-500 hover:text-gray-800'
+                          }`}
                       >
                         {pageNum}
                       </button>
@@ -328,11 +364,10 @@ const CourseManagement = () => {
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage === totalPages}
-                  className={`w-full sm:w-auto px-10 py-2.5 rounded-[12px] bg-[#FF9D00] text-white font-bold text-sm shadow-md transition-all ${
-                    currentPage === totalPages
-                      ? 'opacity-30 cursor-not-allowed'
-                      : 'hover:bg-[#E68E00] active:scale-95'
-                  }`}
+                  className={`w-full sm:w-auto px-10 py-2.5 rounded-[12px] bg-[#FF9D00] text-white font-bold text-sm shadow-md transition-all ${currentPage === totalPages
+                    ? 'opacity-30 cursor-not-allowed'
+                    : 'hover:bg-[#E68E00] active:scale-95'
+                    }`}
                 >
                   Next
                 </button>
@@ -341,6 +376,15 @@ const CourseManagement = () => {
           </>
         )}
       </div>
+
+      {deletePopupOpen && (
+        <DeleteCoursePopup
+          courseName={courseToDelete?.courseName}
+          onClose={() => setDeletePopupOpen(false)}
+          onConfirm={handleConfirmDelete}
+          loading={deleteLoading}
+        />
+      )}
     </div>
   );
 };

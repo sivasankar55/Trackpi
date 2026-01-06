@@ -36,7 +36,9 @@ export const getCourseStats = async (req, res) => {
 
 export const createCourse = async (req, res) => {
   try {
+    console.log("Creating new course...");
     const { courseName, courseDetail, sections, questions } = req.body;
+    console.log("Request Body:", { courseName, sectionCount: sections?.length, questionCount: questions?.length });
 
     // 1. Create the Course first
     const course = new Course({
@@ -46,6 +48,7 @@ export const createCourse = async (req, res) => {
       questions: questions || []
     });
     const savedCourse = await course.save();
+    console.log("Course saved:", savedCourse._id);
 
     // 2. Process properties and create sections
     if (sections && Array.isArray(sections) && sections.length > 0) {
@@ -53,12 +56,12 @@ export const createCourse = async (req, res) => {
 
       for (const sectionData of sections) {
         // Map units from frontend structure to backend schema
-        const mappedUnits = (sectionData.units || []).map(unit =
-          ({
-            unitName: unit.name || unit.unitName,
-            unitDescription: unit.description || unit.unitDescription,
-            videoID: unit.videoId || unit.videoID
-          }));
+        const mappedUnits = (sectionData.units || []).map(unit =>
+        ({
+          unitName: unit.name || unit.unitName,
+          unitDescription: unit.description || unit.unitDescription,
+          videoID: unit.videoId || unit.videoID
+        }));
 
         // Create new Section linked to this course
         const newSection = new Section({
@@ -68,12 +71,14 @@ export const createCourse = async (req, res) => {
         });
 
         const savedSection = await newSection.save();
+        console.log(`Section saved: ${savedSection._id} for course ${savedCourse._id}`);
         createdSectionIds.push(savedSection._id);
       }
 
       // Update course with section references
       savedCourse.sections = createdSectionIds;
       await savedCourse.save();
+      console.log("Course updated with sections");
     }
 
     res.status(201).json(savedCourse);
@@ -104,10 +109,60 @@ export const getCourseById = async (req, res) => {
 //update course by id
 export const updateCourseById = async (req, res) => {
   try {
-    const course = await Course.findByIdAndUpdate(req.params.id, req.body, { new: true }).populate('sections');
+    const { courseName, courseDetail, sections, questions } = req.body;
+    const courseId = req.params.id;
+
+    // 1. Update basic fields and questions
+    const course = await Course.findByIdAndUpdate(
+      courseId,
+      {
+        courseName,
+        courseDetail,
+        questions: questions || []
+      },
+      { new: true }
+    );
+
     if (!course) return res.status(404).json({ error: 'Course not found' });
-    res.json(course);
+
+    // 2. Handle Sections - Recreate strategy
+    // First, remove existing sections associated with this course
+    // We get the old section IDs either from the course object before update or just delete by course reference
+    await Section.deleteMany({ course: courseId });
+
+    const createdSectionIds = [];
+
+    if (sections && Array.isArray(sections) && sections.length > 0) {
+      for (const sectionData of sections) {
+        // Map units from frontend structure to backend schema
+        const mappedUnits = (sectionData.units || []).map(unit => ({
+          unitName: unit.name || unit.unitName,
+          unitDescription: unit.description || unit.unitDescription,
+          videoID: unit.videoId || unit.videoID
+        }));
+
+        // Create new Section linked to this course
+        const newSection = new Section({
+          sectionName: sectionData.name || sectionData.sectionName,
+          units: mappedUnits,
+          course: course._id
+        });
+
+        const savedSection = await newSection.save();
+        createdSectionIds.push(savedSection._id);
+      }
+    }
+
+    // 3. Update course with new section IDs
+    course.sections = createdSectionIds;
+    const updatedCourse = await course.save();
+
+    // Populate for response
+    await updatedCourse.populate('sections');
+
+    res.json(updatedCourse);
   } catch (error) {
+    console.error("Error updating course:", error);
     res.status(400).json({ error: error.message });
   }
 };
@@ -116,7 +171,11 @@ export const deleteCourseById = async (req, res) => {
   try {
     const course = await Course.findByIdAndDelete(req.params.id);
     if (!course) return res.status(404).json({ error: 'Course not found' });
-    res.json({ message: 'Course deleted' });
+
+    // Also delete associated sections
+    await Section.deleteMany({ course: req.params.id });
+
+    res.json({ message: 'Course and related sections deleted' });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }

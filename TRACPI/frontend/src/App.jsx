@@ -1,10 +1,7 @@
 import { Route, Routes } from 'react-router-dom'
 
-
 // pages
 import Home from './pages/Home'
-import Discoverus from './pages/Discoverus'
-import HelpCentre from './pages/HelpCentre'
 import StartCourse from './pages/StartCourse'
 import PhoneNUmber from './pages/PhoneNUmber'
 import Faq2 from './pages/Faq2'
@@ -14,15 +11,16 @@ import AssessmentPassedPopup from "./pages/AssessmentPassedPopup"
 import AssessmentFailedPopup from "./pages/AssessmentFailedPopup"
 import AssessmentTimeUpPopup from './pages/AssessmentTimeUpPopup'
 import AssessmentTimeUpCongrats from './pages/AssessmentTimeupCongrats'
-import Assessment from './components/Assessment';
-import AssessmentBubble from './pages/AssessmentBubble'
-import FeedbackForm from './components/FeedbackForm'
 
 
 
 // components
 import ContactPage from './pages/ContactPage'
-import ScrollToTop from './components/ScrollToTop'
+import Discoverus from './pages/Discoverus'
+import HelpCentre from './pages/HelpCentre'
+import FeedbackForm from './components/FeedbackForm'
+import Assessment from './components/Assessment'
+
 
 // admin components
 import CourseProgressDetails from './admin/CourseProgressDetails'
@@ -41,6 +39,7 @@ import CourseSection from './pages/CourseSection'
 import ShowSections from './components/ShowSections'
 import SectionVideos from './pages/SectionVideos'
 import AboutPage from './pages/Aboutpage'
+import ScrollToTop from './components/ScrollToTop'
 import UserManagement from './admin/UserManagement'
 import OAuthRedirectHandler from './pages/OAuthRedirectHandler'
 import AdminManagement from './admin/AdminManagement'
@@ -108,6 +107,7 @@ function App() {
           <Route path='/admin/progress-tracking' element={<ProgressTracking />} />
           <Route path='/admin/progress-tracking/details' element={<CourseProgressDetails />} />
           <Route path='/admin/add-course' element={<AddCoursePage />} />
+          <Route path='/admin/edit-course/:courseId' element={<AddCoursePage />} />
           <Route path='/admin/profile' element={<Profile />} />
 
 

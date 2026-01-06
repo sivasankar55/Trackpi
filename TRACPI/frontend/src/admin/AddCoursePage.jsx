@@ -1,12 +1,19 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 
 // Icons/Assets
+// Icons/Assets
+// Icons/Assets
 import { FiEdit3, FiTrash2 } from 'react-icons/fi';
+import CourseSuccessPopup from './CourseSuccessPopup';
+import ErrorPopup from './ErrorPopup';
 
 const AddCoursePage = () => {
     const navigate = useNavigate();
+    const { courseId } = useParams();
+    // derived state to check if we are in edit mode
+    const isEditMode = Boolean(courseId);
     const [formData, setFormData] = useState({
         courseName: '',
         courseDetail: ''
@@ -15,6 +22,39 @@ const AddCoursePage = () => {
     const [sections, setSections] = useState([]);
     const [questions, setQuestions] = useState([]);
     const [loading, setLoading] = useState(false);
+
+    // Check for success popup
+    const [successPopup, setSuccessPopup] = useState({ show: false, mode: 'create' });
+
+    // Check for error popup
+    const [errorPopup, setErrorPopup] = useState({ show: false, message: '' });
+
+    // Fetch course details if in edit mode
+    React.useEffect(() => {
+        if (isEditMode) {
+            const fetchCourseDetails = async () => {
+                setLoading(true);
+                try {
+                    const response = await axios.get(`http://localhost:5000/api/courses/${courseId}`, {
+                        withCredentials: true
+                    });
+                    const courseData = response.data;
+                    setFormData({
+                        courseName: courseData.courseName,
+                        courseDetail: courseData.courseDetail
+                    });
+                    setSections(courseData.sections || []);
+                    setQuestions(courseData.questions || []); // Assuming questions are returned directly or adjust if needed
+                } catch (error) {
+                    console.error('Error fetching course details:', error);
+                    alert('Failed to fetch course details');
+                } finally {
+                    setLoading(false);
+                }
+            };
+            fetchCourseDetails();
+        }
+    }, [courseId, isEditMode]);
 
     // Quiz Popup State
     const [showQuizPopup, setShowQuizPopup] = useState(false);
@@ -38,6 +78,11 @@ const AddCoursePage = () => {
     });
     const [showUnitDetails, setShowUnitDetails] = useState(false);
 
+    // State for tracking editing indices
+    const [editingSectionIndex, setEditingSectionIndex] = useState(null);
+    const [editingQuestionIndex, setEditingQuestionIndex] = useState(null);
+    const [editingUnitIndex, setEditingUnitIndex] = useState(null);
+
     const handleSectionChange = (e) => {
         setSectionData(prev => ({ ...prev, sectionName: e.target.value }));
     };
@@ -48,14 +93,33 @@ const AddCoursePage = () => {
     };
 
     const handleAddUnit = () => {
-        if (currentUnit.name) {
+        if (!currentUnit.name || !currentUnit.description || !currentUnit.videoId) {
+            setErrorPopup({ show: true, message: 'Please fill in all unit details (Name, Description, Video ID)' });
+            return;
+        }
+
+        if (editingUnitIndex !== null) {
+            // Update existing unit
+            const updatedUnits = [...sectionData.units];
+            updatedUnits[editingUnitIndex] = currentUnit;
+            setSectionData(prev => ({ ...prev, units: updatedUnits }));
+            setEditingUnitIndex(null);
+        } else {
+            // Add new unit
             setSectionData(prev => ({
                 ...prev,
                 units: [...prev.units, currentUnit]
             }));
-            setCurrentUnit({ name: '', description: '', videoId: '' });
-            setShowUnitDetails(false);
         }
+        setCurrentUnit({ name: '', description: '', videoId: '' });
+        setShowUnitDetails(false);
+    };
+
+    const handleEditUnit = (index) => {
+        const unitToEdit = sectionData.units[index];
+        setCurrentUnit(unitToEdit);
+        setEditingUnitIndex(index);
+        setShowUnitDetails(true);
     };
 
     const handleInputChange = (e) => {
@@ -76,27 +140,36 @@ const AddCoursePage = () => {
     const handleAddQuestionWithPopup = () => {
         // Basic validation
         if (!currentQuestion.question) {
-            alert('Please enter a question');
+            setErrorPopup({ show: true, message: 'Please enter a question' });
             return;
         }
         if (quizType === 'MCQ' && currentQuestion.options.some(opt => !opt)) {
-            alert('Please fill in all options');
+            setErrorPopup({ show: true, message: 'Please fill in all options for the MCQ' });
             return;
         }
         if (!currentQuestion.correctAnswer) {
-            alert('Please enter the correct answer');
+            setErrorPopup({ show: true, message: 'Please enter the correct answer' });
             return;
         }
 
-        // Add to questions list
         const newQuestion = {
             ...currentQuestion,
             type: quizType,
-            // For T/F, ensure options are set if not already (though UI handles display)
             options: quizType === 'True/False' ? ['True', 'False'] : currentQuestion.options
         };
 
-        setQuestions(prev => [...prev, newQuestion]);
+        if (editingQuestionIndex !== null) {
+            // Update existing question
+            setQuestions(prev => {
+                const updated = [...prev];
+                updated[editingQuestionIndex] = newQuestion;
+                return updated;
+            });
+            setEditingQuestionIndex(null);
+        } else {
+            // Add new question
+            setQuestions(prev => [...prev, newQuestion]);
+        }
 
         // Reset and close
         setCurrentQuestion({
@@ -107,26 +180,61 @@ const AddCoursePage = () => {
         setShowQuizPopup(false);
     };
 
+    const handleEditQuestion = (index) => {
+        const questionToEdit = questions[index];
+        setCurrentQuestion({
+            question: questionToEdit.question,
+            options: questionToEdit.options || ['', '', '', ''],
+            correctAnswer: questionToEdit.correctAnswer
+        });
+        setQuizType(questionToEdit.type || 'MCQ');
+        setEditingQuestionIndex(index);
+        setShowQuizPopup(true);
+    };
+
+    const handleEditSection = (index) => {
+        const sectionToEdit = sections[index];
+        setSectionData({
+            sectionName: sectionToEdit.name,
+            units: sectionToEdit.units || []
+        });
+        setEditingSectionIndex(index);
+        setIsAddingSection(true);
+    };
+
     const handleLaunchCourse = async () => {
         if (!formData.courseName || !formData.courseDetail) {
-            alert('Please fill in course name and details');
+            setErrorPopup({ show: true, message: 'Please fill in the Course Name and Course Details.' });
             return;
         }
         setLoading(true);
         try {
-            await axios.post('http://localhost:5000/api/courses', {
+            const payload = {
                 courseName: formData.courseName,
                 courseDetail: formData.courseDetail,
                 sections: sections,
                 questions: questions
-            }, { withCredentials: true });
-            navigate('/admin/course-management');
+            };
+
+            if (isEditMode) {
+                await axios.put(`http://localhost:5000/api/courses/${courseId}`, payload, { withCredentials: true });
+                setSuccessPopup({ show: true, mode: 'update' });
+            } else {
+                await axios.post('http://localhost:5000/api/courses', payload, { withCredentials: true });
+                setSuccessPopup({ show: true, mode: 'create' });
+            }
         } catch (error) {
-            console.error('Error launching course:', error);
-            alert('Failed to launch course');
+            console.error('Error launching/updating course:', error);
+            const errMsg = error.response?.data?.error || error.message || 'Failed to save course';
+            setErrorPopup({ show: true, message: `Failed to save course: ${errMsg}` });
         } finally {
             setLoading(false);
         }
+    };
+
+    const handlePopupClose = () => {
+        setSuccessPopup({ show: false, mode: 'create' });
+        navigate('/admin/course-management');
     };
 
     return (
@@ -142,7 +250,7 @@ const AddCoursePage = () => {
                         disabled={loading}
                         className="w-full sm:w-auto bg-[#E20000] hover:bg-[#C10000] text-white font-bold py-3 px-12 rounded-[12px] shadow-[0px_4px_10px_rgba(226,0,0,0.3)] transition-all text-lg sm:text-xl"
                     >
-                        {loading ? 'Launching...' : 'Launch Course'}
+                        {loading ? (isEditMode ? 'Updating...' : 'Launching...') : (isEditMode ? 'Update Course' : 'Launch Course')}
                     </button>
                 </div>
             )}
@@ -181,7 +289,11 @@ const AddCoursePage = () => {
                                 <div className="flex justify-between items-center mb-6">
                                     <h3 className="text-lg sm:text-[22px] font-extrabold text-[#333]">Section</h3>
                                     <button
-                                        onClick={() => setIsAddingSection(true)}
+                                        onClick={() => {
+                                            setEditingSectionIndex(null);
+                                            setSectionData({ sectionName: '', units: [] });
+                                            setIsAddingSection(true);
+                                        }}
                                         className="bg-[#D35400] hover:bg-[#BA4A00] text-white px-6 sm:px-10 py-2 sm:py-2.5 rounded-[10px] font-extrabold text-base sm:text-lg transition-colors shadow-sm"
                                     >
                                         Add
@@ -193,7 +305,10 @@ const AddCoursePage = () => {
                                         <div key={index} className="flex justify-between items-center bg-[#FFB300] h-[55px] sm:h-[60px] px-6 sm:px-8 rounded-[12px] hover:shadow-md transition-shadow">
                                             {/* Changed: Render section.name */}
                                             <span className="text-white font-bold text-lg sm:text-xl italic">{section.name}</span>
-                                            <FiEdit3 className="text-white text-xl sm:text-2xl cursor-pointer" />
+                                            <FiEdit3
+                                                className="text-white text-xl sm:text-2xl cursor-pointer hover:text-white/80"
+                                                onClick={() => handleEditSection(index)}
+                                            />
                                         </div>
                                     ))}
                                     {sections.length === 0 && (
@@ -209,7 +324,11 @@ const AddCoursePage = () => {
                         <div className="flex justify-between items-center mb-6">
                             <h3 className="text-lg sm:text-[22px] font-extrabold text-[#333]">Add quiz</h3>
                             <button
-                                onClick={() => setShowQuizPopup(true)}
+                                onClick={() => {
+                                    setEditingQuestionIndex(null);
+                                    setCurrentQuestion({ question: '', options: ['', '', '', ''], correctAnswer: '' });
+                                    setShowQuizPopup(true);
+                                }}
                                 className="bg-[#D35400] hover:bg-[#BA4A00] text-white px-6 sm:px-10 py-2 sm:py-2.5 rounded-[10px] font-extrabold text-base sm:text-lg transition-colors shadow-sm"
                             >
                                 Add
@@ -220,11 +339,17 @@ const AddCoursePage = () => {
                             <div className="space-y-3 sm:space-y-4">
                                 {questions.map((question, index) => (
                                     <div key={index} className="flex justify-between items-center bg-[#FFB300] h-[55px] sm:h-[60px] px-6 sm:px-8 rounded-[12px] hover:shadow-md transition-shadow">
-                                        <span className="text-white font-bold text-lg sm:text-xl italic truncate max-w-[70%]">{question.question}</span>
-                                        <FiTrash2
-                                            className="text-white text-xl sm:text-2xl cursor-pointer hover:text-red-200"
-                                            onClick={() => setQuestions(questions.filter((_, i) => i !== index))}
-                                        />
+                                        <span className="text-white font-bold text-lg sm:text-xl italic truncate max-w-[60%]">{question.question}</span>
+                                        <div className="flex items-center gap-3">
+                                            <FiEdit3
+                                                className="text-white text-xl sm:text-2xl cursor-pointer hover:text-white/80"
+                                                onClick={() => handleEditQuestion(index)}
+                                            />
+                                            <FiTrash2
+                                                className="text-white text-xl sm:text-2xl cursor-pointer hover:text-red-200"
+                                                onClick={() => setQuestions(questions.filter((_, i) => i !== index))}
+                                            />
+                                        </div>
                                     </div>
                                 ))}
                                 {questions.length === 0 && (
@@ -254,7 +379,11 @@ const AddCoursePage = () => {
                             <div className="flex justify-between items-center mb-6">
                                 <h3 className="text-lg sm:text-[22px] font-extrabold text-[#333]">Units</h3>
                                 <button
-                                    onClick={() => setShowUnitDetails(true)}
+                                    onClick={() => {
+                                        setEditingUnitIndex(null);
+                                        setCurrentUnit({ name: '', description: '', videoId: '' });
+                                        setShowUnitDetails(true);
+                                    }}
                                     className="bg-[#D35400] hover:bg-[#BA4A00] text-white px-6 sm:px-10 py-2 sm:py-2.5 rounded-[10px] font-extrabold text-base sm:text-lg transition-colors shadow-sm"
                                 >
                                     Add
@@ -265,7 +394,10 @@ const AddCoursePage = () => {
                                 {sectionData.units.map((unit, index) => (
                                     <div key={index} className="flex justify-between items-center bg-[#FF9900] h-[55px] sm:h-[60px] px-6 sm:px-8 rounded-[12px] hover:shadow-md transition-shadow">
                                         <span className="text-white font-bold text-lg sm:text-xl italic">{unit.name}</span>
-                                        <FiEdit3 className="text-white text-xl sm:text-2xl cursor-pointer" />
+                                        <FiEdit3
+                                            className="text-white text-xl sm:text-2xl cursor-pointer hover:text-white/80"
+                                            onClick={() => handleEditUnit(index)}
+                                        />
                                     </div>
                                 ))}
                                 {sectionData.units.length === 0 && (
@@ -277,7 +409,9 @@ const AddCoursePage = () => {
                         {/* Right: Unit Details Form */}
                         {showUnitDetails && (
                             <div className="bg-white border border-[#FFB300] rounded-[20px] p-6 sm:p-8 shadow-[0px_4px_20px_rgba(255,179,0,0.1)] h-fit relative">
-                                <h3 className="text-center text-lg sm:text-[22px] font-extrabold text-[#333] mb-8">Unit Details</h3>
+                                <h3 className="text-center text-lg sm:text-[22px] font-extrabold text-[#333] mb-8">
+                                    {editingUnitIndex !== null ? 'Edit Unit' : 'Unit Details'}
+                                </h3>
 
                                 <div className="space-y-6">
                                     <div>
@@ -332,7 +466,11 @@ const AddCoursePage = () => {
                     {/* Bottom Action Buttons */}
                     <div className="flex justify-center flex-wrap gap-8 mt-16">
                         <button
-                            onClick={() => setIsAddingSection(false)}
+                            onClick={() => {
+                                setIsAddingSection(false);
+                                setEditingSectionIndex(null);
+                                setSectionData({ sectionName: '', units: [] });
+                            }}
                             className="w-[160px] h-[50px] bg-[#FFA000] hover:bg-[#FF8F00] text-white font-bold rounded-[10px] shadow-md transition-all text-lg"
                         >
                             Back
@@ -340,12 +478,26 @@ const AddCoursePage = () => {
                         <button
                             onClick={() => {
                                 if (sectionData.sectionName) {
-                                    setSections(prev => [...prev, {
-                                        name: sectionData.sectionName,
-                                        units: sectionData.units
-                                    }]);
+                                    if (editingSectionIndex !== null) {
+                                        // Update existing section
+                                        setSections(prev => {
+                                            const updated = [...prev];
+                                            updated[editingSectionIndex] = {
+                                                name: sectionData.sectionName,
+                                                units: sectionData.units
+                                            };
+                                            return updated;
+                                        });
+                                    } else {
+                                        // Add new section
+                                        setSections(prev => [...prev, {
+                                            name: sectionData.sectionName,
+                                            units: sectionData.units
+                                        }]);
+                                    }
                                     setIsAddingSection(false);
                                     setSectionData({ sectionName: '', units: [] });
+                                    setEditingSectionIndex(null);
                                 } else {
                                     alert('Please enter a section name');
                                 }
@@ -454,6 +606,20 @@ const AddCoursePage = () => {
                     </div>
                 </div>
             )}
+
+            {/* Success Popup */}
+            <CourseSuccessPopup
+                isOpen={successPopup.show}
+                mode={successPopup.mode}
+                onClose={handlePopupClose}
+            />
+
+            {/* Error Popup */}
+            <ErrorPopup
+                isOpen={errorPopup.show}
+                message={errorPopup.message}
+                onClose={() => setErrorPopup({ ...errorPopup, show: false })}
+            />
         </div>
     );
 };
