@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import { FaStar } from 'react-icons/fa';
 
 const FeedbackForm = () => {
@@ -31,10 +32,23 @@ const FeedbackForm = () => {
         { id: 2, key: 'clarity', text: '2. How would you rate the instructor’s clarity and teaching style?' },
     ];
 
-    const handleSubmit = () => {
-        console.log('Feedback submitted:', { ratings, experience });
-        alert('Thank you for your feedback!');
-        setShowForm(false);
+    const handleSubmit = async () => {
+        const token = localStorage.getItem('token');
+        try {
+            await axios.post('http://localhost:5000/api/feedback', {
+                quality: ratings.quality,
+                smoothness: ratings.smoothness,
+                clarity: ratings.clarity,
+                experience
+            }, {
+                headers: token ? { Authorization: `Bearer ${token}` } : {}
+            });
+            alert('Thank you for your feedback!');
+            setShowForm(false);
+        } catch (error) {
+            console.error('Error submitting feedback:', error);
+            alert('Failed to submit feedback. Please try again.');
+        }
     };
 
     return (
@@ -111,10 +125,3 @@ const FeedbackForm = () => {
 };
 
 export default FeedbackForm;
-
-
-
-
-
-
-

@@ -19,7 +19,7 @@
     "dayjs": "^1.11.19",
     "flowbite": "^3.1.2",
     "jspdf": "^2.5.2",
-    "jspdf-autotable": "^5.0.2",
+    "jspdf-autotable": "^5.0.7",
     "jwt-decode": "^4.0.0",
     "lucide-react": "^0.525.0",
     "react": "^19.1.0",

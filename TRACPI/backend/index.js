@@ -13,7 +13,7 @@ import authRoutes from './routes/authRoutes.js';
 import enrollmentRoutes from './routes/enrollmentRoutes.js';
 import userProgressRoutes from './routes/userProgressRoutes.js';
 import contactRoutes from './routes/contactRoutes.js';
-
+import feedbackRoutes from './routes/feedbackRoutes.js';
 
 dotenv.config();
 const PORT = process.env.PORT || 5000;
@@ -54,6 +54,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/enrollments', enrollmentRoutes);
 app.use('/api/progress', userProgressRoutes);
 app.use('/api/contact', contactRoutes);
+app.use('/api/feedback', feedbackRoutes);
 app.use('/auth', authRoutes);
 
 app.get('/auth/google', (req, res) => {
