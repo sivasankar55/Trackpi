@@ -30,7 +30,7 @@ const HeaderC = () => {
     { icon: <FaChalkboardTeacher size={22} />, label: 'Course Management', path: '/admin/course-management' },
     { icon: <FaChartBar size={22} />, label: 'Progress Tracking', path: '/admin/progress-tracking' },
     { icon: <FaWpforms size={22} />, label: 'Form Management', path: '/admin/form-management' },
-    { icon: <FaCommentDots size={22} />, label: 'Feedback', path: '/feedback' },
+    { icon: <FaCommentDots size={22} />, label: 'Feedback', path: '/admin/feedback' },
   ];
 
   const bottomItems = [

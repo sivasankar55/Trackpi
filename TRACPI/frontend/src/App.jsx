@@ -1,4 +1,6 @@
 import { Route, Routes } from 'react-router-dom'
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 // pages
 import Home from './pages/Home'
@@ -49,12 +51,14 @@ import AddCoursePage from './admin/AddCoursePage'
 import Profile from './admin/Profile'
 import UserDetails from './admin/UserDetails'
 import FormManagement from './admin/FormManagement'
+import AdminFeedback from './admin/AdminFeedback'
 
 
 function App() {
   return (
     <>
       <ScrollToTop />
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
       <Routes>
         {/* Layout A */}
         <Route element={<LayoutA />}>
@@ -109,6 +113,7 @@ function App() {
           <Route path='/admin/add-course' element={<AddCoursePage />} />
           <Route path='/admin/edit-course/:courseId' element={<AddCoursePage />} />
           <Route path='/admin/profile' element={<Profile />} />
+          <Route path='/admin/feedback' element={<AdminFeedback />} />
 
 
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
