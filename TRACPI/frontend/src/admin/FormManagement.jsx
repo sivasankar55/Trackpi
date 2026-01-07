@@ -5,7 +5,8 @@ import * as XLSX from 'xlsx';
 
 // Icons
 import { FiDownload, FiExternalLink } from 'react-icons/fi';
-import ViewContactPopup from './ViewContactPopup';
+// import ViewContactPopup from './ViewContactPopup'; // Removed as it is replaced by FormDetails
+import FormDetails from './FormDetails';
 import ExportFormPopup from './ExportFormPopup';
 
 const FormManagement = () => {
@@ -54,6 +55,17 @@ const FormManagement = () => {
 
     if (loading) return <div className="p-10 text-center">Loading...</div>;
     if (error) return <div className="p-10 text-center text-red-500">{error}</div>;
+
+    if (selectedContact) {
+        return (
+            <div className="min-h-screen bg-white w-full p-8">
+                <FormDetails
+                    contact={selectedContact}
+                    onBack={() => setSelectedContact(null)}
+                />
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-white w-full p-8 font-['Poppins']">
@@ -111,10 +123,7 @@ const FormManagement = () => {
                                             <td className="px-6 py-4 text-center border-t border-gray-200">
                                                 <button
                                                     className="inline-flex items-center gap-2 text-[#FF9D00] font-medium hover:underline"
-                                                    onClick={() => {
-                                                        setSelectedContact(contact);
-                                                        setShowPopup(true);
-                                                    }}
+                                                    onClick={() => setSelectedContact(contact)}
                                                 >
                                                     View Details <FiExternalLink />
                                                 </button>
@@ -131,17 +140,6 @@ const FormManagement = () => {
                     <div className="text-center text-gray-500 mt-10">No form submissions found.</div>
                 )}
             </div>
-
-            {/* Popup */}
-            {showPopup && selectedContact && (
-                <ViewContactPopup
-                    contact={selectedContact}
-                    onClose={() => {
-                        setShowPopup(false);
-                        setSelectedContact(null);
-                    }}
-                />
-            )}
 
             {/* Export Popup */}
             {showExportPopup && (
