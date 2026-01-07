@@ -223,17 +223,19 @@ const CourseSection = () => {
           ref={scrollRef}>
           {
             courses.length > 0 ? (
-              courses.map((course) => (
+              courses.map((course, index) => (
                 <div
                   key={course._id}
-                  onClick={() => setSelectedCourse(course._id)}
-                  className="relative rounded-[10px] border border-[#FF9D00] h-full min-w-[250px] cursor-pointer"
+                  onClick={() => index === 0 && setSelectedCourse(course._id)}
+                  className={`relative rounded-[10px] border border-[#FF9D00] h-full min-w-[250px] ${index === 0 ? 'cursor-pointer' : 'cursor-not-allowed'}`}
                   style={{
                     background: 'linear-gradient(180deg, rgba(10, 10, 10, 0) 60%, rgba(10,10,10, 0.94) 85%)',
                   }}
                 >
-                  <img src={squareLock} alt="square lock"
-                    className="absolute inset-0 m-auto w-6 h-6 z-10" />
+                  {index !== 0 && (
+                    <img src={squareLock} alt="square lock"
+                      className="absolute inset-0 m-auto w-6 h-6 z-10" />
+                  )}
                   <div className="flex justify-between items-end h-full px-3 pb-1 z-20">
                     <span className="text-white text-base font-semibold roboto">{course.courseName}</span>
                     <span className="text-white roboto text-[10px] font-medium">{Math.floor(course.duration / 60)} hours</span>

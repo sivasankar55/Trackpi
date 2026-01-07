@@ -1,6 +1,6 @@
 import express from 'express';
 import { getUserCourses, getCourseStats } from '../controllers/enrollmentController.js';
-import { authenticateToken} from '../middleware/auth.js';
+import { authenticateToken } from '../middleware/auth.js';
 import { requireAdminAuth } from '../controllers/adminController.js';
 
 const router = express.Router();

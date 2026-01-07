@@ -39,14 +39,20 @@ const SectionVideos = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const sectionRes = await axios.get(`http://localhost:5000/api/sections/${sectionId}`);
+        const sectionRes = await axios.get(
+          `http://localhost:5000/api/sections/${sectionId}`,
+          { headers: { Authorization: `Bearer ${token}` } } // ✅ Add Auth Token
+        );
+        const data = sectionRes.data;
         const progressRes = await axios.get(
-          `http://localhost:5000/api/progress/${courseId}/${sectionId}`,
+          `http://localhost:5000/api/progress/${courseId}/${data._id}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
 
-        const data = sectionRes.data;
+
         const completed = progressRes.data?.completedVideos || [];
+
+
 
         setSection(data);
         setCompletedVideos(completed);
@@ -54,7 +60,10 @@ const SectionVideos = () => {
 
         if (data.units?.length) {
           const firstUnwatched =
-            data.units.find(v => !completed.includes(v.videoID)) || data.units[0];
+            data.units.find(
+              v => !completed.some(id => String(id) === String(v.videoID))
+            ) || data.units[0];
+
           setSelectedVideo(firstUnwatched);
         }
       } catch (err) {
@@ -124,11 +133,19 @@ const SectionVideos = () => {
       isSeekingRef.current = false;
     });
 
-    player.on("ended", () => {
+    // player.on("ended", () => {
+    //   setIsPlaying(false);
+    //   setShowPopup(true);
+    //   markAsWatched();
+    // });
+    player.on("ended", async () => {
       setIsPlaying(false);
-      setShowPopup(true);
-      markAsWatched();
+
+      await markAsWatched(); // update state first
+
+      setShowPopup(true);    // popup after unlock
     });
+
 
     // Initial duration fetch
     player.getDuration().then((d) => setDuration(d)).catch(() => { });
@@ -157,22 +174,38 @@ const SectionVideos = () => {
   }, [isPlaying, showPopup]);
 
 
+
+
   const markAsWatched = async () => {
-    if (!selectedVideo) return;
+    if (!selectedVideo || !section) return;
+
     try {
+
       await axios.post(
         "http://localhost:5000/api/progress/watch-video",
-        { courseId, sectionId, videoId: selectedVideo.videoID },
-        { headers: { Authorization: `Bearer ${token}` } }
+        {
+          courseId,
+          sectionId: section._id,   // ✅ MUST USE DB SECTION ID
+          videoId: selectedVideo.videoID
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
       );
+
       notifyProgressChanged();
-      if (!completedVideos.includes(selectedVideo.videoID)) {
-        setCompletedVideos(prev => [...prev, selectedVideo.videoID]);
-      }
+
+      setCompletedVideos(prev => {
+        if (prev.includes(String(selectedVideo.videoID))) return prev;
+        return [...prev, String(selectedVideo.videoID)];
+      });
+
     } catch (err) {
       console.error("Error marking watched", err);
     }
   };
+
+
 
   const handlePlayAgain = async () => {
     if (playerRef.current) {
@@ -186,17 +219,23 @@ const SectionVideos = () => {
 
   const handlePlayNext = async () => {
     try {
-      await axios.post(
-        "http://localhost:5000/api/progress/watch-video",
-        { courseId, sectionId, videoId: selectedVideo.videoID },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      // await axios.post(
+      //   "http://localhost:5000/api/progress/watch-video",
+      //   { courseId, sectionId, videoId: selectedVideo.videoID },
+      //   { headers: { Authorization: `Bearer ${token}` } }
+      // );
 
       notifyProgressChanged();
 
-      const updated = [...completedVideos, selectedVideo.videoID];
-      setCompletedVideos(updated);
+      setCompletedVideos(prev => {
+        const isAlreadyCompleted = prev.some(id => String(id) === String(selectedVideo.videoID));
+        if (!isAlreadyCompleted) {
+          return [...prev, String(selectedVideo.videoID)];
+        }
+        return prev;
+      });
 
+      // Robust index finding using string comparison
       const nextIndex =
         videos.findIndex(v => v.videoID === selectedVideo.videoID) + 1;
 
@@ -211,11 +250,11 @@ const SectionVideos = () => {
 
   const handleUnlockAssessment = async () => {
     try {
-      await axios.post(
-        "http://localhost:5000/api/progress/watch-video",
-        { courseId, sectionId, videoId: selectedVideo.videoID },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      // await axios.post(
+      //   "http://localhost:5000/api/progress/watch-video",
+      //   { courseId, sectionId, videoId: selectedVideo.videoID },
+      //   { headers: { Authorization: `Bearer ${token}` } }
+      // );
 
       notifyProgressChanged();
       navigate(`/course-section/${courseId}`);
@@ -224,10 +263,15 @@ const SectionVideos = () => {
     }
   };
 
+  // const isVideoLocked = (video, idx) => {
+  //   if (idx === 0) return false;
+  //   return !videos.slice(0, idx).every(v => completedVideos.includes(v.videoID));
+  // };
+
   const isVideoLocked = (video, idx) => {
-    if (idx === 0) return false;
-    return !videos.slice(0, idx).every(v => completedVideos.includes(v.videoID));
+    return false;
   };
+
 
   // Custom Controls Handlers
   const togglePlay = () => {
@@ -514,7 +558,7 @@ const SectionVideos = () => {
                               onClick={handlePlayNext}
                               className="flex items-center gap-2 px-8 py-2.5 rounded-[12px] bg-[#FF9D00] hover:bg-[#E68900] text-black font-bold text-sm transition-all shadow-[0_4px_20px_rgba(255,157,0,0.3)]"
                             >
-                              <Play size={18} className="fill-black" /> Play Next
+                              <Play size={18} className="fill-black" /> Go to Next
                             </button>
                           );
                         })()}
