@@ -6,6 +6,9 @@ import Question from '../models/Question.js';
 // Mark a video as watched and update progress
 export const markVideoWatched = async (req, res) => {
   try {
+    console.log('USER:', req.user);
+    console.log('BODY:', req.body);
+
     const { courseId, sectionId, videoId } = req.body;
     const userId = req.user._id;
 
@@ -16,9 +19,12 @@ export const markVideoWatched = async (req, res) => {
     }
 
     // Add videoId to completedVideos if not already present
-    if (!progress.completedVideos.includes(videoId)) {
-      progress.completedVideos.push(videoId);
+    const videoIdStr = String(videoId);
+
+    if (!progress.completedVideos.some(v => String(v) === videoIdStr)) {
+      progress.completedVideos.push(videoIdStr);
     }
+
 
     // Get all videos in this section's unit
     const section = await Section.findById(sectionId);
@@ -30,7 +36,9 @@ export const markVideoWatched = async (req, res) => {
     // Calculate section progress as a percentage
     progress.sectionProgress = totalVideos > 0 ? Math.round((watchedCount / totalVideos) * 100) : 0;
     // If all videos are watched, mark unit and section as complete
-    const allWatched = allVideoIds.every(id => progress.completedVideos.includes(id));
+    const allWatched = allVideoIds.every(videoId =>
+      progress.completedVideos.some(v => String(v) === String(videoId))
+    );
     progress.unitComplete = allWatched;
     progress.sectionComplete = allWatched;
 
@@ -95,13 +103,13 @@ export const submitAssessment = async (req, res) => {
     const questions = await Question.find({ section: sectionId }).limit(30);
     let score = 0;
     const wrongAnswers = [];
-    
+
     // Create a map of questionId to answer for easier lookup
     const answerMap = {};
     answers.forEach(answer => {
       answerMap[answer.questionId] = answer.answer;
     });
-    
+
     questions.forEach((question, index) => {
       const userAnswer = answerMap[question._id];
       if (userAnswer && userAnswer === question.correctAnswer) {
@@ -116,7 +124,7 @@ export const submitAssessment = async (req, res) => {
         });
       }
     });
-    
+
     // Update assessment results
     progress.sectionAssessment = progress.sectionAssessment || {};
     progress.sectionAssessment.attempts = (progress.sectionAssessment.attempts || 0) + 1;
@@ -125,10 +133,10 @@ export const submitAssessment = async (req, res) => {
     progress.sectionAssessment.timeSpent = Math.round((now - (start || now)) / 60000);
     progress.sectionAssessment.lastAttempt = now;
     await progress.save();
-    
-    res.json({ 
-      score, 
-      passed: score >= 25, 
+
+    res.json({
+      score,
+      passed: score >= 25,
       attempts: progress.sectionAssessment.attempts,
       wrongAnswers,
       totalQuestions: questions.length
@@ -214,7 +222,7 @@ export const getCourseProgress = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-}; 
+};
 
 // GET user progress for a specific course section
 export const getProgress = async (req, res) => {
@@ -222,12 +230,20 @@ export const getProgress = async (req, res) => {
   const userId = req.user._id;
 
   try {
-    const progress = await UserProgress.findOne({ user: userId, course: courseId, section: sectionId });
+    const progress = await UserProgress.findOne({
+      user: userId,
+      course: courseId,
+      section: sectionId.toString() // 🔑 FORCE MATCH
+    });
+
+    console.log("FOUND PROGRESS:", progress);
+
     res.json(progress || { completedVideos: [] });
   } catch (err) {
     res.status(500).json({ error: 'Server error' });
   }
 };
+
 
 
 
