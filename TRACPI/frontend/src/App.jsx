@@ -81,7 +81,7 @@ function App() {
           <Route path='/assessment/failed' element={<AssessmentFailedPopup />} />
           <Route path='/assessment/time-up' element={<AssessmentTimeUpPopup />} />
           <Route path='/assessment/congrats' element={<AssessmentTimeUpCongrats />} />
-          <Route path='/assessment/:courseId/:sectionId' element={<AssessmentPage />} />
+          <Route path='/assessment/:courseId/:sectionId' element={<Assessment />} />
           <Route path="/assessment/main" element={<Assessment />} />
 
 

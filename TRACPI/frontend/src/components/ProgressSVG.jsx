@@ -1,45 +1,163 @@
 import React from 'react';
 
-const ProgressSVG = () => (
-  <svg width="201" height="232" viewBox="0 0 201 232" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="101" cy="100" r="99.5" stroke="#F38D07"/>
-    <circle cx="100.5" cy="100.5" r="92.5" stroke="#FFD54C" strokeOpacity="0.15" strokeWidth="2" strokeDasharray="32 8"/>
-    <circle cx="100.5" cy="100.5" r="87.5" stroke="#FFD54C" strokeOpacity="0.15" strokeWidth="2" strokeDasharray="32 14"/>
-    <g clipPath="url(#paint0_angular_4302_3545_clip_path)"><g transform="matrix(0 0.1 -0.1 0 101 101)"><foreignObject x="-1010" y="-1010" width="2020" height="2020"><div xmlns="http://www.w3.org/1999/xhtml" style={{background:'conic-gradient(from 90deg,rgba(243, 141, 7, 0) 0deg,rgba(243, 141, 7, 1) 72.6923deg,rgba(221, 125, 0, 1) 252.692deg,rgba(141, 81, 4, 0) 271.731deg,rgba(243, 141, 7, 0) 360deg)',height:'100%',width:'100%',opacity:1}}></div></foreignObject></g></g>
-    <path d="M191 101C196.523 101 201.052 105.488 200.5 110.983C199.352 122.427 196.236 133.612 191.265 144.038C184.855 157.481 175.525 169.322 163.954 178.697C152.383 188.072 138.865 194.744 124.386 198.227C113.155 200.928 101.567 201.658 90.1341 200.408C84.644 199.808 81.1924 194.447 82.3376 189.044C83.4828 183.641 88.7945 180.256 94.2979 180.719C102.796 181.433 111.375 180.786 119.709 178.782C131.292 175.996 142.107 170.658 151.363 163.157C160.62 155.657 168.084 146.185 173.212 135.431C176.9 127.694 179.313 119.435 180.376 110.974C181.064 105.494 185.477 101 191 101Z" fill="url(#paint0_angular_4302_3545)"/>
-    <circle cx="101.5" cy="100.5" r="72.5" stroke="#A3A3A3" strokeWidth="10" strokeDasharray="2 2"/>
-    <g filter="url(#filter0_d_4302_3545)">
-      <circle cx="98" cy="193" r="15" fill="url(#paint1_linear_4302_3545)"/>
-      <circle cx="98" cy="193" r="14.5" stroke="#F38D07"/>
-    </g>
-    <circle cx="101" cy="101" r="64.5" fill="url(#paint2_linear_4302_3545)" stroke="url(#paint3_linear_4302_3545)"/>
-    <path d="M80.484 100.528C80.484 97.2987 81.0627 94.7693 82.22 92.94C83.396 91.1107 85.3373 90.196 88.044 90.196C90.7507 90.196 92.6827 91.1107 93.84 92.94C95.016 94.7693 95.604 97.2987 95.604 100.528C95.604 103.776 95.016 106.324 93.84 108.172C92.6827 110.02 90.7507 110.944 88.044 110.944C85.3373 110.944 83.396 110.02 82.22 108.172C81.0627 106.324 80.484 103.776 80.484 100.528ZM91.74 100.528C91.74 99.1467 91.6467 97.9893 91.46 97.056C91.292 96.104 90.9373 95.3293 90.396 94.732C89.8733 94.1347 89.0893 93.836 88.044 93.836C86.9987 93.836 86.2053 94.1347 85.664 94.732C85.1413 95.3293 84.7867 96.104 84.6 97.056C84.432 97.9893 84.348 99.1467 84.348 100.528C84.348 101.947 84.432 103.141 84.6 104.112C84.768 105.064 85.1227 105.839 85.664 106.436C86.2053 107.015 86.9987 107.304 88.044 107.304C89.0893 107.304 89.8827 107.015 90.424 106.436C90.9653 105.839 91.32 105.064 91.488 104.112C91.656 103.141 91.74 101.947 91.74 100.528ZM98.6976 95.6C98.6976 94.1813 99.1082 93.0707 99.9296 92.268C100.77 91.4653 101.843 91.064 103.15 91.064C104.456 91.064 105.52 91.4653 106.342 92.268C107.182 93.0707 107.602 94.1813 107.602 95.6C107.602 97.0373 107.182 98.1573 106.342 98.96C105.52 99.7627 104.456 100.164 103.15 100.164C101.843 100.164 100.77 99.7627 99.9296 98.96C99.1082 98.1573 98.6976 97.0373 98.6976 95.6ZM116.674 91.4L105.67 111H101.862L112.838 91.4H116.674ZM103.122 93.416C102.095 93.416 101.582 94.144 101.582 95.6C101.582 97.0747 102.095 97.812 103.122 97.812C103.626 97.812 104.018 97.6347 104.298 97.28C104.578 96.9067 104.718 96.3467 104.718 95.6C104.718 94.144 104.186 93.416 103.122 93.416ZM110.99 106.772C110.99 105.335 111.4 104.224 112.222 103.44C113.062 102.637 114.135 102.236 115.442 102.236C116.748 102.236 117.803 102.637 118.606 103.44C119.427 104.224 119.838 105.335 119.838 106.772C119.838 108.209 119.427 109.329 118.606 110.132C117.803 110.935 116.748 111.336 115.442 111.336C114.116 111.336 113.043 110.935 112.222 110.132C111.4 109.329 110.99 108.209 110.99 106.772ZM115.414 104.588C114.35 104.588 113.818 105.316 113.818 106.772C113.818 108.247 114.35 108.984 115.414 108.984C116.459 108.984 116.982 108.247 116.982 106.772C116.982 105.316 116.459 104.588 115.414 104.588Z" fill="white"/>
-    <defs>
-      <clipPath id="paint0_angular_4302_3545_clip_path"><path d="M191 101C196.523 101 201.052 105.488 200.5 110.983C199.352 122.427 196.236 133.612 191.265 144.038C184.855 157.481 175.525 169.322 163.954 178.697C152.383 188.072 138.865 194.744 124.386 198.227C113.155 200.928 101.567 201.658 90.1341 200.408C84.644 199.808 81.1924 194.447 82.3376 189.044C83.4828 183.641 88.7945 180.256 94.2979 180.719C102.796 181.433 111.375 180.786 119.709 178.782C131.292 175.996 142.107 170.658 151.363 163.157C160.62 155.657 168.084 146.185 173.212 135.431C176.9 127.694 179.313 119.435 180.376 110.974C181.064 105.494 185.477 101 191 101Z"/></clipPath>
-      <filter id="filter0_d_4302_3545" x="63" y="162" width="70" height="70" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
-        <feFlood floodOpacity="0" result="BackgroundImageFix"/>
-        <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
-        <feOffset dy="4"/>
-        <feGaussianBlur stdDeviation="10"/>
-        <feComposite in2="hardAlpha" operator="out"/>
-        <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"/>
-        <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_4302_3545"/>
-        <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_4302_3545" result="shape"/>
-      </filter>
-      <linearGradient id="paint1_linear_4302_3545" x1="98" y1="178" x2="98" y2="208" gradientUnits="userSpaceOnUse">
-        <stop stopColor="#BC6B00"/>
-        <stop offset="1" stopColor="#925300"/>
-      </linearGradient>
-      <linearGradient id="paint2_linear_4302_3545" x1="101" y1="36" x2="101" y2="166" gradientUnits="userSpaceOnUse">
-        <stop stopColor="#BC6B00"/>
-        <stop offset="1" stopColor="#925300"/>
-      </linearGradient>
-      <linearGradient id="paint3_linear_4302_3545" x1="110.75" y1="37.8571" x2="105.179" y2="67.1071" gradientUnits="userSpaceOnUse">
-        <stop stopColor="#FF9407"/>
-        <stop offset="1" stopColor="#666666" stopOpacity="0"/>
-      </linearGradient>
-    </defs>
-  </svg>
-);
+const ProgressSVG = ({ percentage = 0 }) => {
+  // Use original dimensions to ensure layout compatibility
+  const width = 201;
+  const height = 232;
+  const centerX = width / 2;
+  const centerY = 100; // Keep the circle centered vertically in the upper part
 
-export default ProgressSVG; 
+  const radius = 70;
+  const strokeWidth = 10;
+  const circumference = 2 * Math.PI * radius;
+
+  // Safe percentage
+  const safePercentage = Math.min(Math.max(Number(percentage) || 0, 0), 100);
+  const offset = circumference - (safePercentage / 100) * circumference;
+
+  // Knob position calculation
+  // Percentage 0 is at 6 o'clock (90deg)
+  const startAngle = 90;
+  const currentAngle = startAngle + (safePercentage / 100) * 360;
+  const angleRad = (currentAngle * Math.PI) / 180;
+
+  const knobX = centerX + radius * Math.cos(angleRad);
+  const knobY = centerY + radius * Math.sin(angleRad);
+
+  // Ticks calculation - higher density for premium look
+  const ticks = [];
+  const numTicks = 150;
+  for (let i = 0; i < numTicks; i++) {
+    const tickAngle = startAngle + (i / numTicks) * 360;
+    const tickRad = (tickAngle * Math.PI) / 180;
+    const innerR = radius - 15;
+    const outerR = radius - 6;
+
+    const x1 = centerX + innerR * Math.cos(tickRad);
+    const y1 = centerY + innerR * Math.sin(tickRad);
+    const x2 = centerX + outerR * Math.cos(tickRad);
+    const y2 = centerY + outerR * Math.sin(tickRad);
+
+    const isCompleted = (i / numTicks) * 100 <= safePercentage;
+
+    ticks.push(
+      <line
+        key={i}
+        x1={x1}
+        y1={y1}
+        x2={x2}
+        y2={y2}
+        stroke={isCompleted ? "#FF9D00" : "#2A2A2A"}
+        strokeWidth="1"
+        style={{ transition: 'stroke 0.3s' }}
+      />
+    );
+  }
+
+  return (
+    <div className="relative flex items-center justify-center dashboard-progress-wrapper" style={{ width, height }}>
+      <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
+        <defs>
+          <filter id="glowEffect" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="3" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+          </filter>
+          <linearGradient id="progressGradientArc" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#FF9D00" />
+            <stop offset="100%" stopColor="#BC6B00" />
+          </linearGradient>
+        </defs>
+
+        {/* Outer dashed ring - dash-dot pattern */}
+        <circle
+          cx={centerX}
+          cy={centerY}
+          r={radius + 28}
+          fill="none"
+          stroke="#444"
+          strokeWidth="1"
+          strokeDasharray="12 4 2 4"
+          opacity="0.4"
+        />
+
+        {/* Middle decorative ring */}
+        <circle
+          cx={centerX}
+          cy={centerY}
+          r={radius + 18}
+          fill="none"
+          stroke="#333"
+          strokeWidth="1.5"
+          opacity="0.5"
+        />
+
+        {/* Ticks Ring */}
+        <g>{ticks}</g>
+
+        {/* Background Track (thin dark ring) */}
+        <circle
+          cx={centerX}
+          cy={centerY}
+          r={radius}
+          fill="none"
+          stroke="#1A1A1A"
+          strokeWidth={strokeWidth}
+        />
+
+        {/* Progress Arc */}
+        <circle
+          cx={centerX}
+          cy={centerY}
+          r={radius}
+          fill="none"
+          stroke="url(#progressGradientArc)"
+          strokeWidth={strokeWidth}
+          strokeDasharray={`${circumference} ${circumference}`}
+          strokeDashoffset={offset}
+          strokeLinecap="round"
+          transform={`rotate(90 ${centerX} ${centerY})`}
+          style={{ transition: 'stroke-dashoffset 1s cubic-bezier(0.4, 0, 0.2, 1)' }}
+          filter="url(#glowEffect)"
+        />
+
+        {/* Knob */}
+        <g style={{ transition: 'all 1s cubic-bezier(0.4, 0, 0.2, 1)' }}>
+          <circle
+            cx={knobX}
+            cy={knobY}
+            r="9"
+            fill="#BC6B00"
+            stroke="#FF9D00"
+            strokeWidth="2"
+          />
+        </g>
+
+        {/* Center Container */}
+        <circle
+          cx={centerX}
+          cy={centerY}
+          r={radius - 20}
+          fill="#8D5104"
+          stroke="#BC6B00"
+          strokeWidth="1"
+        />
+
+        {/* Percentage Text */}
+        <text
+          x={centerX}
+          y={centerY + 10}
+          textAnchor="middle"
+          fill="white"
+          fontSize="30"
+          fontWeight="bold"
+          className="itim"
+          style={{ fontFamily: "'Itim', cursive, sans-serif" }}
+        >
+          {Math.round(safePercentage)}%
+        </text>
+      </svg>
+    </div>
+  );
+};
+
+export default ProgressSVG;

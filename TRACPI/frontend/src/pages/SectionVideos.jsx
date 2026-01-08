@@ -7,6 +7,38 @@ import { ProgressContext } from "../context/ProgressContext";
 import { Play, Pause, Search, RotateCcw, Lock, Maximize, Minimize } from 'lucide-react';
 import squareLock from '../assets/square-lock-02.png';
 
+const normalizeVideoId = (id) => {
+  if (!id) return '';
+  let str = String(id).trim();
+  // Handle YouTube
+  const ytMatch = str.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|v\/|embed\/|user\/(?:\w+\/)+))([^?&"'>]+)/);
+  if (ytMatch) return ytMatch[1];
+  // Handle Vimeo
+  const vimeoMatch = str.match(/(?:vimeo\.com\/|player\.vimeo\.com\/video\/)(\d+)/);
+  if (vimeoMatch) return vimeoMatch[1];
+
+  return str;
+};
+
+const getVideoThumbnail = (videoID) => {
+  if (!videoID) return null;
+  let str = String(videoID).trim();
+
+  // YouTube
+  const ytMatch = str.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|v\/|embed\/|user\/(?:\w+\/)+))([^?&"'>]+)/);
+  if (ytMatch) return `https://img.youtube.com/vi/${ytMatch[1]}/mqdefault.jpg`;
+
+  // Vimeo
+  const vimeoMatch = str.match(/(?:vimeo\.com\/|player\.vimeo\.com\/video\/)(\d+)/);
+  if (vimeoMatch) return `https://vumbnail.com/${vimeoMatch[1]}.jpg`;
+
+  // Direct ID fallback (if numeric, assume Vimeo; if 11 chars alphanumeric, assume YT)
+  if (/^\d+$/.test(str)) return `https://vumbnail.com/${str}.jpg`;
+  if (str.length === 11) return `https://img.youtube.com/vi/${str}/mqdefault.jpg`;
+
+  return null;
+};
+
 const SectionVideos = () => {
   const [section, setSection] = useState(null);
   const [videos, setVideos] = useState([]);
@@ -14,6 +46,8 @@ const SectionVideos = () => {
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [completedVideos, setCompletedVideos] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isLastSection, setIsLastSection] = useState(false);
 
   // Player State
   const [isPlaying, setIsPlaying] = useState(false);
@@ -26,6 +60,7 @@ const SectionVideos = () => {
   const progressIntervalRef = useRef(null);
   const isSeekingRef = useRef(false);
   const vimeoHostRef = useRef(null);
+  const [error, setError] = useState(null);
 
   const { courseId, sectionId } = useParams();
   const navigate = useNavigate();
@@ -38,48 +73,109 @@ const SectionVideos = () => {
   //fetch section + progress
   useEffect(() => {
     const fetchData = async () => {
+      // DEBUG: Check localStorage directly
+      const storageToken = localStorage.getItem('token');
+      console.log("SectionVideos: Checking token", { contextToken: !!token, storageToken: !!storageToken });
+
+      if (!token && !storageToken) {
+        console.log("SectionVideos: No token found in context or storage.");
+        // We wait a tiny bit to see if context updates, otherwise we show error
+        setTimeout(() => {
+          if (!token && !localStorage.getItem('token')) {
+            setLoading(false);
+            setError("You must be logged in to view this course.");
+          }
+        }, 1500);
+        return;
+      }
+
+      const activeToken = token || storageToken;
+
+      setLoading(true);
+      setError(null);
+      console.log("SectionVideos: Starting fetchData", { sectionId, courseId, hasToken: !!activeToken });
+
       try {
         const sectionRes = await axios.get(
           `http://localhost:5000/api/sections/${sectionId}`,
-          { headers: { Authorization: `Bearer ${token}` } } // ✅ Add Auth Token
+          { headers: { Authorization: `Bearer ${activeToken}` } }
         );
         const data = sectionRes.data;
-        const progressRes = await axios.get(
-          `http://localhost:5000/api/progress/${courseId}/${data._id}`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
+        console.log("SectionVideos: Fetched section data:", data);
 
-
-        const completed = progressRes.data?.completedVideos || [];
-
-
+        if (!data) throw new Error("Section data is empty");
 
         setSection(data);
-        setCompletedVideos(completed);
-        setVideos(data?.units || []);
+        const units = data.units || [];
+        setVideos(units);
 
-        if (data.units?.length) {
-          const firstUnwatched =
-            data.units.find(
-              v => !completed.some(id => String(id) === String(v.videoID))
-            ) || data.units[0];
-
-          setSelectedVideo(firstUnwatched);
+        if (units.length === 0) {
+          console.warn("SectionVideos: This section has no units/videos.");
         }
+
+        // Fetch progress independently
+        try {
+          const progressRes = await axios.get(
+            `http://localhost:5000/api/progress/${courseId}/${data._id}`,
+            { headers: { Authorization: `Bearer ${activeToken}` } }
+          );
+          const completed = progressRes.data?.completedVideos || [];
+          console.log("SectionVideos: Fetched progress:", completed);
+          setCompletedVideos(completed);
+
+          if (units.length) {
+            const firstUnwatched =
+              units.find(
+                v => !completed.some(id => normalizeVideoId(id) === normalizeVideoId(v.videoID))
+              ) || units[0];
+            setSelectedVideo(firstUnwatched);
+          }
+        } catch (progErr) {
+          console.error("SectionVideos: Error fetching progress", progErr);
+          setCompletedVideos([]);
+          if (units.length) setSelectedVideo(units[0]);
+        }
+
+        // Fetch the course to get ordered sections and check if this is the last one
+        try {
+          const courseRes = await axios.get(
+            `http://localhost:5000/api/courses/${courseId}`,
+            { headers: { Authorization: `Bearer ${activeToken}` } }
+          );
+          const orderedSections = courseRes.data?.sections || [];
+          const currentIdx = orderedSections.findIndex(s => String(s._id || s) === String(sectionId));
+          setIsLastSection(currentIdx !== -1 && currentIdx === orderedSections.length - 1);
+        } catch (sectionErr) {
+          console.error("SectionVideos: Error fetching course for session ordering", sectionErr);
+          setIsLastSection(false);
+        }
+
       } catch (err) {
-        console.error("Error fetching section/progress", err);
+        console.error("SectionVideos: Error fetching section/progress", err);
+        if (err.response?.status === 401) {
+          setError("Your session has expired or you are unauthorized. Please log in again.");
+        } else {
+          setError(err.response?.data?.error || err.message || "Failed to load section content");
+        }
       } finally {
         setLoading(false);
       }
     };
 
-    if (sectionId && token) fetchData();
+    if (sectionId) {
+      fetchData();
+    }
   }, [sectionId, courseId, token]);
 
 
-  // 🚀 Vimeo Player Setup
+  // 🚀 Player Setup (Vimeo + YouTube)
   useEffect(() => {
     if (!selectedVideo) return;
+
+    const vidId = normalizeVideoId(selectedVideo.videoID);
+    const isYoutube = String(selectedVideo.videoID).includes('youtube.com') || String(selectedVideo.videoID).includes('youtu.be') || (vidId.length === 11 && !/^\d+$/.test(vidId));
+
+    console.log("SectionVideos: Setting up player for", { id: vidId, type: isYoutube ? 'YouTube' : 'Vimeo' });
 
     // Reset states
     setIsPlaying(false);
@@ -88,85 +184,156 @@ const SectionVideos = () => {
     setShowPopup(false);
     isSeekingRef.current = false;
 
+    // Destroy existing players
     if (playerRef.current) {
-      playerRef.current.destroy();
+      if (typeof playerRef.current.destroy === 'function') {
+        playerRef.current.destroy();
+      }
+      playerRef.current = null;
     }
 
-    const player = new Player(vimeoHostRef.current, {
-      id: selectedVideo.videoID,
-      responsive: true,
-      controls: false,
-      title: false,
-      byline: false,
-      portrait: false
-    });
-
-    playerRef.current = player;
-
-    player.on("play", () => setIsPlaying(true));
-    player.on("playing", () => setIsPlaying(true));
-    player.on("pause", () => setIsPlaying(false));
-
-    player.on("timeupdate", (data) => {
-      if (!isSeekingRef.current) {
-        if (data.seconds !== undefined) setCurrentTime(data.seconds);
+    if (window.YT && window.YT.Player && isYoutube) {
+      // YouTube Player
+      if (vimeoHostRef.current) {
+        vimeoHostRef.current.innerHTML = '<div id="yt-player"></div>';
+        const player = new window.YT.Player('yt-player', {
+          videoId: vidId,
+          width: '100%',
+          height: '100%',
+          playerVars: {
+            autoplay: 0,
+            controls: 0,
+            modestbranding: 1,
+            rel: 0,
+            showinfo: 0,
+            iv_load_policy: 3,
+            disablekb: 1,
+            fs: 0
+          },
+          events: {
+            onReady: (event) => {
+              setDuration(event.target.getDuration());
+            },
+            onStateChange: (event) => {
+              // -1 (unstarted), 0 (ended), 1 (playing), 2 (paused), 3 (buffering), 5 (video cued)
+              if (event.data === window.YT.PlayerState.PLAYING) {
+                setIsPlaying(true);
+              } else if (event.data === window.YT.PlayerState.PAUSED) {
+                setIsPlaying(false);
+              } else if (event.data === window.YT.PlayerState.ENDED) {
+                setIsPlaying(false);
+                markAsWatched();
+                setShowPopup(true);
+              }
+            }
+          }
+        });
+        playerRef.current = player;
       }
-      if (data.duration) setDuration(data.duration);
-    });
+    } else if (!isYoutube) {
+      // Vimeo Player
+      if (vimeoHostRef.current) {
+        vimeoHostRef.current.innerHTML = ''; // Clean container
+        const player = new Player(vimeoHostRef.current, {
+          id: vidId,
+          responsive: true,
+          controls: false,
+          title: false,
+          byline: false,
+          portrait: false
+        });
 
-    player.on("loaded", async () => {
-      try {
-        const d = await player.getDuration();
-        setDuration(d);
-      } catch (e) { }
-    });
+        playerRef.current = player;
 
-    player.on("durationchange", (data) => {
-      if (data.duration) setDuration(data.duration);
-    });
+        player.on("play", () => setIsPlaying(true));
+        player.on("playing", () => setIsPlaying(true));
+        player.on("pause", () => setIsPlaying(false));
 
-    player.on("seeking", () => {
-      isSeekingRef.current = true;
-    });
+        player.on("timeupdate", (data) => {
+          if (!isSeekingRef.current) {
+            if (data.seconds !== undefined) setCurrentTime(data.seconds);
+          }
+          if (data.duration) setDuration(data.duration);
+        });
 
-    player.on("seeked", () => {
-      isSeekingRef.current = false;
-    });
+        player.on("loaded", async () => {
+          try {
+            const d = await player.getDuration();
+            setDuration(d);
+          } catch (e) { }
+        });
 
-    // player.on("ended", () => {
-    //   setIsPlaying(false);
-    //   setShowPopup(true);
-    //   markAsWatched();
-    // });
-    player.on("ended", async () => {
-      setIsPlaying(false);
+        player.on("durationchange", (data) => {
+          if (data.duration) setDuration(data.duration);
+        });
 
-      await markAsWatched(); // update state first
+        player.on("seeking", () => {
+          isSeekingRef.current = true;
+        });
 
-      setShowPopup(true);    // popup after unlock
-    });
+        player.on("seeked", () => {
+          isSeekingRef.current = false;
+        });
 
+        player.on("ended", async () => {
+          setIsPlaying(false);
+          await markAsWatched();
+          setShowPopup(true);
+        });
 
-    // Initial duration fetch
-    player.getDuration().then((d) => setDuration(d)).catch(() => { });
+        player.getDuration().then((d) => setDuration(d)).catch(() => { });
+      }
+    }
+
+    // Load YouTube API if needed and not present
+    if (isYoutube && !window.YT) {
+      if (!window._yt_loading) {
+        window._yt_loading = true;
+        const tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        const firstScriptTag = document.getElementsByTagName('script')[0];
+        if (firstScriptTag && firstScriptTag.parentNode) {
+          firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+        } else {
+          document.head.appendChild(tag);
+        }
+      }
+
+      const checkYT = setInterval(() => {
+        if (window.YT && window.YT.Player) {
+          setLoading(prev => !prev); // Toggle to trigger re-render
+          setLoading(prev => !prev);
+          clearInterval(checkYT);
+        }
+      }, 500);
+      return () => clearInterval(checkYT);
+    }
 
     return () => {
-      player.destroy();
+      if (playerRef.current && typeof playerRef.current.destroy === 'function') {
+        playerRef.current.destroy();
+      }
     };
-  }, [selectedVideo]);
+  }, [selectedVideo, loading]);
 
-  // Smooth Progress Update Interval
+  // Smooth Progress Update Interval (Supports both)
   useEffect(() => {
     let interval;
     if (isPlaying && !showPopup) {
       interval = setInterval(async () => {
-        if (playerRef.current && !isSeekingRef.current) {
-          try {
+        if (!playerRef.current || isSeekingRef.current) return;
+
+        try {
+          // Check for Vimeo first (async)
+          if (typeof playerRef.current.getCurrentTime === 'function') {
             const time = await playerRef.current.getCurrentTime();
-            setCurrentTime(time);
-          } catch (e) { }
+            // Test if it returned a promise or a value
+            setCurrentTime(typeof time === 'number' ? time : 0);
+          }
+        } catch (e) {
+          // Fallback or skip if not ready
         }
-      }, 100);
+      }, 250);
     }
     return () => {
       if (interval) clearInterval(interval);
@@ -196,8 +363,9 @@ const SectionVideos = () => {
       notifyProgressChanged();
 
       setCompletedVideos(prev => {
-        if (prev.includes(String(selectedVideo.videoID))) return prev;
-        return [...prev, String(selectedVideo.videoID)];
+        const normalizedId = normalizeVideoId(selectedVideo.videoID);
+        if (prev.some(id => normalizeVideoId(id) === normalizedId)) return prev;
+        return [...prev, normalizedId];
       });
 
     } catch (err) {
@@ -209,8 +377,13 @@ const SectionVideos = () => {
 
   const handlePlayAgain = async () => {
     if (playerRef.current) {
-      await playerRef.current.setCurrentTime(0);
-      playerRef.current.play();
+      if (typeof playerRef.current.setCurrentTime === 'function') {
+        await playerRef.current.setCurrentTime(0);
+        playerRef.current.play();
+      } else if (typeof playerRef.current.seekTo === 'function') {
+        playerRef.current.seekTo(0);
+        playerRef.current.playVideo();
+      }
       setIsPlaying(true);
       setCurrentTime(0);
     }
@@ -228,16 +401,17 @@ const SectionVideos = () => {
       notifyProgressChanged();
 
       setCompletedVideos(prev => {
-        const isAlreadyCompleted = prev.some(id => String(id) === String(selectedVideo.videoID));
+        const normalizedId = normalizeVideoId(selectedVideo.videoID);
+        const isAlreadyCompleted = prev.some(id => normalizeVideoId(id) === normalizedId);
         if (!isAlreadyCompleted) {
-          return [...prev, String(selectedVideo.videoID)];
+          return [...prev, normalizedId];
         }
         return prev;
       });
 
-      // Robust index finding using string comparison
-      const nextIndex =
-        videos.findIndex(v => v.videoID === selectedVideo.videoID) + 1;
+      // Use indexOf for exact object reference to handle duplicate videoIDs correctly
+      const currentIndex = videos.indexOf(selectedVideo);
+      const nextIndex = currentIndex + 1;
 
       const nextVideo = videos[nextIndex];
       if (nextVideo) setSelectedVideo(nextVideo);
@@ -250,23 +424,35 @@ const SectionVideos = () => {
 
   const handleUnlockAssessment = async () => {
     try {
-      // await axios.post(
-      //   "http://localhost:5000/api/progress/watch-video",
-      //   { courseId, sectionId, videoId: selectedVideo.videoID },
-      //   { headers: { Authorization: `Bearer ${token}` } }
-      // );
-
       notifyProgressChanged();
+
+      // Fetch all sections to find the next one
+      const sectionsRes = await axios.get(
+        `http://localhost:5000/api/sections/by-course?courseId=${courseId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      const allSections = sectionsRes.data || [];
+      const currentIdx = allSections.findIndex(s => String(s._id) === String(sectionId));
+
+      if (currentIdx !== -1 && currentIdx < allSections.length - 1) {
+        const nextSection = allSections[currentIdx + 1];
+        navigate(`/courses/${courseId}/sections/${nextSection._id}`);
+      } else {
+        // Fallback to course section page if it's the last section
+        navigate(`/course-section/${courseId}`);
+      }
+    } catch (err) {
+      console.error("Error navigating to next session", err);
       navigate(`/course-section/${courseId}`);
-    } catch {
-      console.log("Error unlocking assessment");
     }
   };
 
-  // const isVideoLocked = (video, idx) => {
-  //   if (idx === 0) return false;
-  //   return !videos.slice(0, idx).every(v => completedVideos.includes(v.videoID));
-  // };
+  const handleTakeAssessment = () => {
+    notifyProgressChanged();
+    // Navigate with a state flag to open the assessment popup automatically
+    navigate(`/course-section/${courseId}`, { state: { openAssessment: true } });
+  };
 
   const isVideoLocked = (video, idx) => {
     return false;
@@ -276,15 +462,19 @@ const SectionVideos = () => {
   // Custom Controls Handlers
   const togglePlay = () => {
     if (!playerRef.current) return;
+
+    const isVimeo = typeof playerRef.current.play === 'function';
+    const isYT = typeof playerRef.current.playVideo === 'function';
+
     if (isPlaying) {
-      playerRef.current.pause().catch(() => { });
+      if (isVimeo) playerRef.current.pause().catch(() => { });
+      else if (isYT) playerRef.current.pauseVideo();
       setIsPlaying(false);
     } else {
-      playerRef.current.play().catch(err => {
-        console.error("Play failed", err);
-      });
+      if (isVimeo) playerRef.current.play().catch(err => console.error("Play failed", err));
+      else if (isYT) playerRef.current.playVideo();
       setIsPlaying(true);
-      // Auto-hide controls faster when manually playing
+
       if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
       controlsTimeoutRef.current = setTimeout(() => setShowControls(false), 2000);
     }
@@ -292,8 +482,13 @@ const SectionVideos = () => {
 
   const startRewatch = async () => {
     if (playerRef.current) {
-      await playerRef.current.setCurrentTime(0);
-      playerRef.current.play();
+      if (typeof playerRef.current.setCurrentTime === 'function') {
+        await playerRef.current.setCurrentTime(0);
+        playerRef.current.play();
+      } else if (typeof playerRef.current.seekTo === 'function') {
+        playerRef.current.seekTo(0);
+        playerRef.current.playVideo();
+      }
     }
   };
 
@@ -302,7 +497,11 @@ const SectionVideos = () => {
     setCurrentTime(time);
     isSeekingRef.current = true;
     if (playerRef.current) {
-      playerRef.current.setCurrentTime(time).catch(() => { });
+      if (typeof playerRef.current.setCurrentTime === 'function') {
+        playerRef.current.setCurrentTime(time).catch(() => { });
+      } else if (typeof playerRef.current.seekTo === 'function') {
+        playerRef.current.seekTo(time, true);
+      }
     }
   };
 
@@ -374,12 +573,29 @@ const SectionVideos = () => {
 
   if (loading)
     return (
-      <div className="flex items-center justify-center min-h-screen text-white">
-        Loading...
+      <div className="flex items-center justify-center min-h-screen text-white bg-[#040508]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-[#FF9D00] border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-lg font-medium">Loading Content...</p>
+        </div>
       </div>
     );
 
-  const currentVideoIndex = videos.findIndex(v => v.videoID === selectedVideo?.videoID);
+  if (error)
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen text-white bg-[#040508] p-5 text-center">
+        <h2 className="text-2xl font-bold text-red-500 mb-4">Oops! Something went wrong</h2>
+        <p className="text-gray-400 mb-8 max-w-md">{error}</p>
+        <button
+          onClick={() => window.location.reload()}
+          className="px-8 py-3 bg-[#FF9D00] text-black font-bold rounded-xl hover:bg-[#E68900] transition-all"
+        >
+          Try Again
+        </button>
+      </div>
+    );
+
+  const currentVideoIndex = videos.indexOf(selectedVideo);
 
   return (
     <div className="min-h-screen bg-[#040508] text-white font-['Poppins'] pb-10">
@@ -399,6 +615,8 @@ const SectionVideos = () => {
             <input
               type="search"
               placeholder="Search..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full bg-[#1A1A1A] text-white pl-10 pr-4 py-2.5 rounded-[12px] border border-[#333] focus:border-[#FF9D00] outline-none text-sm transition-all"
             />
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 w-4 h-4" />
@@ -411,41 +629,65 @@ const SectionVideos = () => {
 
         {/* Left: Video List (Sidebar) */}
         <div className="w-full lg:w-[380px] flex flex-col gap-4 max-h-[calc(100vh-180px)] overflow-y-auto pr-2 custom-scrollbar">
-          {videos.map((video, idx) => {
-            const locked = isVideoLocked(video, idx);
-            const isSelected = selectedVideo?.videoID === video.videoID;
+          {videos
+            .filter(video => video.unitName?.toLowerCase().includes(searchQuery.toLowerCase()))
+            .map((video) => {
+              // Use indexOf for exact object reference to handle duplicates correctly
+              const idx = videos.indexOf(video);
+              const locked = isVideoLocked(video, idx);
+              // Use object reference comparison for absolute uniqueness in the UI
+              const isSelected = selectedVideo === video;
 
-            return (
-              <div
-                key={video.videoID}
-                onClick={() => !locked && setSelectedVideo(video)}
-                className={`relative flex gap-4 p-3 rounded-[16px] border transition-all cursor-pointer group overflow-hidden
-                    ${isSelected
-                    ? 'bg-[#1A1A1A] border-[#FF9D00] shadow-[0_0_15px_rgba(255,157,0,0.1)]'
-                    : 'bg-[#0A0A0A] border-[#333] hover:border-gray-500'
-                  }
-                    ${locked ? 'opacity-60 grayscale cursor-not-allowed' : ''}
-                  `}
-              >
-                {/* Thumbnail Placeholder */}
-                <div className="relative w-[120px] h-[75px] bg-gray-800 rounded-[8px] overflow-hidden flex-shrink-0">
-                  <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-700 to-gray-900">
-                    {locked ? <Lock size={20} className="text-gray-500" /> : <Play size={24} className={`fill-current ${isSelected ? 'text-[#FF9D00]' : 'text-gray-400 group-hover:text-white'}`} />}
+              return (
+                <div
+                  key={`${video.videoID}-${idx}`}
+                  onClick={() => !locked && setSelectedVideo(video)}
+                  className={`relative flex gap-4 p-3 rounded-[16px] border transition-all cursor-pointer group overflow-hidden
+                        ${isSelected
+                      ? 'bg-[#1A1A1A] border-[#FF9D00] shadow-[0_0_15px_rgba(255,157,0,0.1)]'
+                      : 'bg-[#0A0A0A] border-[#333] hover:border-gray-500'
+                    }
+                        ${locked ? 'opacity-60 grayscale cursor-not-allowed' : ''}
+                      `}
+                >
+                  {/* Video Thumbnail */}
+                  <div className="relative w-[120px] h-[75px] bg-gray-800 rounded-[10px] overflow-hidden flex-shrink-0 group-hover:shadow-[0_0_10px_rgba(255,157,0,0.2)] transition-all">
+                    {getVideoThumbnail(video.videoID) ? (
+                      <img
+                        src={getVideoThumbnail(video.videoID)}
+                        alt={video.unitName}
+                        className={`w-full h-full object-cover transition-transform duration-500 ${isSelected ? 'scale-110' : 'group-hover:scale-110'} ${locked ? 'opacity-40 grayscale' : ''}`}
+                      />
+                    ) : (
+                      <div className="absolute inset-0 bg-gradient-to-br from-gray-700 to-gray-900" />
+                    )}
+
+                    <div className={`absolute inset-0 flex items-center justify-center transition-all duration-300 ${isSelected ? 'bg-[#FF9D00]/20' : 'bg-black/40 group-hover:bg-black/20'}`}>
+                      {locked ? (
+                        <Lock size={20} className="text-gray-400" />
+                      ) : (
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/30 ${isSelected ? 'bg-[#FF9D00] border-none' : 'bg-black/40 group-hover:scale-110 transition-transform'}`}>
+                          <Play
+                            size={14}
+                            className={`fill-current ${isSelected ? 'text-black' : 'text-white'}`}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Info */}
+                  <div className="flex flex-col justify-center flex-1 min-w-0">
+                    <h4 className={`text-sm font-semibold mb-1 truncate transition-colors ${isSelected ? 'text-[#FF9D00]' : 'text-white group-hover:text-[#FF9D00]'}`}>
+                      {video.unitName}
+                    </h4>
+                    <p className="text-[11px] text-gray-400 line-clamp-2 leading-relaxed">
+                      {video.unitDescription || "Introduction Video for the section of course"}
+                    </p>
                   </div>
                 </div>
-
-                {/* Info */}
-                <div className="flex flex-col justify-center flex-1 min-w-0">
-                  <h4 className={`text-sm font-semibold mb-1 truncate ${isSelected ? 'text-[#FF9D00]' : 'text-white'}`}>
-                    {video.unitName}
-                  </h4>
-                  <p className="text-[11px] text-gray-400 line-clamp-2 leading-relaxed">
-                    {video.unitDescription || "Introduction Video for the section of course"}
-                  </p>
-                </div>
-              </div>
-            );
-          })}
+              );
+            })}
         </div>
 
         {/* Right: Video Player Area */}
@@ -459,16 +701,16 @@ const SectionVideos = () => {
                 onMouseLeave={() => isPlaying && setShowControls(false)}
                 className={`relative w-full aspect-video bg-black rounded-[20px] overflow-hidden border border-[#222] shadow-2xl group/player ${isPlaying && !showControls ? 'cursor-none' : ''}`}
               >
-                <div ref={vimeoHostRef} className="w-full h-full pointer-events-none"></div>
+                <div ref={vimeoHostRef} className="w-full h-full"></div>
 
                 {/* Center Play Button Overlay (visible when paused and not ending) */}
                 {!isPlaying && !showPopup && (
                   <div
                     onClick={togglePlay}
-                    className="absolute inset-0 z-10 flex items-center justify-center bg-black/30 cursor-pointer group-hover/player:bg-black/40 transition-all"
+                    className="absolute inset-0 z-10 flex items-center justify-center bg-black/30 cursor-pointer group-hover/player:bg-black/40 transition-all text-white"
                   >
                     <div className="w-20 h-20 rounded-full border-2 border-white flex items-center justify-center pl-1 bg-black/40 backdrop-blur-sm hover:scale-110 transition-transform">
-                      <Play size={40} className="fill-white text-white" />
+                      <Play size={40} className="fill-white" />
                     </div>
                   </div>
                 )}
@@ -540,17 +782,27 @@ const SectionVideos = () => {
                         >
                           <RotateCcw size={18} /> Play Again
                         </button>
-
                         {(() => {
-                          const isLast = (videos.findIndex(v => v.videoID === selectedVideo?.videoID) === videos.length - 1);
-                          if (isLast) {
+                          const isLastVideo = (videos.indexOf(selectedVideo) === videos.length - 1);
+                          if (isLastVideo) {
                             return (
-                              <button
-                                onClick={handleUnlockAssessment}
-                                className="flex items-center gap-2 px-8 py-2.5 rounded-[12px] bg-[#FF9D00] hover:bg-[#E68900] text-black font-bold text-sm transition-all shadow-[0_4px_20px_rgba(255,157,0,0.3)]"
-                              >
-                                Unlock Assessment
-                              </button>
+                              <div className="flex flex-row items-center justify-center gap-4">
+                                {isLastSection ? (
+                                  <button
+                                    onClick={handleTakeAssessment}
+                                    className="flex items-center gap-2 px-8 py-2.5 rounded-[12px] bg-[#FF9D00] hover:bg-[#E68900] text-black font-bold text-sm transition-all shadow-[0_4px_20px_rgba(255,157,0,0.3)]"
+                                  >
+                                    Unlock Assessment
+                                  </button>
+                                ) : (
+                                  <button
+                                    onClick={handleUnlockAssessment}
+                                    className="flex items-center gap-2 px-8 py-2.5 rounded-[12px] bg-[#FF9D00] hover:bg-[#E68900] text-black font-bold text-sm transition-all shadow-[0_4px_20px_rgba(255,157,0,0.3)]"
+                                  >
+                                    Go to Next Session
+                                  </button>
+                                )}
+                              </div>
                             );
                           }
                           return (
@@ -558,7 +810,7 @@ const SectionVideos = () => {
                               onClick={handlePlayNext}
                               className="flex items-center gap-2 px-8 py-2.5 rounded-[12px] bg-[#FF9D00] hover:bg-[#E68900] text-black font-bold text-sm transition-all shadow-[0_4px_20px_rgba(255,157,0,0.3)]"
                             >
-                              <Play size={18} className="fill-black" /> Go to Next
+                              <Play size={18} className="fill-black" /> Play Next
                             </button>
                           );
                         })()}
@@ -584,7 +836,7 @@ const SectionVideos = () => {
         </div>
 
       </div>
-    </div>
+    </div >
   );
 };
 

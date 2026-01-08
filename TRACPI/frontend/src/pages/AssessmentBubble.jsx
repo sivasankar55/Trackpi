@@ -5,8 +5,7 @@ import {
   faChevronRight
 } from '@fortawesome/free-solid-svg-icons';
 
-const AssessmentBubble = ({ currentPage, setCurrentPage }) => {
-  const totalPages = 30;
+const AssessmentBubble = ({ currentPage, setCurrentPage, totalPages = 30 }) => {
   const [isMobile, setIsMobile] = useState(false);
   const visibleCount = isMobile ? 5 : 16;
 
@@ -47,7 +46,7 @@ const AssessmentBubble = ({ currentPage, setCurrentPage }) => {
       </div>
 
       {/* Bubble Row */}
-      <div className="absolute top-[15.6vh] ml-[5vw] w-[90vw] h-[7.5vh] flex items-center gap-[2vw] justify-start">
+      <div className="absolute top-[15.6vh] ml-[5vw] w-[90vw] h-[7.5vh] flex items-center gap-[37vw] justify-start">
         {/* Capsule with 1 and < */}
         <div className="flex items-center border border-white/90 rounded-full px-[0px]">
           <button
@@ -61,8 +60,7 @@ const AssessmentBubble = ({ currentPage, setCurrentPage }) => {
             onClick={handlePrev}
             disabled={currentPage === 1}
             className={`w-[44px] h-[44px] flex items-center justify-center rounded-full border border-white/80
-              ml-[4px] ${
-                currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''
+              ml-[4px] ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''
               }`}
           >
             <FontAwesomeIcon
@@ -75,7 +73,7 @@ const AssessmentBubble = ({ currentPage, setCurrentPage }) => {
         {/* Bubbles (2 to 29) */}
         <nav className="flex gap-x-[2vw]">
           {visiblePages
-            .filter((item) => item !== 1 && item !== 30)
+            .filter((item) => item !== 1 && item !== totalPages)
             .map((item) => {
               const isActive = item === currentPage;
               return (
@@ -84,11 +82,10 @@ const AssessmentBubble = ({ currentPage, setCurrentPage }) => {
                   onClick={() => setCurrentPage(item)}
                   className={`w-[44px] h-[44px] rounded-full border font-medium text-center 
                 flex items-center justify-center text-[18px]
-                ${
-                  isActive
-                    ? 'border-yellow-500 text-yellow-500'
-                    : 'border-white/90 text-white'
-                }`}
+                ${isActive
+                      ? 'border-yellow-500 text-yellow-500'
+                      : 'border-white/90 text-white'
+                    }`}
                 >
                   {item}
                 </button>
@@ -101,10 +98,9 @@ const AssessmentBubble = ({ currentPage, setCurrentPage }) => {
             onClick={handleNext}
             disabled={currentPage === totalPages}
             className={`w-[44px] h-[44px] flex items-center justify-center rounded-full border border-white/90
-              mr-[4px] ${
-                currentPage === totalPages
-                  ? 'opacity-50 cursor-not-allowed'
-                  : ''
+              mr-[4px] ${currentPage === totalPages
+                ? 'opacity-50 cursor-not-allowed'
+                : ''
               }`}
           >
             <FontAwesomeIcon
@@ -115,13 +111,12 @@ const AssessmentBubble = ({ currentPage, setCurrentPage }) => {
           <button
             onClick={() => setCurrentPage(totalPages)}
             className={`w-[44px] h-[44px] flex items-center justify-center text-white text-[18px] 
-              ${
-                currentPage === totalPages
-                  ? 'text-yellow-500 font-semibold'
-                  : ''
+              ${currentPage === totalPages
+                ? 'text-yellow-500 font-semibold'
+                : ''
               }`}
           >
-            30
+            {totalPages}
           </button>
         </div>
       </div>
