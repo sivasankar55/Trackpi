@@ -11,7 +11,7 @@ const LayoutB = () => {
   return (
     <>
 
-      <main className='background-b'>
+      <main className='background-b flex flex-col'>
         <HeaderB />
         <Outlet />
         {!isVideoPage && <FooterB />}

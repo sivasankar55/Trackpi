@@ -45,12 +45,11 @@ import { NavLink } from 'react-router-dom';
 
 const FooterB = () => {
   const linkClasses = ({ isActive }) =>
-    `poppins font-semibold text-[22px] transition-colors duration-300 ${
-      isActive ? 'text-[#FFB200]' : 'text-[#909090]'
+    `poppins font-semibold text-[22px] transition-colors duration-300 ${isActive ? 'text-[#FFB200]' : 'text-[#909090]'
     }`;
 
   return (
-    <footer className="w-[669px] h-[53px] rounded-[50px] bg-[#1A1A1A] mx-auto mt-auto mb-8">
+    <footer className="w-[669px] h-[53px] rounded-[50px] bg-[#1A1A1A] mx-auto mt-auto mb-8 flex justify-center items-center">
       <nav className="w-full py-2 px-8 flex justify-between items-center gap-10">
         <NavLink to="/discover-us" className={linkClasses}>
           Discover Us
