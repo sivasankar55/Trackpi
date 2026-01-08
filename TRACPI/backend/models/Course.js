@@ -19,8 +19,12 @@ const courseSchema = new mongoose.Schema({
     question: String,
     options: [String],
     correctAnswer: String,
-    type: String
-  }]
+    quizType: String
+  }],
+  quizTime: {
+    type: Number,
+    default: 60
+  }
 }, { timestamps: true });
 
 export default mongoose.model('Course', courseSchema); 

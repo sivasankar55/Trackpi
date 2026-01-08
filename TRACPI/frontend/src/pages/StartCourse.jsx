@@ -1,14 +1,56 @@
-import React, { useContext } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import followersAvatar from '../assets/followersAvatar.png'
 import { Link, useNavigate } from 'react-router-dom';
 import ProgressSVG from '../components/ProgressSVG';
 import ProgressArrow from '../components/ProgressArrow';
 import squreLock from '../assets/square-lock-02.png'
 import { AuthContext } from '../context/AuthContext';
+import { ProgressContext } from '../context/ProgressContext';
+import axios from 'axios';
 
 const StartCourse = () => {
-  const { user } = useContext(AuthContext)
+  const { user, token } = useContext(AuthContext)
+  const { progressVersion } = useContext(ProgressContext)
   const navigate = useNavigate()
+  const [percentage, setPercentage] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProgress = async () => {
+      console.log("Fetching progress for StartCourse dashboard...");
+      if (!token) {
+        console.log("No token found, skipping progress fetch.");
+        setLoading(false);
+        return;
+      }
+      try {
+        const res = await axios.get('http://localhost:5000/api/progress/courses-status', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        console.log("API courses-status response:", res.data);
+        const courses = Array.isArray(res.data) ? res.data : [];
+
+        if (courses.length > 0) {
+          // Calculate aggregate progress across all courses
+          const totalVideos = courses.reduce((sum, c) => sum + (c.totalVideosCount || 0), 0);
+          const completedVideos = courses.reduce((sum, c) => sum + (c.completedVideosCount || 0), 0);
+
+          const p = totalVideos > 0 ? (completedVideos / totalVideos) * 100 : 0;
+
+          console.log(`Aggregate percentage: ${p.toFixed(1)}% (${completedVideos}/${totalVideos} total videos completed)`);
+          setPercentage(p);
+        }
+      } catch (error) {
+        console.error("Error fetching progress in StartCourse:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProgress();
+  }, [token, progressVersion]);
+
 
 
 
@@ -106,12 +148,9 @@ const StartCourse = () => {
             </div>
             {/* Step 3: Progress Circle */}
             <div className="flex flex-col items-center">
-              <div className="relative flex flex-col items-center justify-center" style={{ width: 201, height: 232 }}>
+              <div className="relative flex flex-col items-center justify-center">
                 {/* progress svg */}
-                <ProgressSVG />
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-4xl font-bold text-[#FF9D00] itim"></span>
-                </div>
+                <ProgressSVG percentage={percentage} />
               </div>
             </div>
             {/* Arrow */}

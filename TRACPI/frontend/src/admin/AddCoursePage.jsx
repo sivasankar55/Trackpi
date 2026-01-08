@@ -5,9 +5,24 @@ import axios from 'axios';
 // Icons/Assets
 // Icons/Assets
 // Icons/Assets
-import { FiEdit3, FiTrash2 } from 'react-icons/fi';
+import { FiEdit3, FiTrash2, FiVideo } from 'react-icons/fi';
 import CourseSuccessPopup from './CourseSuccessPopup';
 import ErrorPopup from './ErrorPopup';
+
+const getVideoThumbnail = (videoID) => {
+    if (!videoID) return null;
+    let str = String(videoID).trim();
+    // YouTube
+    const ytMatch = str.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|v\/|embed\/|user\/(?:\w+\/)+))([^?&"'>]+)/);
+    if (ytMatch) return `https://img.youtube.com/vi/${ytMatch[1]}/mqdefault.jpg`;
+    // Vimeo
+    const vimeoMatch = str.match(/(?:vimeo\.com\/|player\.vimeo\.com\/video\/)(\d+)/);
+    if (vimeoMatch) return `https://vumbnail.com/${vimeoMatch[1]}.jpg`;
+    // Fallbacks
+    if (/^\d+$/.test(str)) return `https://vumbnail.com/${str}.jpg`;
+    if (str.length === 11) return `https://img.youtube.com/vi/${str}/mqdefault.jpg`;
+    return null;
+};
 
 const AddCoursePage = () => {
     const navigate = useNavigate();
@@ -16,7 +31,8 @@ const AddCoursePage = () => {
     const isEditMode = Boolean(courseId);
     const [formData, setFormData] = useState({
         courseName: '',
-        courseDetail: ''
+        courseDetail: '',
+        quizTime: 60
     });
     // Changed: Initialize sections as empty array of objects
     const [sections, setSections] = useState([]);
@@ -41,10 +57,77 @@ const AddCoursePage = () => {
                     const courseData = response.data;
                     setFormData({
                         courseName: courseData.courseName,
-                        courseDetail: courseData.courseDetail
+                        courseDetail: courseData.courseDetail,
+                        quizTime: courseData.quizTime || 60
                     });
-                    setSections(courseData.sections || []);
-                    setQuestions(courseData.questions || []); // Assuming questions are returned directly or adjust if needed
+                    const robustParse = (data) => {
+                        if (!data) return [];
+                        if (Array.isArray(data)) {
+                            return data.map(item => {
+                                if (item && typeof item === 'object' && !Array.isArray(item)) {
+                                    const obj = { ...item };
+                                    if (obj.type && !obj.quizType) obj.quizType = obj.type;
+                                    return obj;
+                                }
+                                return robustParse(item);
+                            }).flat().filter(i => i && typeof i === 'object');
+                        }
+                        if (data && typeof data === 'object') {
+                            const obj = { ...data };
+                            if (obj.type && !obj.quizType) obj.quizType = obj.type;
+                            return [obj];
+                        }
+                        if (typeof data !== 'string') return [];
+                        let s = data.trim();
+                        if (!s || s === 'undefined' || s === 'null') return [];
+                        const cleanJS = (str) => {
+                            try {
+                                return str
+                                    .replace(/(\r\n|\n|\r)/gm, "")
+                                    .replace(/\\n/g, "")
+                                    .replace(/'\s*\+\s*'/g, "")
+                                    .replace(/"\s*\+\s*"/g, "")
+                                    .replace(/'\s*\+\s*"/g, "")
+                                    .replace(/"\s*\+\s*'/g, "")
+                                    .replace(/'/g, '"')
+                                    .replace(/([{,]\s*)([a-zA-Z0-9_]+)\s*:/g, '$1"$2":')
+                                    .replace(/,\s*([\]}])/g, '$1');
+                            } catch (e) { return str; }
+                        };
+                        try {
+                            const parsed = JSON.parse(s);
+                            return robustParse(parsed);
+                        } catch (e) {
+                            try {
+                                const parsed = JSON.parse(cleanJS(s));
+                                return robustParse(parsed);
+                            } catch (e2) {
+                                const matches = s.match(/\{[^{}]+\}/g);
+                                if (matches) {
+                                    return matches.map(m => {
+                                        try {
+                                            const item = JSON.parse(cleanJS(m));
+                                            if (item && typeof item === 'object') {
+                                                const obj = { ...item };
+                                                if (obj.type && !obj.quizType) obj.quizType = obj.type;
+                                                return obj;
+                                            }
+                                        } catch (err) { }
+                                        return null;
+                                    }).filter(i => i && typeof i === 'object');
+                                }
+                                return [];
+                            }
+                        }
+                    };
+
+                    const rawSections = courseData.sections || [];
+                    const rawQuestions = courseData.questions || [];
+
+                    console.log('Raw Course Data:', { rawSections, rawQuestions });
+
+                    setSections(robustParse(rawSections));
+                    setQuestions(robustParse(rawQuestions));
                 } catch (error) {
                     console.error('Error fetching course details:', error);
                     alert('Failed to fetch course details');
@@ -117,7 +200,11 @@ const AddCoursePage = () => {
 
     const handleEditUnit = (index) => {
         const unitToEdit = sectionData.units[index];
-        setCurrentUnit(unitToEdit);
+        setCurrentUnit({
+            name: unitToEdit.name || unitToEdit.unitName || '',
+            description: unitToEdit.description || unitToEdit.unitDescription || '',
+            videoId: unitToEdit.videoId || unitToEdit.videoID || ''
+        });
         setEditingUnitIndex(index);
         setShowUnitDetails(true);
     };
@@ -138,6 +225,7 @@ const AddCoursePage = () => {
     };
 
     const handleAddQuestionWithPopup = () => {
+        console.log('Adding/Updating question...', { currentQuestion, quizType, editingQuestionIndex });
         // Basic validation
         if (!currentQuestion.question) {
             setErrorPopup({ show: true, message: 'Please enter a question' });
@@ -154,7 +242,7 @@ const AddCoursePage = () => {
 
         const newQuestion = {
             ...currentQuestion,
-            type: quizType,
+            quizType: quizType,
             options: quizType === 'True/False' ? ['True', 'False'] : currentQuestion.options
         };
 
@@ -171,6 +259,8 @@ const AddCoursePage = () => {
             setQuestions(prev => [...prev, newQuestion]);
         }
 
+        console.log('New questions state:', [...questions, newQuestion]);
+
         // Reset and close
         setCurrentQuestion({
             question: '',
@@ -182,12 +272,14 @@ const AddCoursePage = () => {
 
     const handleEditQuestion = (index) => {
         const questionToEdit = questions[index];
+        if (!questionToEdit) return;
+
         setCurrentQuestion({
-            question: questionToEdit.question,
+            question: questionToEdit.question || '',
             options: questionToEdit.options || ['', '', '', ''],
-            correctAnswer: questionToEdit.correctAnswer
+            correctAnswer: questionToEdit.correctAnswer || ''
         });
-        setQuizType(questionToEdit.type || 'MCQ');
+        setQuizType(questionToEdit.quizType || questionToEdit.type || 'MCQ');
         setEditingQuestionIndex(index);
         setShowQuizPopup(true);
     };
@@ -195,7 +287,7 @@ const AddCoursePage = () => {
     const handleEditSection = (index) => {
         const sectionToEdit = sections[index];
         setSectionData({
-            sectionName: sectionToEdit.name,
+            sectionName: sectionToEdit.name || sectionToEdit.sectionName || '',
             units: sectionToEdit.units || []
         });
         setEditingSectionIndex(index);
@@ -213,8 +305,10 @@ const AddCoursePage = () => {
                 courseName: formData.courseName,
                 courseDetail: formData.courseDetail,
                 sections: sections,
-                questions: questions
+                questions: questions,
+                quizTime: Number(formData.quizTime) || 60
             };
+            console.log("Saving course with payload:", payload);
 
             if (isEditMode) {
                 await axios.put(`http://localhost:5000/api/courses/${courseId}`, payload, { withCredentials: true });
@@ -303,8 +397,8 @@ const AddCoursePage = () => {
                                 <div className="space-y-3 sm:space-y-4">
                                     {sections.map((section, index) => (
                                         <div key={index} className="flex justify-between items-center bg-[#FFB300] h-[55px] sm:h-[60px] px-6 sm:px-8 rounded-[12px] hover:shadow-md transition-shadow">
-                                            {/* Changed: Render section.name */}
-                                            <span className="text-white font-bold text-lg sm:text-xl italic">{section.name}</span>
+                                            {/* Support both local 'name' and DB 'sectionName' */}
+                                            <span className="text-white font-bold text-lg sm:text-xl italic">{section.name || section.sectionName}</span>
                                             <FiEdit3
                                                 className="text-white text-xl sm:text-2xl cursor-pointer hover:text-white/80"
                                                 onClick={() => handleEditSection(index)}
@@ -357,6 +451,21 @@ const AddCoursePage = () => {
                                 )}
                             </div>
                         </div>
+
+                        {/* Quiz Time Limit */}
+                        <div className="mt-8 pt-6 border-t border-[#FFB300]">
+                            <label className="block text-lg sm:text-[22px] font-extrabold text-[#333] mb-3 sm:mb-4">Quiz Time (Minutes)</label>
+                            <div className="flex items-center gap-4">
+                                <input
+                                    type="number"
+                                    name="quizTime"
+                                    value={formData.quizTime}
+                                    onChange={handleInputChange}
+                                    placeholder="60"
+                                    className="w-full h-[55px] sm:h-[60px] px-6 sm:px-8 rounded-[12px] bg-[#FFB300] text-white placeholder-white/80 focus:outline-none text-lg sm:text-xl font-bold italic"
+                                />
+                            </div>
+                        </div>
                     </div>
                 </div>
             ) : (
@@ -392,8 +501,23 @@ const AddCoursePage = () => {
 
                             <div className="space-y-3 sm:space-y-4">
                                 {sectionData.units.map((unit, index) => (
-                                    <div key={index} className="flex justify-between items-center bg-[#FF9900] h-[55px] sm:h-[60px] px-6 sm:px-8 rounded-[12px] hover:shadow-md transition-shadow">
-                                        <span className="text-white font-bold text-lg sm:text-xl italic">{unit.name}</span>
+                                    <div key={index} className="flex justify-between items-center bg-[#FF9900] h-[70px] sm:h-[80px] px-4 sm:px-6 rounded-[12px] hover:shadow-md transition-shadow">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-[80px] h-[45px] bg-black/20 rounded-[6px] overflow-hidden flex-shrink-0 flex items-center justify-center">
+                                                {getVideoThumbnail(unit.videoId || unit.videoID) ? (
+                                                    <img
+                                                        src={getVideoThumbnail(unit.videoId || unit.videoID)}
+                                                        className="w-full h-full object-cover"
+                                                        alt="thumb"
+                                                    />
+                                                ) : (
+                                                    <FiVideo className="text-white/50" />
+                                                )}
+                                            </div>
+                                            <span className="text-white font-bold text-base sm:text-lg italic truncate max-w-[150px] sm:max-w-[200px]">
+                                                {unit.name || unit.unitName}
+                                            </span>
+                                        </div>
                                         <FiEdit3
                                             className="text-white text-xl sm:text-2xl cursor-pointer hover:text-white/80"
                                             onClick={() => handleEditUnit(index)}
@@ -439,15 +563,35 @@ const AddCoursePage = () => {
                                     </div>
 
                                     <div>
-                                        <label className="block text-base sm:text-lg font-bold text-[#333] mb-2">Video ID</label>
+                                        <label className="block text-base sm:text-lg font-bold text-[#333] mb-2">Video ID / URL</label>
                                         <input
                                             type="text"
                                             name="videoId"
                                             value={currentUnit.videoId}
                                             onChange={handleUnitChange}
-                                            placeholder="Enter Video ID"
+                                            placeholder="Enter Video ID or URL"
                                             className="w-full h-[50px] px-6 rounded-[10px] bg-[#FF9900] text-white placeholder-white/80 focus:outline-none text-base font-medium"
                                         />
+                                        {currentUnit.videoId && (
+                                            <div className="mt-4">
+                                                <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">Thumbnail Preview</label>
+                                                <div className="w-full aspect-video bg-black/10 rounded-[12px] overflow-hidden flex items-center justify-center border-2 border-dashed border-[#FF9900]/30 shadow-inner">
+                                                    {getVideoThumbnail(currentUnit.videoId) ? (
+                                                        <img
+                                                            src={getVideoThumbnail(currentUnit.videoId)}
+                                                            className="w-full h-full object-cover animate-in fade-in duration-500"
+                                                            alt="preview"
+                                                            onError={(e) => e.target.style.display = 'none'}
+                                                        />
+                                                    ) : (
+                                                        <div className="text-center p-4">
+                                                            <FiVideo size={32} className="mx-auto text-white/40 mb-2" />
+                                                            <p className="text-white/60 text-xs">Enter a valid ID to see preview</p>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
 
                                     <div className="flex justify-center mt-8">

@@ -2,6 +2,100 @@ import Course from '../models/Course.js';
 import Section from '../models/Section.js';
 import Enrollment from '../models/Enrollment.js';
 
+/**
+ * Extremely robust parser that handles:
+ * 1. Clean JSON
+ * 2. Stringified JSON
+ * 3. Mangled JS log strings (e.g. '[\n' + ' { ...')
+ * 4. Objects/Arrays already in correct format
+ * 
+ * Returns a FLAT array of plain objects.
+ */
+/**
+ * Extremely robust parser that handles:
+ * 1. Clean Arrays/Objects
+ * 2. Stringified JSON
+ * 3. Mangled JS log strings (e.g. '[\n' + ' { ...')
+ * 
+ * Returns a FLAT array of plain objects.
+ */
+const robustParse = (data) => {
+  if (!data) return [];
+
+  // 1. If it's already an array, process each item and flatten
+  if (Array.isArray(data)) {
+    return data
+      .map(item => {
+        if (item && typeof item === 'object' && !Array.isArray(item)) {
+          const obj = { ...item };
+          if (obj.type && !obj.quizType) obj.quizType = obj.type;
+          return obj;
+        }
+        return robustParse(item);
+      })
+      .flat()
+      .filter(i => i && typeof i === 'object' && !Array.isArray(i));
+  }
+
+  // 2. If it's a plain object (not an array), return it in an array
+  if (data && typeof data === 'object') {
+    const obj = { ...data };
+    if (obj.type && !obj.quizType) obj.quizType = obj.type;
+    return [obj];
+  }
+
+  // 3. If it's a string, try various parsing strategies
+  if (typeof data === 'string') {
+    let s = data.trim();
+    if (!s || s === 'undefined' || s === 'null') return [];
+
+    // Helper to clean up JS-style mangled strings
+    const cleanJS = (str) => {
+      try {
+        return str
+          .replace(/(\r\n|\n|\r)/gm, "")        // remove newlines
+          .replace(/\\n/g, "")                 // remove escaped newlines
+          .replace(/'\s*\+\s*'/g, "")           // remove ' + '
+          .replace(/"\s*\+\s*"/g, "")           // remove " + "
+          .replace(/'/g, '"')                  // convert ' to "
+          .replace(/([{,]\s*)([a-zA-Z0-9_]+)\s*:/g, '$1"$2":') // quote keys
+          .replace(/,\s*([\]}])/g, '$1');      // trailing commas
+      } catch (e) { return str; }
+    };
+
+    try {
+      // Try direct JSON
+      const parsed = JSON.parse(s);
+      return robustParse(parsed);
+    } catch (e) {
+      try {
+        // Try cleaned JS
+        const cleaned = cleanJS(s);
+        const parsed = JSON.parse(cleaned);
+        return robustParse(parsed);
+      } catch (e2) {
+        // Regex fallback: find { ... }
+        const matches = s.match(/\{[^{}]+\}/g);
+        if (matches) {
+          return matches.map(m => {
+            try {
+              const parsedItem = JSON.parse(cleanJS(m));
+              if (parsedItem && typeof parsedItem === 'object') {
+                const obj = { ...parsedItem };
+                if (obj.type && !obj.quizType) obj.quizType = obj.type;
+                return obj;
+              }
+              return null;
+            } catch (err) { return null; }
+          }).filter(i => i && typeof i === 'object');
+        }
+      }
+    }
+  }
+
+  return [];
+};
+
 export const getCourseStats = async (req, res) => {
   try {
     const totalCourses = await Course.countDocuments();
@@ -37,33 +131,42 @@ export const getCourseStats = async (req, res) => {
 export const createCourse = async (req, res) => {
   try {
     console.log("Creating new course...");
-    const { courseName, courseDetail, sections, questions } = req.body;
-    console.log("Request Body:", { courseName, sectionCount: sections?.length, questionCount: questions?.length });
+    const { courseName, courseDetail, sections, questions, quizTime } = req.body;
 
-    // 1. Create the Course first
+    const parsedQuestions = robustParse(questions);
+    const parsedSections = robustParse(sections);
+
+    console.log("Parsed Stats:", {
+      courseName,
+      sectionCount: parsedSections.length,
+      questionCount: parsedQuestions.length,
+      quizTime: quizTime
+    });
+
+    // 1. Create the Course
     const course = new Course({
       courseName,
       courseDetail,
       sections: [],
-      questions: questions || []
+      questions: parsedQuestions,
+      quizTime: Number(quizTime) || 60
     });
-    const savedCourse = await course.save();
-    console.log("Course saved:", savedCourse._id);
 
-    // 2. Process properties and create sections
-    if (sections && Array.isArray(sections) && sections.length > 0) {
+    // Save once at the beginning
+    const savedCourse = await course.save();
+    console.log("Initial course saved:", savedCourse._id);
+
+    // 2. Create Sections
+    if (parsedSections && parsedSections.length > 0) {
       const createdSectionIds = [];
 
-      for (const sectionData of sections) {
-        // Map units from frontend structure to backend schema
-        const mappedUnits = (sectionData.units || []).map(unit =>
-        ({
+      for (const sectionData of parsedSections) {
+        const mappedUnits = (sectionData.units || []).map(unit => ({
           unitName: unit.name || unit.unitName,
           unitDescription: unit.description || unit.unitDescription,
           videoID: unit.videoId || unit.videoID
         }));
 
-        // Create new Section linked to this course
         const newSection = new Section({
           sectionName: sectionData.name || sectionData.sectionName,
           units: mappedUnits,
@@ -71,11 +174,10 @@ export const createCourse = async (req, res) => {
         });
 
         const savedSection = await newSection.save();
-        console.log(`Section saved: ${savedSection._id} for course ${savedCourse._id}`);
         createdSectionIds.push(savedSection._id);
       }
 
-      // Update course with section references
+      // Update and save again with references
       savedCourse.sections = createdSectionIds;
       await savedCourse.save();
       console.log("Course updated with sections");
@@ -87,6 +189,7 @@ export const createCourse = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
+
 // get all course
 export const getAllCourses = async (req, res) => {
   try {
@@ -96,6 +199,7 @@ export const getAllCourses = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 //get course by id
 export const getCourseById = async (req, res) => {
   try {
@@ -106,46 +210,35 @@ export const getCourseById = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 //update course by id
 export const updateCourseById = async (req, res) => {
   try {
-    const { courseName, courseDetail, sections, questions } = req.body;
+    const { courseName, courseDetail, sections, questions, quizTime } = req.body;
     const courseId = req.params.id;
 
-    // 1. Update basic fields and questions
-    const course = await Course.findByIdAndUpdate(
-      courseId,
-      {
-        courseName,
-        courseDetail,
-        questions: questions || []
-      },
-      { new: true }
-    );
+    const parsedQuestions = robustParse(questions);
+    const parsedSections = robustParse(sections);
 
-    if (!course) return res.status(404).json({ error: 'Course not found' });
+    console.log(`Updating course ${courseId}...`, { quizTime });
 
-    // 2. Handle Sections - Recreate strategy
-    // First, remove existing sections associated with this course
-    // We get the old section IDs either from the course object before update or just delete by course reference
+    // 1. Delete old sections
     await Section.deleteMany({ course: courseId });
 
+    // 2. Prepare Section IDs
     const createdSectionIds = [];
-
-    if (sections && Array.isArray(sections) && sections.length > 0) {
-      for (const sectionData of sections) {
-        // Map units from frontend structure to backend schema
+    if (parsedSections && parsedSections.length > 0) {
+      for (const sectionData of parsedSections) {
         const mappedUnits = (sectionData.units || []).map(unit => ({
           unitName: unit.name || unit.unitName,
           unitDescription: unit.description || unit.unitDescription,
           videoID: unit.videoId || unit.videoID
         }));
 
-        // Create new Section linked to this course
         const newSection = new Section({
           sectionName: sectionData.name || sectionData.sectionName,
           units: mappedUnits,
-          course: course._id
+          course: courseId
         });
 
         const savedSection = await newSection.save();
@@ -153,13 +246,22 @@ export const updateCourseById = async (req, res) => {
       }
     }
 
-    // 3. Update course with new section IDs
-    course.sections = createdSectionIds;
-    const updatedCourse = await course.save();
+    // 3. Update Course in one go
+    const updatedCourse = await Course.findByIdAndUpdate(
+      courseId,
+      {
+        courseName,
+        courseDetail,
+        questions: parsedQuestions,
+        quizTime: Number(quizTime),
+        sections: createdSectionIds
+      },
+      { new: true, runValidators: true }
+    ).populate('sections');
 
-    // Populate for response
-    await updatedCourse.populate('sections');
+    if (!updatedCourse) return res.status(404).json({ error: 'Course not found' });
 
+    console.log("Course updated successfully");
     res.json(updatedCourse);
   } catch (error) {
     console.error("Error updating course:", error);

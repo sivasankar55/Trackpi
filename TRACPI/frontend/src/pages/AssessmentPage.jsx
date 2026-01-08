@@ -78,10 +78,10 @@ const AssessmentPage = () => {
     return `${m}:${s}`;
   };
 
-  const handleOptionSelect = (option) => {
+  const handleOptionSelect = (optionIndex) => {
     setAnswers(prev => ({
       ...prev,
-      [currentPage - 1]: option
+      [currentPage - 1]: optionIndex
     }));
   };
 
@@ -91,10 +91,14 @@ const AssessmentPage = () => {
       const payload = {
         courseId,
         sectionId,
-        answers: questions.map((q, idx) => ({
-          questionId: q._id,
-          answer: answers[idx] || ""
-        }))
+        answers: questions.map((q, idx) => {
+          const selectedIndex = answers[idx];
+          const selectedText = selectedIndex !== undefined ? q.options[selectedIndex] : "";
+          return {
+            questionId: q._id,
+            answer: selectedText
+          };
+        })
       };
 
       const res = await axios.post(
@@ -178,12 +182,12 @@ const AssessmentPage = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {currentQuestion.options.map((opt, idx) => {
-            const isSelected = answers[currentPage - 1] === opt;
+            const isSelected = answers[currentPage - 1] === idx;
             const label = String.fromCharCode(65 + idx);
             return (
               <div
-                key={opt}
-                onClick={() => handleOptionSelect(opt)}
+                key={idx}
+                onClick={() => handleOptionSelect(idx)}
                 className={`flex items-center cursor-pointer rounded-lg px-4 py-3 text-base font-medium transition-colors w-full
             ${isSelected ? 'bg-yellow-500 text-black' : 'bg-transparent text-white hover:bg-white/10'}`}
               >

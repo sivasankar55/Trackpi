@@ -1,7 +1,7 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
-function AssessmentFirstPopup({ maxAttempts, onButtonClick }) {
+function AssessmentFirstPopup({ maxAttempts, onButtonClick, courseName, numQuestions, timeAllowed }) {
   const navigate = useNavigate();
 
   return (
@@ -43,8 +43,8 @@ function AssessmentFirstPopup({ maxAttempts, onButtonClick }) {
 
           {/* Course Name and Info Boxes */}
           <div className="w-full flex flex-col items-center gap-[2vh]">
-            <h2 className="text-sm md:text-lg font-semibold text-center">
-              Course Name
+            <h2 className="text-sm md:text-lg font-semibold text-center truncate max-w-full">
+              {courseName || "Course Name"}
             </h2>
 
             <div className="flex flex-col md:flex-row justify-between w-full gap-4 md:gap-[3vw]">
@@ -52,13 +52,13 @@ function AssessmentFirstPopup({ maxAttempts, onButtonClick }) {
                 <p className="font-medium text-sm md:text-base">
                   Number of Questions
                 </p>
-                <p className="text-xl md:text-3xl font-bold">30</p>
+                <p className="text-xl md:text-3xl font-bold">{numQuestions || 0}</p>
               </div>
 
               <div className="flex flex-col items-center justify-center gap-2 h-[70px] md:h-[118px] border border-[#303030] rounded-[10px] px-4 md:px-[70px] py-3 md:py-[15px] text-center">
                 <p className="font-medium text-sm md:text-base">Time Allowed</p>
                 <p className="text-xl md:text-3xl font-bold">
-                  60{' '}
+                  {timeAllowed || 60}{' '}
                   <span className="text-xs md:text-base font-medium">
                     Minutes
                   </span>
@@ -69,7 +69,7 @@ function AssessmentFirstPopup({ maxAttempts, onButtonClick }) {
                 <p className="font-medium text-sm md:text-base">
                   Number of attempts left
                 </p>
-                <p className="text-xl md:text-3xl font-bold">0{maxAttempts}</p>
+                <p className="text-xl md:text-3xl font-bold">{maxAttempts}</p>
               </div>
             </div>
 
@@ -81,16 +81,14 @@ function AssessmentFirstPopup({ maxAttempts, onButtonClick }) {
 
           {/* Button */}
 
-          <Link to="/assessment/main">
-            <div className="flex justify-center mt-3 md:mt-8">
-              <button
-                onClick={onButtonClick}
-                className="text-white font-semibold text-xs md:text-sm rounded-[40px] border border-black w-[90%] max-w-[217px] h-[38px] md:h-[43px] px-4 md:px-[20px] py-2 md:py-[12px] bg-[#FF9D00] hover:opacity-90 transition"
-              >
-                Ok, Start Assessment
-              </button>
-            </div>
-          </Link>
+          <div className="flex justify-center mt-3 md:mt-8">
+            <button
+              onClick={onButtonClick}
+              className="text-white font-semibold text-xs md:text-sm rounded-[40px] border border-black w-[90%] max-w-[217px] h-[38px] md:h-[43px] px-4 md:px-[20px] py-2 md:py-[12px] bg-[#FF9D00] hover:opacity-90 transition"
+            >
+              Ok, Start Assessment
+            </button>
+          </div>
         </div>
 
         <style>{`
@@ -108,6 +106,3 @@ function AssessmentFirstPopup({ maxAttempts, onButtonClick }) {
 }
 
 export default AssessmentFirstPopup;
-
-
-
