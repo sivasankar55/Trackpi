@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+
 import hero from '../assets/hero.png';
 import facebook from '../assets/facebook.png';
 import instagram from '../assets/instagram.png';
@@ -20,24 +19,75 @@ const ContactPage = () => {
     message: ''
   });
 
+  const [errors, setErrors] = useState({});
+  const [successMessage, setSuccessMessage] = useState('');
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!formData.fullName.trim() || formData.fullName.length < 3) {
+      newErrors.fullName = 'Full Name must be at least 3 characters.';
+    }
+
+    if (!formData.contactNumber || !/^\d{10}$/.test(formData.contactNumber)) {
+      newErrors.contactNumber = 'Contact Number must be exactly 10 digits.';
+    }
+
+    if (!formData.email || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email address.';
+    }
+
+    if (!formData.location.trim()) {
+      newErrors.location = 'Location is required.';
+    }
+
+    if (!formData.hearAboutUs) {
+      newErrors.hearAboutUs = 'Please select an option.';
+    }
+
+    if (!formData.message.trim()) {
+      newErrors.message = 'Message is required.';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+
+    // Special handling for contactNumber
+    if (name === 'contactNumber') {
+      // Only allow digits
+      const re = /^[0-9\b]+$/;
+
+      // If value is not empty and not digits, ignore
+      if (value !== '' && !re.test(value)) {
+        return;
+      }
+
+      // Enforce max length of 10
+      if (value.length > 10) {
+        return;
+      }
+    }
+
+    setFormData({ ...formData, [name]: value });
+
+    // Clear error for this field when user types
+    if (errors[name]) {
+      setErrors({ ...errors, [name]: '' });
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validateForm()) {
+      return;
+    }
     try {
       await axios.post('http://localhost:5000/api/contact', formData);
-      toast.success('Message sent successfully!', {
-        style: {
-          background: '#2D1D29',
-          color: '#FF9D00',
-          border: '1px solid #FF9D00',
-        },
-        progressStyle: {
-          background: '#FF9D00'
-        }
-      });
+      setSuccessMessage('Message sent successfully!');
       setFormData({
         fullName: '',
         contactNumber: '',
@@ -46,15 +96,10 @@ const ContactPage = () => {
         hearAboutUs: '',
         message: ''
       });
+      // Clear success message after 5 seconds
+      setTimeout(() => setSuccessMessage(''), 5000);
     } catch (error) {
       console.error(error);
-      toast.error('Failed to send message. Please try again.', {
-        style: {
-          background: '#2D1D29',
-          color: '#FF4545',
-          border: '1px solid #FF4545',
-        }
-      });
     }
   };
 
@@ -102,22 +147,22 @@ const ContactPage = () => {
 
           {/* Social Icons */}
           <div className="flex gap-6 mt-12">
-            <a href="#" className="hover:opacity-80">
+            <a href="https://www.facebook.com/profile.php/?id=61565947096778" target="_blank" rel="noopener noreferrer" className="hover:opacity-80">
               <img src={facebook} alt="Facebook" className="w-8 h-8" />
             </a>
-            <a href="#" className="hover:opacity-80">
+            <a href="https://www.youtube.com/@Trackpi" target="_blank" rel="noopener noreferrer" className="hover:opacity-80">
               <img src={youtube} alt="Youtube" className="w-8 h-8" />
             </a>
-            <a href="#" className="hover:opacity-80">
+            <a href="https://www.instagram.com/trackpi_official/" target="_blank" rel="noopener noreferrer" className="hover:opacity-80">
               <img src={instagram} alt="Instagram" className="w-8 h-8" />
             </a>
-            <a href="#" className="hover:opacity-80">
+            <a href="https://medium.com/@trackpi" target="_blank" rel="noopener noreferrer" className="hover:opacity-80">
               <img src={mLogo} alt="Medium" className="w-8 h-8" />
             </a>
-            <a href="#" className="hover:opacity-80">
+            <a href="https://www.linkedin.com/company/trackpi-private-limited/posts/?feedView=all" target="_blank" rel="noopener noreferrer" className="hover:opacity-80">
               <img src={linkedin} alt="LinkedIn" className="w-8 h-8" />
             </a>
-            <a href="#" className="hover:opacity-80">
+            <a href="https://trackpi.in/" target="_blank" rel="noopener noreferrer" className="hover:opacity-80">
               <img src={search} alt="Search" className="w-8 h-8" />
             </a>
           </div>
@@ -134,7 +179,7 @@ const ContactPage = () => {
             effective, human, and equitable amidst growing uncertainty.
           </p>
 
-          <ToastContainer position="top-right" autoClose={3000} />
+
           <form className="space-y-4" onSubmit={handleSubmit}>
             <input
               type="text"
@@ -145,6 +190,8 @@ const ContactPage = () => {
               required
               className="w-full p-3 rounded-md bg-white text-black outline-none"
             />
+            {errors.fullName && <p className="text-red-500 text-sm mt-1">{errors.fullName}</p>}
+
             <input
               type="text"
               placeholder="Contact Number"
@@ -154,6 +201,8 @@ const ContactPage = () => {
               required
               className="w-full p-3 rounded-md bg-white text-black outline-none"
             />
+            {errors.contactNumber && <p className="text-red-500 text-sm mt-1">{errors.contactNumber}</p>}
+
             <input
               type="email"
               placeholder="Email Address"
@@ -163,6 +212,8 @@ const ContactPage = () => {
               required
               className="w-full p-3 rounded-md bg-white text-black outline-none"
             />
+            {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+
             <input
               type="text"
               placeholder="Where Are You Located"
@@ -171,6 +222,7 @@ const ContactPage = () => {
               onChange={handleChange}
               className="w-full p-3 rounded-md bg-white text-black outline-none"
             />
+            {errors.location && <p className="text-red-500 text-sm mt-1">{errors.location}</p>}
 
             <div className="relative">
               <select
@@ -197,6 +249,7 @@ const ContactPage = () => {
                 </svg>
               </div>
             </div>
+            {errors.hearAboutUs && <p className="text-red-500 text-sm mt-1">{errors.hearAboutUs}</p>}
 
             <textarea
               placeholder="Message"
@@ -207,7 +260,15 @@ const ContactPage = () => {
               required
               className="w-full p-3 rounded-md bg-white text-black outline-none resize-none"
             ></textarea>
+            {errors.message && <p className="text-red-500 text-sm mt-1">{errors.message}</p>}
 
+            {successMessage && (
+              <div
+                className="w-full p-3 rounded-md mb-4 text-center bg-[#2D1D29] text-[#FF9D00] border border-[#FF9D00]"
+              >
+                {successMessage}
+              </div>
+            )}
             <div className="flex flex-col items-center gap-4 mt-6">
               <button className="bg-[#FF9D00] text-white font-bold py-3 px-12 rounded-lg hover:bg-[#e08b00] transition">
                 Submit
