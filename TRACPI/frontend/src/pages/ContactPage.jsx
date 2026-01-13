@@ -104,7 +104,7 @@ const ContactPage = () => {
   };
 
   return (
-    <div className="w-full min-h-screen bg-[#2D1D29]">
+    <div className="w-full min-h-screen bg-[#2D1D29] overflow-x-hidden">
       {/* Hero Section */}
       <div className="relative w-full h-[223px] sm:h-[320px] md:h-[500px] lg:h-screen">
         <img
@@ -113,14 +113,14 @@ const ContactPage = () => {
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 flex items-center justify-center bg-black/10">
-          <h1 className="text-white text-5xl md:text-6xl font-bold">
+          <h1 className="text-white text-4xl sm:text-5xl md:text-6xl font-bold">
             Contact Us
           </h1>
         </div>
       </div>
 
       {/* Content Section */}
-      <div className="max-w-7xl mx-auto px-6 py-16 grid grid-cols-1 lg:grid-cols-2 gap-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16 grid grid-cols-1 lg:grid-cols-2 gap-16">
         {/* Left Column: Contact Info */}
         <div className="text-white space-y-10">
           <div>
@@ -142,11 +142,11 @@ const ContactPage = () => {
 
           <div>
             <h3 className="text-2xl font-bold mb-2">E-Mail ID</h3>
-            <p className="text-xl">operations@trackpi.in</p>
+            <p className="text-xl break-all">operations@trackpi.in</p>
           </div>
 
           {/* Social Icons */}
-          <div className="flex gap-6 mt-12">
+          <div className="flex gap-6 mt-12 flex-wrap">
             <a href="https://www.facebook.com/profile.php/?id=61565947096778" target="_blank" rel="noopener noreferrer" className="hover:opacity-80">
               <img src={facebook} alt="Facebook" className="w-8 h-8" />
             </a>
@@ -170,7 +170,7 @@ const ContactPage = () => {
 
         {/* Right Column: Form */}
         <div className="bg-transparent">
-          <h2 className="text-[#FFC100] text-3xl md:text-4xl font-bold mb-6">
+          <h2 className="text-[#FFC100] text-2xl sm:text-3xl md:text-4xl font-bold mb-6 break-words">
             You’re ready to take the next step
           </h2>
           <p className="text-white mb-8">
@@ -188,7 +188,7 @@ const ContactPage = () => {
               value={formData.fullName}
               onChange={handleChange}
               required
-              className="w-full p-3 rounded-md bg-white text-black outline-none"
+              className="w-full max-w-full text-base p-3 rounded-md bg-white text-black outline-none"
             />
             {errors.fullName && <p className="text-red-500 text-sm mt-1">{errors.fullName}</p>}
 
@@ -199,7 +199,7 @@ const ContactPage = () => {
               value={formData.contactNumber}
               onChange={handleChange}
               required
-              className="w-full p-3 rounded-md bg-white text-black outline-none"
+              className="w-full max-w-full text-base p-3 rounded-md bg-white text-black outline-none"
             />
             {errors.contactNumber && <p className="text-red-500 text-sm mt-1">{errors.contactNumber}</p>}
 
@@ -210,7 +210,7 @@ const ContactPage = () => {
               value={formData.email}
               onChange={handleChange}
               required
-              className="w-full p-3 rounded-md bg-white text-black outline-none"
+              className="w-full max-w-full text-base p-3 rounded-md bg-white text-black outline-none"
             />
             {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
 
@@ -220,16 +220,16 @@ const ContactPage = () => {
               name="location"
               value={formData.location}
               onChange={handleChange}
-              className="w-full p-3 rounded-md bg-white text-black outline-none"
+              className="w-full max-w-full text-base p-3 rounded-md bg-white text-black outline-none"
             />
             {errors.location && <p className="text-red-500 text-sm mt-1">{errors.location}</p>}
 
-            <div className="relative">
+            <div className="relative w-full">
               <select
                 name="hearAboutUs"
                 value={formData.hearAboutUs}
                 onChange={handleChange}
-                className="w-full p-3 rounded-md bg-white text-gray-500 outline-none appearance-none"
+                className="w-full max-w-full text-base p-3 pr-10 rounded-md bg-white text-gray-500 outline-none appearance-none truncate"
               >
                 <option value="">How Did You Hear About Us?</option>
                 <option value="Social Media">Social Media</option>
@@ -258,7 +258,7 @@ const ContactPage = () => {
               value={formData.message}
               onChange={handleChange}
               required
-              className="w-full p-3 rounded-md bg-white text-black outline-none resize-none"
+              className="w-full max-w-full text-base p-3 rounded-md bg-white text-black outline-none resize-none"
             ></textarea>
             {errors.message && <p className="text-red-500 text-sm mt-1">{errors.message}</p>}
 
