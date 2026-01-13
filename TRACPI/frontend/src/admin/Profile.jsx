@@ -2,10 +2,12 @@ import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { AdminAuthContext } from '../context/AdminAuthContext';
 import ProfileIllustration from '../assets/profile.png';
-import { FaUserCircle, FaEdit } from 'react-icons/fa';
+import { FaUserCircle, FaEdit, FaCamera } from 'react-icons/fa';
+import ImageCropperPopup from './ImageCropperPopup';
+import { toast } from 'react-toastify';
 
 const Profile = () => {
-    const { adminInfo, logout } = useContext(AdminAuthContext);
+    const { adminInfo, logout, updateAdminInfo } = useContext(AdminAuthContext);
     const [formData, setFormData] = useState({
         username: '',
         fullname: '',
@@ -17,6 +19,9 @@ const Profile = () => {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [message, setMessage] = useState({ type: '', text: '' });
+    const [profilePic, setProfilePic] = useState(null);
+    const [selectedImage, setSelectedImage] = useState(null);
+    const [showCropper, setShowCropper] = useState(false);
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -33,6 +38,9 @@ const Profile = () => {
                     password: '',
                     confirmPassword: ''
                 });
+                if (data.profilePicture) {
+                    setProfilePic(`http://localhost:5000${data.profilePicture}`);
+                }
             } catch (err) {
                 console.error('Error fetching profile:', err);
                 // Fallback to context if API fails
@@ -58,24 +66,54 @@ const Profile = () => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = () => {
+                setSelectedImage(reader.result);
+                setShowCropper(true);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleCropComplete = async (croppedBlob) => {
+        setShowCropper(false);
+        const formData = new FormData();
+        formData.append('profilePicture', croppedBlob);
+
+        try {
+            const response = await axios.put('http://localhost:5000/api/admin/profile/picture', formData, {
+                withCredentials: true,
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            setProfilePic(`http://localhost:5000${response.data.profilePicture}`);
+            updateAdminInfo({ profilePicture: response.data.profilePicture });
+            toast.success('Profile picture updated!');
+        } catch (err) {
+            console.error('Error uploading image:', err);
+            toast.error(err.response?.data?.error || 'Failed to upload image');
+        }
+    };
+
     const handleUpdate = async (e) => {
         e.preventDefault();
         if (formData.password && formData.password !== formData.confirmPassword) {
-            setMessage({ type: 'error', text: 'Passwords do not match' });
+            toast.error('Passwords do not match');
             return;
         }
 
         setSaving(true);
-        setMessage({ type: '', text: '' });
 
         try {
             await axios.put('http://localhost:5000/api/admin/profile', formData, {
                 withCredentials: true
             });
-            setMessage({ type: 'success', text: 'Profile updated successfully' });
-            // Optionally update context or refresh
+            updateAdminInfo(formData);
+            toast.success('Profile updated successfully');
         } catch (err) {
-            setMessage({ type: 'error', text: err.response?.data?.error || 'Failed to update profile' });
+            toast.error(err.response?.data?.error || 'Failed to update profile');
         } finally {
             setSaving(false);
         }
@@ -101,11 +139,31 @@ const Profile = () => {
                 {/* Hero section */}
                 <div className="bg-[#FFF8E7] rounded-[20px] p-8 relative flex items-center justify-between border border-[#FFB30040] min-h-[220px] shadow-[0px_4px_20px_rgba(0,0,0,0.05)] overflow-hidden">
                     <div className="flex items-center gap-10 z-10">
-                        <div className="relative">
-                            <div className="w-28 h-28 rounded-full bg-[#E5F1FF] flex items-center justify-center text-[#0089FF] border-2 border-white shadow-sm">
-                                <FaUserCircle size={75} />
+                        <div className="relative group">
+                            <div className="w-28 h-28 rounded-full bg-[#E5F1FF] flex items-center justify-center text-[#0089FF] border-2 border-white shadow-md overflow-hidden transition-all group-hover:opacity-90">
+                                {profilePic ? (
+                                    <img src={profilePic} alt="Profile" className="w-full h-full object-cover" />
+                                ) : (
+                                    <FaUserCircle size={112} className="opacity-80" />
+                                )}
+                                <div
+                                    onClick={() => document.getElementById('profile-pic-input').click()}
+                                    className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                                >
+                                    <FaCamera size={24} className="text-white" />
+                                </div>
                             </div>
-                            <button className="absolute bottom-1 right-1 bg-white p-2 rounded-full shadow-md border border-gray-100 hover:scale-110 transition-transform">
+                            <input
+                                type="file"
+                                id="profile-pic-input"
+                                className="hidden"
+                                accept="image/*"
+                                onChange={handleImageChange}
+                            />
+                            <button
+                                onClick={() => document.getElementById('profile-pic-input').click()}
+                                className="absolute bottom-1 right-1 bg-white p-2 rounded-full shadow-md border border-gray-100 hover:scale-110 transition-transform z-20"
+                            >
                                 <FaEdit size={14} className="text-gray-600" />
                             </button>
                         </div>
@@ -223,12 +281,15 @@ const Profile = () => {
                         </div>
                     </form>
 
-                    {message.text && (
-                        <div className={`mt-6 p-3 rounded-lg text-center font-medium ${message.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                            {message.text}
-                        </div>
-                    )}
                 </div>
+
+                {showCropper && (
+                    <ImageCropperPopup
+                        image={selectedImage}
+                        onCropComplete={handleCropComplete}
+                        onCancel={() => setShowCropper(false)}
+                    />
+                )}
             </div>
         </div>
     );

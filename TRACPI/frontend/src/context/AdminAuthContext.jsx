@@ -42,6 +42,7 @@ export const AdminAuthProvider = ({ children }) => {
     localStorage.setItem('adminInfo', JSON.stringify(adminData));
   };
 
+
   const logout = async () => {
     try {
       await axios.post('http://localhost:5000/api/admin/logout', {}, {
@@ -50,21 +51,28 @@ export const AdminAuthProvider = ({ children }) => {
     } catch (error) {
       console.error('Logout error:', error);
     }
-    
+
     setAdminInfo(null);
     setIsAuthenticated(false);
     localStorage.removeItem('adminInfo');
   };
-
+  const updateAdminInfo = (newData) => {
+    setAdminInfo(prev => {
+      const updated = { ...prev, ...newData };
+      localStorage.setItem('adminInfo', JSON.stringify(updated));
+      return updated;
+    });
+  };
   return (
-    <AdminAuthContext.Provider value={{ 
-      adminInfo, 
-      isAuthenticated, 
-      loading, 
-      login, 
-      logout 
+    <AdminAuthContext.Provider value={{
+      adminInfo,
+      isAuthenticated,
+      loading,
+      login,
+      logout,
+      updateAdminInfo,
     }}>
       {children}
     </AdminAuthContext.Provider>
   );
-}; 
+};

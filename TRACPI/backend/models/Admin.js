@@ -29,6 +29,10 @@ const AdminSchema = new mongoose.Schema({
     trim: true,
     default: ''
   },
+  profilePicture: {
+    type: String,
+    default: ''
+  },
   lastLogin: {
     type: Date,
     default: null

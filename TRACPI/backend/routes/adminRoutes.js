@@ -9,7 +9,9 @@ import {
     requireAdminAuth,
     suspendAdmin,
     getAdminProfile,
-    updateAdminProfile
+    updateAdminProfile,
+    updateAdminProfilePicture,
+    upload
 } from '../controllers/adminController.js';
 
 const router = express.Router();
@@ -32,6 +34,7 @@ router.get('/', requireAdminAuth, getAllAdmins);
 // Profile routes
 router.get('/profile', requireAdminAuth, getAdminProfile);
 router.put('/profile', requireAdminAuth, updateAdminProfile);
+router.put('/profile/picture', requireAdminAuth, upload.single('profilePicture'), updateAdminProfilePicture);
 
 // Admin login
 router.post('/login', loginAdmin);
