@@ -35,4 +35,25 @@ export const getCourseStats = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-}; 
+};
+
+// Get user-wise progress for a specific course
+export const getCourseUsersProgress = async (req, res) => {
+  try {
+    const { courseId } = req.params;
+    const enrollments = await Enrollment.find({ course: courseId }).populate('user').populate('course');
+
+    const progressData = enrollments.map(e => ({
+      name: e.user?.name || 'Unknown',
+      username: e.user?.email || 'N/A',
+      courseName: e.course?.courseName || 'Deleted Course',
+      startDate: e.enrollmentDate ? new Date(e.enrollmentDate).toLocaleDateString() : 'N/A',
+      progress: e.progress,
+      userId: e.user?._id
+    }));
+
+    res.json(progressData);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
