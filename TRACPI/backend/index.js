@@ -1,6 +1,8 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import connectDB from './config/mongodb.js';
 import passport from './config/googleAuth.js';
 import session from 'express-session';
@@ -19,6 +21,9 @@ dotenv.config();
 const PORT = process.env.PORT || 5000;
 const app = express();
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 // Middleware
 app.use(express.json());
 const allowedOrigins = [
@@ -29,6 +34,8 @@ app.use(cors({
   origin: allowedOrigins,
   credentials: true
 }));
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Session configuration for OAuth
 app.use(session({

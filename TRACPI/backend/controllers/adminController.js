@@ -2,7 +2,21 @@ import Admin from '../models/Admin.js';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime.js';
 import bcrypt from 'bcrypt';
+import multer from 'multer';
+import path from 'path';
 dayjs.extend(relativeTime);
+
+// Multer Config
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/');
+  },
+  filename: (req, file, cb) => {
+    cb(null, `admin-${Date.now()}${path.extname(file.originalname)}`);
+  }
+});
+
+export const upload = multer({ storage: storage });
 
 // Add new admin
 export const addAdmin = async (req, res) => {
@@ -142,7 +156,7 @@ export const loginAdmin = async (req, res) => {
     req.session.adminId = admin._id;
     admin.lastLogin = new Date();
     await admin.save();
-    res.json({ message: 'Login successful', admin: { id: admin._id, username: admin.username, email: admin.email, adminType: admin.adminType } });
+    res.json({ message: 'Login successful', admin: { id: admin._id, username: admin.username, email: admin.email, adminType: admin.adminType, profilePicture: admin.profilePicture } });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -191,6 +205,27 @@ export const updateAdminProfile = async (req, res) => {
     res.json(admin);
   } catch (error) {
     res.status(400).json({ error: error.message });
+  }
+};
+
+// Update current admin profile picture
+export const updateAdminProfilePicture = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'Please upload a file' });
+    }
+
+    const profilePicture = `/uploads/${req.file.filename}`;
+    const admin = await Admin.findByIdAndUpdate(
+      req.session.adminId,
+      { profilePicture },
+      { new: true }
+    ).select('-password');
+
+    if (!admin) return res.status(404).json({ error: 'Admin not found' });
+    res.json(admin);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };
 
