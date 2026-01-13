@@ -69,7 +69,7 @@ const ProgressSVG = ({ percentage = 0 }) => {
         </defs>
 
         {/* Outer dashed ring - dash-dot pattern */}
-        <circle
+        {/* <circle
           cx={centerX}
           cy={centerY}
           r={radius + 28}
@@ -78,10 +78,10 @@ const ProgressSVG = ({ percentage = 0 }) => {
           strokeWidth="1"
           strokeDasharray="12 4 2 4"
           opacity="0.4"
-        />
-
+        /> */}
+ 
         {/* Middle decorative ring */}
-        <circle
+        {/* <circle
           cx={centerX}
           cy={centerY}
           r={radius + 18}
@@ -89,7 +89,7 @@ const ProgressSVG = ({ percentage = 0 }) => {
           stroke="#333"
           strokeWidth="1.5"
           opacity="0.5"
-        />
+        /> */} 
 
         {/* Ticks Ring */}
         <g>{ticks}</g>

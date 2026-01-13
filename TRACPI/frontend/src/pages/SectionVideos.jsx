@@ -6,13 +6,14 @@ import { AuthContext } from '../context/AuthContext'
 import { ProgressContext } from "../context/ProgressContext";
 import { Play, Pause, Search, RotateCcw, Lock, Maximize, Minimize } from 'lucide-react';
 import squareLock from '../assets/square-lock-02.png';
+import './css/faq.css';
+
+
 
 const normalizeVideoId = (id) => {
   if (!id) return '';
   let str = String(id).trim();
-  // Handle YouTube
-  const ytMatch = str.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|v\/|embed\/|user\/(?:\w+\/)+))([^?&"'>]+)/);
-  if (ytMatch) return ytMatch[1];
+
   // Handle Vimeo
   const vimeoMatch = str.match(/(?:vimeo\.com\/|player\.vimeo\.com\/video\/)(\d+)/);
   if (vimeoMatch) return vimeoMatch[1];
@@ -24,17 +25,12 @@ const getVideoThumbnail = (videoID) => {
   if (!videoID) return null;
   let str = String(videoID).trim();
 
-  // YouTube
-  const ytMatch = str.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|v\/|embed\/|user\/(?:\w+\/)+))([^?&"'>]+)/);
-  if (ytMatch) return `https://img.youtube.com/vi/${ytMatch[1]}/mqdefault.jpg`;
-
   // Vimeo
   const vimeoMatch = str.match(/(?:vimeo\.com\/|player\.vimeo\.com\/video\/)(\d+)/);
   if (vimeoMatch) return `https://vumbnail.com/${vimeoMatch[1]}.jpg`;
 
-  // Direct ID fallback (if numeric, assume Vimeo; if 11 chars alphanumeric, assume YT)
+  // Direct ID fallback (if numeric, assume Vimeo)
   if (/^\d+$/.test(str)) return `https://vumbnail.com/${str}.jpg`;
-  if (str.length === 11) return `https://img.youtube.com/vi/${str}/mqdefault.jpg`;
 
   return null;
 };
@@ -67,6 +63,15 @@ const SectionVideos = () => {
   const { token } = useContext(AuthContext)
   const { notifyProgressChanged } = useContext(ProgressContext)
 
+  // Refs for stable access inside event listeners
+  const sectionRef = useRef(section);
+  const selectedVideoRef = useRef(selectedVideo);
+
+  useEffect(() => {
+    sectionRef.current = section;
+    selectedVideoRef.current = selectedVideo;
+  }, [section, selectedVideo]);
+
   const playerRef = useRef(null);
   const videoContainerRef = useRef(null);
 
@@ -91,7 +96,12 @@ const SectionVideos = () => {
 
       const activeToken = token || storageToken;
 
-      setLoading(true);
+      // Only show full loading spinner if we don't have the section data yet
+      // This prevents UI flash/reset when context updates (like progress change)
+      if (!section || section._id !== sectionId) {
+        setLoading(true);
+      }
+
       setError(null);
       console.log("SectionVideos: Starting fetchData", { sectionId, courseId, hasToken: !!activeToken });
 
@@ -124,16 +134,20 @@ const SectionVideos = () => {
           setCompletedVideos(completed);
 
           if (units.length) {
-            const firstUnwatched =
-              units.find(
-                v => !completed.some(id => normalizeVideoId(id) === normalizeVideoId(v.videoID))
-              ) || units[0];
-            setSelectedVideo(firstUnwatched);
+            // Only set selectedVideo if it's not already set (initial load)
+            // preventing override when background refresh happens
+            if (!selectedVideo) {
+              const firstUnwatched =
+                units.find(
+                  v => !completed.some(id => normalizeVideoId(id) === normalizeVideoId(v.videoID))
+                ) || units[0];
+              setSelectedVideo(firstUnwatched);
+            }
           }
         } catch (progErr) {
           console.error("SectionVideos: Error fetching progress", progErr);
           setCompletedVideos([]);
-          if (units.length) setSelectedVideo(units[0]);
+          if (units.length && !selectedVideo) setSelectedVideo(units[0]);
         }
 
         // Fetch the course to get ordered sections and check if this is the last one
@@ -173,16 +187,15 @@ const SectionVideos = () => {
     if (!selectedVideo) return;
 
     const vidId = normalizeVideoId(selectedVideo.videoID);
-    const isYoutube = String(selectedVideo.videoID).includes('youtube.com') || String(selectedVideo.videoID).includes('youtu.be') || (vidId.length === 11 && !/^\d+$/.test(vidId));
 
-    console.log("SectionVideos: Setting up player for", { id: vidId, type: isYoutube ? 'YouTube' : 'Vimeo' });
+    console.log("SectionVideos: Setting up player for", { id: vidId, type: 'Vimeo' });
 
     // Reset states
     setIsPlaying(false);
     setCurrentTime(0);
     setDuration(0);
-    setShowPopup(false);
     isSeekingRef.current = false;
+    setShowPopup(false);
 
     // Destroy existing players
     if (playerRef.current) {
@@ -192,121 +205,57 @@ const SectionVideos = () => {
       playerRef.current = null;
     }
 
-    if (window.YT && window.YT.Player && isYoutube) {
-      // YouTube Player
-      if (vimeoHostRef.current) {
-        vimeoHostRef.current.innerHTML = '<div id="yt-player"></div>';
-        const player = new window.YT.Player('yt-player', {
-          videoId: vidId,
-          width: '100%',
-          height: '100%',
-          playerVars: {
-            autoplay: 0,
-            controls: 0,
-            modestbranding: 1,
-            rel: 0,
-            showinfo: 0,
-            iv_load_policy: 3,
-            disablekb: 1,
-            fs: 0
-          },
-          events: {
-            onReady: (event) => {
-              setDuration(event.target.getDuration());
-            },
-            onStateChange: (event) => {
-              // -1 (unstarted), 0 (ended), 1 (playing), 2 (paused), 3 (buffering), 5 (video cued)
-              if (event.data === window.YT.PlayerState.PLAYING) {
-                setIsPlaying(true);
-              } else if (event.data === window.YT.PlayerState.PAUSED) {
-                setIsPlaying(false);
-              } else if (event.data === window.YT.PlayerState.ENDED) {
-                setIsPlaying(false);
-                markAsWatched();
-                setShowPopup(true);
-              }
-            }
-          }
-        });
-        playerRef.current = player;
-      }
-    } else if (!isYoutube) {
-      // Vimeo Player
-      if (vimeoHostRef.current) {
-        vimeoHostRef.current.innerHTML = ''; // Clean container
-        const player = new Player(vimeoHostRef.current, {
-          id: vidId,
-          responsive: true,
-          controls: false,
-          title: false,
-          byline: false,
-          portrait: false
-        });
+    // Vimeo Player
+    if (vimeoHostRef.current) {
+      vimeoHostRef.current.innerHTML = ''; // Clean container
+      const player = new Player(vimeoHostRef.current, {
+        id: vidId,
+        responsive: true,
+        controls: false,
+        title: false,
+        byline: false,
+        portrait: false
+      });
 
-        playerRef.current = player;
+      playerRef.current = player;
 
-        player.on("play", () => setIsPlaying(true));
-        player.on("playing", () => setIsPlaying(true));
-        player.on("pause", () => setIsPlaying(false));
+      player.on("play", () => setIsPlaying(true));
+      player.on("playing", () => setIsPlaying(true));
+      player.on("pause", () => setIsPlaying(false));
 
-        player.on("timeupdate", (data) => {
-          if (!isSeekingRef.current) {
-            if (data.seconds !== undefined) setCurrentTime(data.seconds);
-          }
-          if (data.duration) setDuration(data.duration);
-        });
-
-        player.on("loaded", async () => {
-          try {
-            const d = await player.getDuration();
-            setDuration(d);
-          } catch (e) { }
-        });
-
-        player.on("durationchange", (data) => {
-          if (data.duration) setDuration(data.duration);
-        });
-
-        player.on("seeking", () => {
-          isSeekingRef.current = true;
-        });
-
-        player.on("seeked", () => {
-          isSeekingRef.current = false;
-        });
-
-        player.on("ended", async () => {
-          setIsPlaying(false);
-          await markAsWatched();
-          setShowPopup(true);
-        });
-
-        player.getDuration().then((d) => setDuration(d)).catch(() => { });
-      }
-    }
-
-    // Load YouTube API if needed and not present
-    if (isYoutube && !window.YT) {
-      if (!window._yt_loading) {
-        window._yt_loading = true;
-        const tag = document.createElement('script');
-        tag.src = "https://www.youtube.com/iframe_api";
-        const firstScriptTag = document.getElementsByTagName('script')[0];
-        if (firstScriptTag && firstScriptTag.parentNode) {
-          firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-        } else {
-          document.head.appendChild(tag);
+      player.on("timeupdate", (data) => {
+        if (!isSeekingRef.current) {
+          if (data.seconds !== undefined) setCurrentTime(data.seconds);
         }
-      }
+        if (data.duration) setDuration(data.duration);
+      });
 
-      const checkYT = setInterval(() => {
-        if (window.YT && window.YT.Player) {
-          setLoading(prev => !prev); // Toggle to trigger re-render
-          setLoading(prev => !prev);
-          clearInterval(checkYT);
-        }
-      }, 500);
-      return () => clearInterval(checkYT);
+      player.on("loaded", async () => {
+        try {
+          const d = await player.getDuration();
+          setDuration(d);
+        } catch (e) { }
+      });
+
+      player.on("durationchange", (data) => {
+        if (data.duration) setDuration(data.duration);
+      });
+
+      player.on("seeking", () => {
+        isSeekingRef.current = true;
+      });
+
+      player.on("seeked", () => {
+        isSeekingRef.current = false;
+      });
+
+      player.on("ended", () => {
+        setIsPlaying(false);
+        markAsWatched(); // Fire and forget - don't block UI
+        setShowPopup(true);
+      });
+
+      player.getDuration().then((d) => setDuration(d)).catch(() => { });
     }
 
     return () => {
@@ -314,7 +263,7 @@ const SectionVideos = () => {
         playerRef.current.destroy();
       }
     };
-  }, [selectedVideo, loading]);
+  }, [selectedVideo?.videoID, loading]);
 
   // Smooth Progress Update Interval (Supports both)
   useEffect(() => {
@@ -344,7 +293,10 @@ const SectionVideos = () => {
 
 
   const markAsWatched = async () => {
-    if (!selectedVideo || !section) return;
+    const currentSection = sectionRef.current;
+    const currentVideo = selectedVideoRef.current;
+
+    if (!currentVideo || !currentSection) return;
 
     try {
 
@@ -352,18 +304,18 @@ const SectionVideos = () => {
         "http://localhost:5000/api/progress/watch-video",
         {
           courseId,
-          sectionId: section._id,   // ✅ MUST USE DB SECTION ID
-          videoId: selectedVideo.videoID
+          sectionId: currentSection._id,
+          videoId: currentVideo.videoID
         },
         {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token || localStorage.getItem('token')}` }
         }
       );
 
       notifyProgressChanged();
 
       setCompletedVideos(prev => {
-        const normalizedId = normalizeVideoId(selectedVideo.videoID);
+        const normalizedId = normalizeVideoId(currentVideo.videoID);
         if (prev.some(id => normalizeVideoId(id) === normalizedId)) return prev;
         return [...prev, normalizedId];
       });
@@ -380,9 +332,6 @@ const SectionVideos = () => {
       if (typeof playerRef.current.setCurrentTime === 'function') {
         await playerRef.current.setCurrentTime(0);
         playerRef.current.play();
-      } else if (typeof playerRef.current.seekTo === 'function') {
-        playerRef.current.seekTo(0);
-        playerRef.current.playVideo();
       }
       setIsPlaying(true);
       setCurrentTime(0);
@@ -463,16 +412,11 @@ const SectionVideos = () => {
   const togglePlay = () => {
     if (!playerRef.current) return;
 
-    const isVimeo = typeof playerRef.current.play === 'function';
-    const isYT = typeof playerRef.current.playVideo === 'function';
-
     if (isPlaying) {
-      if (isVimeo) playerRef.current.pause().catch(() => { });
-      else if (isYT) playerRef.current.pauseVideo();
+      playerRef.current.pause().catch(() => { });
       setIsPlaying(false);
     } else {
-      if (isVimeo) playerRef.current.play().catch(err => console.error("Play failed", err));
-      else if (isYT) playerRef.current.playVideo();
+      playerRef.current.play().catch(err => console.error("Play failed", err));
       setIsPlaying(true);
 
       if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
@@ -485,9 +429,6 @@ const SectionVideos = () => {
       if (typeof playerRef.current.setCurrentTime === 'function') {
         await playerRef.current.setCurrentTime(0);
         playerRef.current.play();
-      } else if (typeof playerRef.current.seekTo === 'function') {
-        playerRef.current.seekTo(0);
-        playerRef.current.playVideo();
       }
     }
   };
@@ -499,8 +440,6 @@ const SectionVideos = () => {
     if (playerRef.current) {
       if (typeof playerRef.current.setCurrentTime === 'function') {
         playerRef.current.setCurrentTime(time).catch(() => { });
-      } else if (typeof playerRef.current.seekTo === 'function') {
-        playerRef.current.seekTo(time, true);
       }
     }
   };
@@ -604,9 +543,12 @@ const SectionVideos = () => {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex flex-col gap-2">
             <div className="flex items-end gap-6">
-              <h1 className="text-2xl font-bold tracking-wide">{section?.sectionName || "Section Name"}</h1>
+              <h1 className="text-2xl font-bold tracking-wide">
+                {section?.sectionName || 'Section Name'}
+              </h1>
               <span className="text-lg text-gray-400 font-medium mb-0.5">
-                {currentVideoIndex !== -1 ? currentVideoIndex + 1 : 0} / {videos.length}
+                {currentVideoIndex !== -1 ? currentVideoIndex + 1 : 0} /{' '}
+                {videos.length}
               </span>
             </div>
           </div>
@@ -626,11 +568,12 @@ const SectionVideos = () => {
 
       {/* Main Content */}
       <div className="px-6 lg:px-12 flex flex-col-reverse lg:flex-row gap-8 items-start">
-
         {/* Left: Video List (Sidebar) */}
         <div className="w-full lg:w-[380px] flex flex-col gap-4 max-h-[calc(100vh-180px)] overflow-y-auto pr-2 custom-scrollbar">
           {videos
-            .filter(video => video.unitName?.toLowerCase().includes(searchQuery.toLowerCase()))
+            .filter((video) =>
+              video.unitName?.toLowerCase().includes(searchQuery.toLowerCase())
+            )
             .map((video) => {
               // Use indexOf for exact object reference to handle duplicates correctly
               const idx = videos.indexOf(video);
@@ -643,11 +586,16 @@ const SectionVideos = () => {
                   key={`${video.videoID}-${idx}`}
                   onClick={() => !locked && setSelectedVideo(video)}
                   className={`relative flex gap-4 p-3 rounded-[16px] border transition-all cursor-pointer group overflow-hidden
-                        ${isSelected
-                      ? 'bg-[#1A1A1A] border-[#FF9D00] shadow-[0_0_15px_rgba(255,157,0,0.1)]'
-                      : 'bg-[#0A0A0A] border-[#333] hover:border-gray-500'
-                    }
-                        ${locked ? 'opacity-60 grayscale cursor-not-allowed' : ''}
+                        ${
+                          isSelected
+                            ? 'bg-[#1A1A1A] border-[#FF9D00] shadow-[0_0_15px_rgba(255,157,0,0.1)]'
+                            : 'bg-[#0A0A0A] border-[#333] hover:border-gray-500'
+                        }
+                        ${
+                          locked
+                            ? 'opacity-60 grayscale cursor-not-allowed'
+                            : ''
+                        }
                       `}
                 >
                   {/* Video Thumbnail */}
@@ -656,20 +604,36 @@ const SectionVideos = () => {
                       <img
                         src={getVideoThumbnail(video.videoID)}
                         alt={video.unitName}
-                        className={`w-full h-full object-cover transition-transform duration-500 ${isSelected ? 'scale-110' : 'group-hover:scale-110'} ${locked ? 'opacity-40 grayscale' : ''}`}
+                        className={`w-full h-full object-cover transition-transform duration-500 ${
+                          isSelected ? 'scale-110' : 'group-hover:scale-110'
+                        } ${locked ? 'opacity-40 grayscale' : ''}`}
                       />
                     ) : (
                       <div className="absolute inset-0 bg-gradient-to-br from-gray-700 to-gray-900" />
                     )}
 
-                    <div className={`absolute inset-0 flex items-center justify-center transition-all duration-300 ${isSelected ? 'bg-[#FF9D00]/20' : 'bg-black/40 group-hover:bg-black/20'}`}>
+                    <div
+                      className={`absolute inset-0 flex items-center justify-center transition-all duration-300 ${
+                        isSelected
+                          ? 'bg-[#FF9D00]/20'
+                          : 'bg-black/40 group-hover:bg-black/20'
+                      }`}
+                    >
                       {locked ? (
                         <Lock size={20} className="text-gray-400" />
                       ) : (
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/30 ${isSelected ? 'bg-[#FF9D00] border-none' : 'bg-black/40 group-hover:scale-110 transition-transform'}`}>
+                        <div
+                          className={`w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/30 ${
+                            isSelected
+                              ? 'bg-[#FF9D00] border-none'
+                              : 'bg-black/40 group-hover:scale-110 transition-transform'
+                          }`}
+                        >
                           <Play
                             size={14}
-                            className={`fill-current ${isSelected ? 'text-black' : 'text-white'}`}
+                            className={`fill-current ${
+                              isSelected ? 'text-black' : 'text-white'
+                            }`}
                           />
                         </div>
                       )}
@@ -678,11 +642,18 @@ const SectionVideos = () => {
 
                   {/* Info */}
                   <div className="flex flex-col justify-center flex-1 min-w-0">
-                    <h4 className={`text-sm font-semibold mb-1 truncate transition-colors ${isSelected ? 'text-[#FF9D00]' : 'text-white group-hover:text-[#FF9D00]'}`}>
+                    <h4
+                      className={`text-sm font-semibold mb-1 truncate transition-colors ${
+                        isSelected
+                          ? 'text-[#FF9D00]'
+                          : 'text-white group-hover:text-[#FF9D00]'
+                      }`}
+                    >
                       {video.unitName}
                     </h4>
                     <p className="text-[11px] text-gray-400 line-clamp-2 leading-relaxed">
-                      {video.unitDescription || "Introduction Video for the section of course"}
+                      {video.unitDescription ||
+                        'Introduction Video for the section of course'}
                     </p>
                   </div>
                 </div>
@@ -699,7 +670,9 @@ const SectionVideos = () => {
                 ref={videoContainerRef}
                 onMouseMove={handleMouseMove}
                 onMouseLeave={() => isPlaying && setShowControls(false)}
-                className={`relative w-full aspect-video bg-black rounded-[20px] overflow-hidden border border-[#222] shadow-2xl group/player ${isPlaying && !showControls ? 'cursor-none' : ''}`}
+                className={`relative w-full aspect-video bg-black rounded-[20px] overflow-hidden border border-[#222] shadow-2xl group/player ${
+                  isPlaying && !showControls ? 'cursor-none' : ''
+                }`}
               >
                 <div ref={vimeoHostRef} className="w-full h-full"></div>
 
@@ -717,14 +690,20 @@ const SectionVideos = () => {
 
                 {/* Clickable Area for Play/Pause when playing */}
                 {isPlaying && !showPopup && (
-                  <div className="absolute inset-0 z-10" onClick={togglePlay}></div>
+                  <div
+                    className="absolute inset-0 z-10"
+                    onClick={togglePlay}
+                  ></div>
                 )}
 
                 {/* Custom Control Bar */}
-                <div className={`absolute bottom-0 left-0 right-0 z-20 px-6 py-4 bg-gradient-to-t from-black/90 to-transparent transition-opacity duration-300 ${(!isPlaying || showControls) ? 'opacity-100' : 'opacity-0 overlay-shown'}`}>
-
-
-
+                <div
+                  className={`absolute bottom-0 left-0 right-0 z-20 px-6 py-4 bg-gradient-to-t from-black/90 to-transparent transition-opacity duration-300 ${
+                    !isPlaying || showControls
+                      ? 'opacity-100'
+                      : 'opacity-0 overlay-shown'
+                  }`}
+                >
                   {/* Progress Bar */}
                   <input
                     type="range"
@@ -737,43 +716,69 @@ const SectionVideos = () => {
                     onMouseUp={onSeekMouseUp}
                     className="w-full h-1 rounded-lg appearance-none cursor-pointer accent-[#FF9D00] mb-4 hover:h-1.5 transition-all"
                     style={{
-                      background: `linear-gradient(to right, #FF9D00 ${(duration > 0 ? (currentTime / duration) * 100 : 0)}%, rgba(255, 255, 255, 0.1) ${(duration > 0 ? (currentTime / duration) * 100 : 0)}%)`
+                      background: `linear-gradient(to right, #FF9D00 ${
+                        duration > 0 ? (currentTime / duration) * 100 : 0
+                      }%, rgba(255, 255, 255, 0.1) ${
+                        duration > 0 ? (currentTime / duration) * 100 : 0
+                      }%)`
                     }}
                   />
 
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-6">
                       {/* Play/Pause Small */}
-                      <button onClick={togglePlay} className="hover:text-[#FF9D00] transition-colors">
-                        {isPlaying ? <Pause size={24} className="fill-current" /> : <Play size={24} className="fill-current" />}
+                      <button
+                        onClick={togglePlay}
+                        className="hover:text-[#FF9D00] transition-colors"
+                      >
+                        {isPlaying ? (
+                          <Pause size={24} className="fill-current" />
+                        ) : (
+                          <Play size={24} className="fill-current" />
+                        )}
                       </button>
 
                       {/* Rewatch */}
-                      <button onClick={startRewatch} className="hover:text-[#FF9D00] transition-colors" title="Rewatch">
+                      <button
+                        onClick={startRewatch}
+                        className="hover:text-[#FF9D00] transition-colors"
+                        title="Rewatch"
+                      >
                         <RotateCcw size={20} />
                       </button>
 
                       {/* Time */}
                       <span className="text-sm font-medium text-gray-200">
-                        {formatTime(currentTime)} <span className="text-gray-500 mx-1">/</span> {formatTime(duration)}
+                        {formatTime(currentTime)}{' '}
+                        <span className="text-gray-500 mx-1">/</span>{' '}
+                        {formatTime(duration)}
                       </span>
                     </div>
 
                     {/* Fullscreen */}
-                    <button onClick={toggleFullScreen} className="hover:text-[#FF9D00] transition-colors">
-                      {isFullScreen ? <Minimize size={24} /> : <Maximize size={24} />}
+                    <button
+                      onClick={toggleFullScreen}
+                      className="hover:text-[#FF9D00] transition-colors"
+                    >
+                      {isFullScreen ? (
+                        <Minimize size={24} />
+                      ) : (
+                        <Maximize size={24} />
+                      )}
                     </button>
                   </div>
                 </div>
-
 
                 {/* Popup Overlay within the video area if ended */}
                 {showPopup && (
                   <div className="absolute inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center animate-in fade-in duration-500">
                     <div className="text-center p-8 max-w-lg w-full">
-                      <p className="text-white text-lg font-medium mb-8 leading-relaxed max-w-[340px] mx-auto">
+                      {/* <p className="text-white text-lg font-medium mb-8 leading-relaxed max-w-[340px] mx-auto">
                         Would you like to continue to the next video or watch this one once more?
-                      </p>
+                      </p> */}
+                      <p className="roboto text-white font-semibold text-[22px] leading-[30px] tracking-normal text-center max-w-[340px] mx-auto mb-8">
+      Would you like to continue to the next video or watch this one once more?
+    </p>
 
                       <div className="flex flex-row items-center justify-center gap-4">
                         <button
@@ -783,7 +788,8 @@ const SectionVideos = () => {
                           <RotateCcw size={18} /> Play Again
                         </button>
                         {(() => {
-                          const isLastVideo = (videos.indexOf(selectedVideo) === videos.length - 1);
+                          const isLastVideo =
+                            videos.indexOf(selectedVideo) === videos.length - 1;
                           if (isLastVideo) {
                             return (
                               <div className="flex flex-row items-center justify-center gap-4">
@@ -810,7 +816,8 @@ const SectionVideos = () => {
                               onClick={handlePlayNext}
                               className="flex items-center gap-2 px-8 py-2.5 rounded-[12px] bg-[#FF9D00] hover:bg-[#E68900] text-black font-bold text-sm transition-all shadow-[0_4px_20px_rgba(255,157,0,0.3)]"
                             >
-                              <Play size={18} className="fill-black" /> Play Next
+                              <Play size={18} className="fill-black" /> Play
+                              Next
                             </button>
                           );
                         })()}
@@ -822,9 +829,12 @@ const SectionVideos = () => {
 
               {/* Video Metadata */}
               <div className="px-1">
-                <h2 className="text-2xl font-bold text-white mb-2">{selectedVideo.unitName}</h2>
+                <h2 className="text-2xl font-bold text-white mb-2">
+                  {selectedVideo.unitName}
+                </h2>
                 <p className="text-gray-400 leading-relaxed text-sm max-w-3xl">
-                  {selectedVideo.unitDescription || "No description available for this video."}
+                  {selectedVideo.unitDescription ||
+                    'No description available for this video.'}
                 </p>
               </div>
             </>
@@ -834,9 +844,8 @@ const SectionVideos = () => {
             </div>
           )}
         </div>
-
       </div>
-    </div >
+    </div>
   );
 };
 
