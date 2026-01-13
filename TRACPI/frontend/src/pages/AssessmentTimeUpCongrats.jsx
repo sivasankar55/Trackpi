@@ -1,6 +1,6 @@
 import React from 'react'
 
-function AssessmentTimeUpCongrats() {
+function AssessmentTimeUpCongrats({ onUnlock }) {
   return (
     <>
       <div
@@ -26,16 +26,19 @@ function AssessmentTimeUpCongrats() {
         </p>
 
         <div className="flex justify-center">
-          <button className="px-6 md:px-10 py-3 md:py-3 rounded-full bg-[#FFA726] text-white font-semibold hover:bg-orange-400 transition w-full md:w-auto">
+          <button
+            onClick={onUnlock}
+            className="px-6 md:px-10 py-3 md:py-3 rounded-full bg-[#FFA726] text-white font-semibold hover:bg-orange-400 transition w-full md:w-auto"
+          >
             Unlock Next Course
           </button>
         </div>
       </div>
-    
-    
-    
-    
-    
+
+
+
+
+
     </>
   )
 }

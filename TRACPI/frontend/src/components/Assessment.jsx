@@ -3,6 +3,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import AssessmentBubble from '../pages/AssessmentBubble';
 import AssessmentPassedPopup from '../pages/AssessmentPassedPopup';
 import AssessmentFailedPopup from '../pages/AssessmentFailedPopup';
+import AssessmentTimeUpPopup from '../pages/AssessmentTimeUpPopup';
+import AssessmentTimeUpCongrats from '../pages/AssessmentTimeUpCongrats';
 import { AuthContext } from '../context/AuthContext';
 import { ProgressContext } from '../context/ProgressContext';
 import axios from 'axios';
@@ -23,6 +25,7 @@ const Assessment = () => {
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState(null);
+  const [isTimeUp, setIsTimeUp] = useState(false);
 
   // Fetch questions from API
   useEffect(() => {
@@ -89,6 +92,7 @@ const Assessment = () => {
   };
 
   const handleSubmit = async (timeUp = false) => {
+    if (timeUp) setIsTimeUp(true);
     setSubmitting(true);
     try {
       const payload = {
@@ -132,6 +136,27 @@ const Assessment = () => {
   if (error) return <div className="text-red-500 text-center mt-20 text-xl font-inter">{error}</div>;
 
   if (result) {
+    if (isTimeUp) {
+      return result.passed ? (
+        <AssessmentTimeUpCongrats
+          onUnlock={() => navigate(`/course-section/${courseId}`)}
+        />
+      ) : (
+        <AssessmentTimeUpPopup
+          onGoBack={() => navigate(`/course-section/${courseId}`)}
+          onRetake={() => {
+            setResult(null);
+            setIsTimeUp(false);
+            setCurrentPage(1);
+            setTimeLeft(ASSESSMENT_TIME); // Or fetch fresh time limit? ideally reload
+            // Ideally re-fetch or reset properly.
+            // Using navigate with state to force reload/reset might be cleaner or just window.location.reload() or internal reset.
+            // Based on existing logic:
+            navigate(`/course-section/${courseId}`, { state: { openAssessment: true } });
+          }}
+        />
+      );
+    }
     return result.passed ? (
       <AssessmentPassedPopup
         onUnlock={() => navigate(`/course-section/${courseId}`)}

@@ -1,6 +1,6 @@
 import React from 'react';
 
-function AssessmentTimeUpPopup() {
+function AssessmentTimeUpPopup({ onGoBack, onRetake }) {
   return (
     <>
       <div
@@ -26,11 +26,17 @@ function AssessmentTimeUpPopup() {
         </p>
 
         <div className="flex flex-col md:flex-row justify-center items-center gap-4">
-          <button className="text-white font-bold px-6 md:px-10 py-3 md:py-3 border-2 border-orange-500 rounded-full hover:bg-orange-500 hover:text-black transition duration-300 w-full md:w-auto">
+          <button
+            onClick={onGoBack}
+            className="text-white font-bold px-6 md:px-10 py-3 md:py-3 border-2 border-orange-500 rounded-full hover:bg-orange-500 hover:text-black transition duration-300 w-full md:w-auto"
+          >
             Go to Course
           </button>
 
-          <button className="px-6 py-3 md:py-3 rounded-full bg-[#FFA726] text-white font-semibold w-full md:w-auto">
+          <button
+            onClick={onRetake}
+            className="px-6 py-3 md:py-3 rounded-full bg-[#FFA726] text-white font-semibold w-full md:w-auto"
+          >
             Retake Assessment
           </button>
         </div>
