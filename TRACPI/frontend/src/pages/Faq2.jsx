@@ -18,7 +18,7 @@ const Faq2 = () => {
     );
 
     return (
-        <>
+        <div className="roboto">
             <h1 className='text-white text-[1.2rem] font-bold ml-6 mt-5 sm:ml-9 sm:text-3xl'>FAQ</h1>
 
             <section className='faq-container px-5 mt-5 sm:flex sm:flex-row-reverse sm:justify-between sm:px-12'>
@@ -94,7 +94,7 @@ const Faq2 = () => {
 
                 </div>
             </section>
-        </>
+        </div>
     )
 }
 
