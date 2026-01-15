@@ -49,7 +49,7 @@ const FooterB = () => {
     }`;
 
   return (
-    <footer className="w-[669px] h-[53px] rounded-[50px] bg-[#1A1A1A] mx-auto mt-auto mb-8 flex justify-center items-center">
+    <footer className="hidden md:flex w-[669px] h-[53px] rounded-[50px] bg-[#1A1A1A] mx-auto mt-auto mb-8 justify-center items-center">
       <nav className="w-full py-2 px-8 flex justify-between items-center gap-10">
         <NavLink to="/discover-us" className={linkClasses}>
           Discover Us

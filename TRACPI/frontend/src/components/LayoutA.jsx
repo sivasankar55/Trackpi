@@ -7,13 +7,13 @@ import HeaderA from './HeaderA'
 const LayoutA = () => {
   return (
     <>
-    <HeaderA />
-    
-    <main className='background-a'>
-    <div className="glow-ellipse"></div>
+      <HeaderA />
+
+      <main className='background-a'>
+        <div className="glow-ellipse"></div>
         <Outlet />
         <FooterA />
-    </main>
+      </main>
     </>
   )
 }
