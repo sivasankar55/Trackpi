@@ -107,8 +107,14 @@ export const getCourseStats = async (req, res) => {
       totalUnits += (s.units?.length || 0);
     });
 
-    // Estimate total hours: 15 mins per unit
-    const totalMinutes = totalUnits * 15;
+    // Total hours: Sum of all unit durations
+    let totalMinutes = 0;
+    allSections.forEach(s => {
+      s.units?.forEach(u => {
+        totalMinutes += (u.unitDuration || 15);
+      });
+    });
+
     const hours = Math.floor(totalMinutes / 60);
     const minutes = totalMinutes % 60;
     const formattedHours = `${hours}:${minutes.toString().padStart(2, '0')}`;
@@ -164,7 +170,8 @@ export const createCourse = async (req, res) => {
         const mappedUnits = (sectionData.units || []).map(unit => ({
           unitName: unit.name || unit.unitName,
           unitDescription: unit.description || unit.unitDescription,
-          videoID: unit.videoId || unit.videoID
+          videoID: unit.videoId || unit.videoID,
+          unitDuration: Number(unit.duration || unit.unitDuration) || 0
         }));
 
         const newSection = new Section({
@@ -232,7 +239,8 @@ export const updateCourseById = async (req, res) => {
         const mappedUnits = (sectionData.units || []).map(unit => ({
           unitName: unit.name || unit.unitName,
           unitDescription: unit.description || unit.unitDescription,
-          videoID: unit.videoId || unit.videoID
+          videoID: unit.videoId || unit.videoID,
+          unitDuration: Number(unit.duration || unit.unitDuration) || 0
         }));
 
         const newSection = new Section({
@@ -311,12 +319,18 @@ export const getAllCoursesWithGlobalStats = async (req, res) => {
       if (course.sections) {
         course.sections.forEach(s => totalUnits += (s.units?.length || 0));
       }
-      // estimated 15 mins per unit
-      const totalMinutes = totalUnits * 15;
+      // calculate total duration from units
+      let totalMinutes = 0;
+      if (course.sections) {
+        course.sections.forEach(s => {
+          s.units?.forEach(u => {
+            totalMinutes += (u.unitDuration || 15);
+          });
+        });
+      }
       const hours = Math.floor(totalMinutes / 60);
       const minutes = totalMinutes % 60;
-      // Format duration, e.g. "2 Hours" or "2h 30m" -> Keeping it simple as per UI "5 Hours"
-      const duration = hours > 0 ? `${hours} Hours` : `${minutes} Mins`;
+      const duration = hours > 0 ? `${hours}h ${minutes}m` : `${totalMinutes} Mins`;
 
       return {
         ...course.toObject(),

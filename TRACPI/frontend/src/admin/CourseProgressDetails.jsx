@@ -27,7 +27,7 @@ const CourseProgressDetails = () => {
             }
             try {
                 setLoading(true);
-                const response = await axios.get(`http://localhost:5000/api/enrollment/course/${courseId}/users-progress`, {
+                const response = await axios.get(`http://localhost:5000/api/enrollments/course/${courseId}/users-progress`, {
                     withCredentials: true
                 });
                 setAllData(response.data);
@@ -44,8 +44,8 @@ const CourseProgressDetails = () => {
     }, [courseId]);
 
     const filteredData = allData.filter(item => {
-        const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            item.username.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesSearch = (item.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            item.username?.toLowerCase().includes(searchTerm.toLowerCase()));
         const matchesTab = activeTab === 'completed' ? item.progress === 100 : item.progress < 100;
         return matchesSearch && matchesTab;
     });
@@ -57,6 +57,20 @@ const CourseProgressDetails = () => {
         return (
             <div className="flex items-center justify-center min-h-screen">
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#FFB300]"></div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-screen">
+                <p className="text-red-500 font-bold mb-4">{error}</p>
+                <button
+                    onClick={() => window.location.reload()}
+                    className="px-6 py-2 bg-[#FFB300] text-white rounded-lg font-bold"
+                >
+                    Retry
+                </button>
             </div>
         );
     }

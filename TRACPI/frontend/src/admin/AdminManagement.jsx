@@ -214,16 +214,16 @@ const AdminManagement = () => {
 
               <div className="flex items-center border border-gray-400 px-3 py-1 rounded ml-4 bg-white">
                 <input
-                  type="text" 
-                  placeholder="Search"  
-                  value={searchTerm}    
-                  onChange={(e) => handleSearch(e.target.value)}   
-                  className="outline-none text-sm placeholder-gray-600 text-black bg-white w-48"  
-                />  
-                <img  
-                  src={SearchIcon} 
-                  alt="Search Icon"  
-                  className="w-4 h-4 ml-2" 
+                  type="text"
+                  placeholder="Search"
+                  value={searchTerm}
+                  onChange={(e) => handleSearch(e.target.value)}
+                  className="outline-none text-sm placeholder-gray-600 text-black bg-white w-48"
+                />
+                <img
+                  src={SearchIcon}
+                  alt="Search Icon"
+                  className="w-4 h-4 ml-2"
                 />
               </div>
             </div>
@@ -235,10 +235,15 @@ const AdminManagement = () => {
               </button>
               <button
                 onClick={() => navigate('/admin/profile')}
-                className="bg-[#FFF0CE] rounded-full border-2 border-[#FFB300] p-2 hover:bg-[#ffe2b5] transition-colors"
+                className="bg-[#FFF0CE] rounded-full border-2 border-[#FFB300] p-0.5 hover:bg-[#ffe2b5] transition-colors overflow-hidden flex items-center justify-center w-10 h-10"
                 title="Profile"
               >
-                <img src={UserIcon} alt="Profile" className="w-5 h-5" />
+
+                {adminInfo?.profilePicture ? (
+                  <img src={adminInfo.profilePicture} alt="Profile" className="w-full h-full rounded-full object-cover" />
+                ) : (
+                  <img src={UserIcon} alt="Profile" className="w-5 h-5" />
+                )}
               </button>
             </div>
           </div>
@@ -302,17 +307,15 @@ const AdminManagement = () => {
               <div className="relative" ref={filterRef}>
                 <button
                   onClick={() => setIsFilterOpen(!isFilterOpen)}
-                  className={`bg-white border text-gray-700 px-6 py-2 rounded-lg shadow-sm hover:bg-gray-50 transition flex items-center gap-2 ${
-                    selectedFilter !== 'All'
-                      ? 'border-[#FFB300] bg-[#FFF8E7]'
-                      : ''
-                  }`}
+                  className={`bg-white border text-gray-700 px-6 py-2 rounded-lg shadow-sm hover:bg-gray-50 transition flex items-center gap-2 ${selectedFilter !== 'All'
+                    ? 'border-[#FFB300] bg-[#FFF8E7]'
+                    : ''
+                    }`}
                 >
                   Filter {selectedFilter !== 'All' && `(${selectedFilter})`}
                   <svg
-                    className={`w-4 h-4 transition-transform ${
-                      isFilterOpen ? 'rotate-180' : ''
-                    }`}
+                    className={`w-4 h-4 transition-transform ${isFilterOpen ? 'rotate-180' : ''
+                      }`}
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -336,11 +339,10 @@ const AdminManagement = () => {
                             setSelectedFilter(filter);
                             setIsFilterOpen(false);
                           }}
-                          className={`w-full text-left px-4 py-3 text-sm hover:bg-[#FFF1CF] transition-colors border-b border-gray-100 last:border-0 ${
-                            selectedFilter === filter
+                          className={`w-full text-left px-4 py-3 text-sm hover:bg-[#FFF1CF] transition-colors border-b border-gray-100 last:border-0 ${selectedFilter === filter
                               ? 'bg-[#FFF1CF] font-bold text-[#FF8200]'
                               : 'text-gray-700'
-                          }`}
+                            }`}
                         >
                           {filter}
                         </button>
@@ -408,13 +410,13 @@ const AdminManagement = () => {
                       const isEven = idx % 2 === 0;
                       const rowStyle = isEven
                         ? {
-                            background: '#FFF1CF',
-                            border: '1px solid #FFB300'
-                          }
+                          background: '#FFF1CF',
+                          border: '1px solid #FFB300'
+                        }
                         : {
-                            background: '#FFFFFF',
-                            border: '1px solid #FFB300'
-                          };
+                          background: '#FFFFFF',
+                          border: '1px solid #FFB300'
+                        };
 
                       return (
                         <tr
@@ -561,11 +563,10 @@ const AdminManagement = () => {
                   <button
                     key={pageNum}
                     onClick={() => setCurrentPage(pageNum)}
-                    className={`w-9 h-9 rounded-md flex items-center justify-center text-sm font-bold transition-all shadow-sm ${
-                      currentPage === pageNum
+                    className={`w-9 h-9 rounded-md flex items-center justify-center text-sm font-bold transition-all shadow-sm ${currentPage === pageNum
                         ? 'bg-[#FFB300] text-white'
                         : 'bg-[#FFF0CE] text-gray-700 hover:bg-[#ffe0a0]'
-                    }`}
+                      }`}
                   >
                     {pageNum}
                   </button>
