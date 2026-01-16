@@ -2,6 +2,7 @@ import UserProgress from '../models/UserProgress.js';
 import Section from '../models/Section.js';
 import Course from '../models/Course.js';
 import Question from '../models/Question.js';
+import Enrollment from '../models/Enrollment.js';
 
 const normalizeVideoId = (id) => {
   if (!id) return '';
@@ -86,6 +87,14 @@ export const markVideoWatched = async (req, res) => {
       : 0;
 
     await progress.save();
+
+    // Sync with Enrollment model for Admin Progress Tracing
+    await Enrollment.findOneAndUpdate(
+      { user: userId, course: courseId },
+      { progress: progress.courseProgress },
+      { upsert: true, new: true }
+    );
+
     res.json({ message: 'Video marked as watched', progress });
   } catch (error) {
     console.error("Mark watched error:", error);
@@ -241,6 +250,30 @@ export const submitAssessment = async (req, res) => {
     progress.sectionAssessment.timeSpent = Math.round((now - (start || now)) / 60000);
     progress.sectionAssessment.lastAttempt = now;
     await progress.save();
+
+    // Sync with Enrollment model for Admin Progress Tracing
+    // Note: In a real app we might want to recalculate courseProgress more robustly here too
+    // but progress.courseProgress is already updated in markVideoWatched.
+    // However, if completion depends on assessment, we should update it here.
+
+    // Recalculate course progress if needed (optional but recommended)
+    const allSectionsInCourse = await Section.find({ course: courseId });
+    let completedSectionsCount = 0;
+    for (const s of allSectionsInCourse) {
+      const sProgress = await UserProgress.findOne({ user: userId, course: courseId, section: s._id });
+      if (sProgress && sProgress.sectionComplete && (sProgress.sectionAssessment?.passed || !course.questions?.length)) {
+        completedSectionsCount++;
+      }
+    }
+    const courseProgress = allSectionsInCourse.length > 0
+      ? Math.round((completedSectionsCount / allSectionsInCourse.length) * 100)
+      : 0;
+
+    await Enrollment.findOneAndUpdate(
+      { user: userId, course: courseId },
+      { progress: courseProgress },
+      { upsert: true, new: true }
+    );
 
     res.json({
       score,
@@ -441,6 +474,18 @@ export const getUserCourseStatus = async (req, res) => {
 
       // The next course is unlocked only if the current one is fully passed/completed
       previousCourseCompleted = isCompleted;
+
+      // Auto-enroll user in unlocked courses so they show up in Admin Tracing as "Not Started"
+      if (courseStatus[courseStatus.length - 1].isUnlocked) {
+        const existingEnrollment = await Enrollment.findOne({ user: userId, course: course._id });
+        if (!existingEnrollment) {
+          await Enrollment.create({
+            user: userId,
+            course: course._id,
+            progress: 0
+          });
+        }
+      }
     }
 
     res.json(courseStatus);
