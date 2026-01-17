@@ -3,8 +3,51 @@ import { Link } from 'react-router-dom';
 
 
 const Discoverus = () => {
+  const [cursorPosition, setCursorPosition] = React.useState({ x: 0, y: 0 });
+  const [isMoving, setIsMoving] = React.useState(false);
+  const timerRef = React.useRef(null);
+
+  React.useEffect(() => {
+    // Only enable on desktop initially to save resources, but we'll use CSS to hide on mobile mostly.
+    // However, logic can run; we just ensure visual is correct. 
+    // Ideally we could check navigator.userAgent or window.innerWidth.
+
+    const handleMouseMove = (e) => {
+      setCursorPosition({ x: e.clientX, y: e.clientY });
+      setIsMoving(true);
+
+      if (timerRef.current) clearTimeout(timerRef.current);
+
+      timerRef.current = setTimeout(() => {
+        setIsMoving(false);
+      }, 100); // 100ms idle defines "stopped"
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
+
   return (
     <div className="main-wrapper">
+      {/* Desktop Cursor Light Effect */}
+      <div
+        className="fixed pointer-events-none z-50 hidden md:block rounded-full transform -translate-x-1/2 -translate-y-1/2 transition-opacity duration-300"
+        style={{
+          left: cursorPosition.x,
+          top: cursorPosition.y,
+          width: '250px',
+          height: '250px',
+          background: 'radial-gradient(circle, rgba(250, 204, 21, 0.4) 0%, rgba(250, 204, 21, 0.1) 45%, transparent 70%)',
+          opacity: isMoving ? 1 : 0.5,
+          transition: 'opacity 0.3s ease-out',
+          mixBlendMode: 'screen'
+        }}
+      />
+
       {/* Hero Section */}
       <div className="min-h-screen flex flex-col md:flex-row items-center justify-center bg-[url('/bg.png')] bg-cover bg-center px-4 md:relative md:-left-6 md:-top-8 mt-7 w-screen">
         {/* Left Side */}
@@ -209,22 +252,20 @@ const Discoverus = () => {
                         alt={social.label}
                         className={`
               object-contain transition-all duration-300
-              ${
-                social.label === 'Instagram'
-                  ? 'ml-[8px]'
-                  : social.label === 'Trackpi'
-                  ? 'mr-[8px]'
-                  : social.label === 'Medium'
-                  ? 'mr-[4px]'
-                  : social.label === 'Quora'
-                  ? 'mr-[12px]'
-                  : ''
-              }
-              ${
-                social.label === 'Blogger'
-                  ? 'w-[48px] h-[48px]'
-                  : 'w-[60px] h-[60px]'
-              }
+              ${social.label === 'Instagram'
+                            ? 'ml-[8px]'
+                            : social.label === 'Trackpi'
+                              ? 'mr-[8px]'
+                              : social.label === 'Medium'
+                                ? 'mr-[4px]'
+                                : social.label === 'Quora'
+                                  ? 'mr-[12px]'
+                                  : ''
+                          }
+              ${social.label === 'Blogger'
+                            ? 'w-[48px] h-[48px]'
+                            : 'w-[60px] h-[60px]'
+                          }
             `}
                       />
                     </div>
