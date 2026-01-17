@@ -5,7 +5,7 @@ import axios from 'axios';
 // Icons/Assets
 // Icons/Assets
 // Icons/Assets
-import { FiEdit3, FiTrash2, FiVideo } from 'react-icons/fi';
+import { FiEdit3, FiTrash2, FiVideo, FiUploadCloud, FiImage, FiX } from 'react-icons/fi';
 import CourseSuccessPopup from './CourseSuccessPopup';
 import ErrorPopup from './ErrorPopup';
 
@@ -225,6 +225,28 @@ const AddCoursePage = () => {
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
+            // Check file type
+            const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+            if (!allowedTypes.includes(file.type)) {
+                setErrorPopup({
+                    show: true,
+                    message: 'Invalid file type. Please select a PNG or JPG image.'
+                });
+                e.target.value = null; // Clear input
+                return;
+            }
+
+            // Check file size (5MB = 5 * 1024 * 1024 bytes)
+            const maxSize = 5 * 1024 * 1024;
+            if (file.size > maxSize) {
+                setErrorPopup({
+                    show: true,
+                    message: 'File is too large. Maximum size is 5MB.'
+                });
+                e.target.value = null; // Clear input
+                return;
+            }
+
             setImageFile(file);
             const reader = new FileReader();
             reader.onloadend = () => {
@@ -409,27 +431,65 @@ const AddCoursePage = () => {
                             <div>
                                 <label className="block text-lg sm:text-[22px] font-extrabold text-[#333] mb-3 sm:mb-4">Course Image</label>
                                 <div className="space-y-4">
-                                    <label
-                                        htmlFor="courseImageInput"
-                                        className="w-full h-[55px] sm:h-[60px] px-6 sm:px-8 rounded-[12px] bg-[#FFB300] text-white flex items-center justify-between cursor-pointer text-lg sm:text-xl font-bold italic transition-all active:scale-[0.98]"
-                                    >
-                                        <span className="truncate pr-4">
-                                            {imageFile ? imageFile.name : (imagePreview ? "Change Image" : "Upload Course Image")}
-                                        </span>
+                                    <div className="relative">
                                         <input
                                             type="file"
-                                            accept="image/*"
+                                            accept=".png, .jpg, .jpeg"
                                             onChange={handleImageChange}
                                             id="courseImageInput"
                                             className="hidden"
                                         />
-                                    </label>
 
-                                    {imagePreview && (
-                                        <div className="w-full h-[180px] sm:h-[220px] rounded-[15px] overflow-hidden border-2 border-dashed border-[#FFB300] bg-gray-50 shadow-inner">
-                                            <img src={imagePreview} alt="Course Preview" className="w-full h-full object-cover animate-in fade-in duration-300" />
-                                        </div>
-                                    )}
+                                        {!imagePreview ? (
+                                            <label
+                                                htmlFor="courseImageInput"
+                                                className="flex flex-col items-center justify-center w-full h-[200px] border-2 border-dashed border-[#FFB300] rounded-[16px] bg-[#FFF8E7] hover:bg-[#FFF2D0] transition-all cursor-pointer group"
+                                            >
+                                                <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                                    <div className="p-4 bg-white rounded-full shadow-sm mb-3 group-hover:scale-110 transition-transform">
+                                                        <FiUploadCloud size={32} className="text-[#FFB300]" />
+                                                    </div>
+                                                    <p className="mb-2 text-sm text-[#333] font-bold">
+                                                        <span className="text-[#D35400]">Click to upload</span> or drag and drop
+                                                    </p>
+                                                    <p className="text-xs text-gray-500 font-medium">PNG, JPG or JPEG (MAX. 5MB)</p>
+                                                </div>
+                                            </label>
+                                        ) : (
+                                            <div className="relative group w-full h-[220px] rounded-[16px] overflow-hidden border-2 border-[#FFB300] shadow-md">
+                                                <img
+                                                    src={imagePreview}
+                                                    alt="Course Preview"
+                                                    className="w-full h-full object-cover"
+                                                />
+                                                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
+                                                    <label
+                                                        htmlFor="courseImageInput"
+                                                        className="p-3 bg-white rounded-full cursor-pointer hover:scale-110 transition-transform shadow-lg"
+                                                        title="Change Image"
+                                                    >
+                                                        <FiEdit3 size={20} className="text-[#333]" />
+                                                    </label>
+                                                    <button
+                                                        onClick={() => {
+                                                            setImageFile(null);
+                                                            setImagePreview(null);
+                                                        }}
+                                                        className="p-3 bg-white rounded-full cursor-pointer hover:scale-110 transition-transform shadow-lg"
+                                                        title="Remove Image"
+                                                    >
+                                                        <FiX size={20} className="text-red-500" />
+                                                    </button>
+                                                </div>
+                                                <div className="absolute bottom-3 left-3 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-lg flex items-center gap-2">
+                                                    <FiImage className="text-white" size={14} />
+                                                    <span className="text-white text-xs font-medium truncate max-w-[150px]">
+                                                        {imageFile ? imageFile.name : "Current Image"}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
 

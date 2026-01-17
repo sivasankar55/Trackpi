@@ -4,7 +4,7 @@ import axios from "axios";
 import Player from "@vimeo/player";
 import { AuthContext } from '../context/AuthContext'
 import { ProgressContext } from "../context/ProgressContext";
-import { Play, Pause, Search, RotateCcw, Lock, Maximize, Minimize } from 'lucide-react';
+import { Play, Pause, Search, RotateCcw, Lock, Maximize, Minimize, Volume2, VolumeX } from 'lucide-react';
 import squareLock from '../assets/square-lock-02.png';
 import './css/faq.css';
 
@@ -56,6 +56,9 @@ const SectionVideos = () => {
   const progressIntervalRef = useRef(null);
   const isSeekingRef = useRef(false);
   const vimeoHostRef = useRef(null);
+  const [volume, setVolume] = useState(1);
+  const [isMuted, setIsMuted] = useState(false);
+  const [showVolumeSlider, setShowVolumeSlider] = useState(false);
   const [error, setError] = useState(null);
 
   const { courseId, sectionId } = useParams();
@@ -214,7 +217,8 @@ const SectionVideos = () => {
         controls: false,
         title: false,
         byline: false,
-        portrait: false
+        portrait: false,
+        muted: false
       });
 
       playerRef.current = player;
@@ -256,6 +260,9 @@ const SectionVideos = () => {
       });
 
       player.getDuration().then((d) => setDuration(d)).catch(() => { });
+
+      // Initialize volume
+      player.setVolume(isMuted ? 0 : volume).catch(() => { });
     }
 
     return () => {
@@ -407,6 +414,25 @@ const SectionVideos = () => {
     return false;
   };
 
+
+  const toggleMute = () => {
+    const newMuted = !isMuted;
+    setIsMuted(newMuted);
+    if (playerRef.current) {
+      playerRef.current.setVolume(newMuted ? 0 : volume).catch(() => { });
+    }
+  };
+
+  const handleVolumeChange = (e) => {
+    const newVolume = parseFloat(e.target.value);
+    setVolume(newVolume);
+    if (newVolume > 0) {
+      setIsMuted(false);
+    }
+    if (playerRef.current) {
+      playerRef.current.setVolume(newVolume).catch(() => { });
+    }
+  };
 
   // Custom Controls Handlers
   const togglePlay = () => {
@@ -586,16 +612,14 @@ const SectionVideos = () => {
                   key={`${video.videoID}-${idx}`}
                   onClick={() => !locked && setSelectedVideo(video)}
                   className={`relative flex gap-4 p-3 rounded-[16px] border transition-all cursor-pointer group overflow-hidden
-                        ${
-                          isSelected
-                            ? 'bg-[#1A1A1A] border-[#FF9D00] shadow-[0_0_15px_rgba(255,157,0,0.1)]'
-                            : 'bg-[#0A0A0A] border-[#333] hover:border-gray-500'
-                        }
-                        ${
-                          locked
-                            ? 'opacity-60 grayscale cursor-not-allowed'
-                            : ''
-                        }
+                        ${isSelected
+                      ? 'bg-[#1A1A1A] border-[#FF9D00] shadow-[0_0_15px_rgba(255,157,0,0.1)]'
+                      : 'bg-[#0A0A0A] border-[#333] hover:border-gray-500'
+                    }
+                        ${locked
+                      ? 'opacity-60 grayscale cursor-not-allowed'
+                      : ''
+                    }
                       `}
                 >
                   {/* Video Thumbnail */}
@@ -604,36 +628,32 @@ const SectionVideos = () => {
                       <img
                         src={getVideoThumbnail(video.videoID)}
                         alt={video.unitName}
-                        className={`w-full h-full object-cover transition-transform duration-500 ${
-                          isSelected ? 'scale-110' : 'group-hover:scale-110'
-                        } ${locked ? 'opacity-40 grayscale' : ''}`}
+                        className={`w-full h-full object-cover transition-transform duration-500 ${isSelected ? 'scale-110' : 'group-hover:scale-110'
+                          } ${locked ? 'opacity-40 grayscale' : ''}`}
                       />
                     ) : (
                       <div className="absolute inset-0 bg-gradient-to-br from-gray-700 to-gray-900" />
                     )}
 
                     <div
-                      className={`absolute inset-0 flex items-center justify-center transition-all duration-300 ${
-                        isSelected
-                          ? 'bg-[#FF9D00]/20'
-                          : 'bg-black/40 group-hover:bg-black/20'
-                      }`}
+                      className={`absolute inset-0 flex items-center justify-center transition-all duration-300 ${isSelected
+                        ? 'bg-[#FF9D00]/20'
+                        : 'bg-black/40 group-hover:bg-black/20'
+                        }`}
                     >
                       {locked ? (
                         <Lock size={20} className="text-gray-400" />
                       ) : (
                         <div
-                          className={`w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/30 ${
-                            isSelected
-                              ? 'bg-[#FF9D00] border-none'
-                              : 'bg-black/40 group-hover:scale-110 transition-transform'
-                          }`}
+                          className={`w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/30 ${isSelected
+                            ? 'bg-[#FF9D00] border-none'
+                            : 'bg-black/40 group-hover:scale-110 transition-transform'
+                            }`}
                         >
                           <Play
                             size={14}
-                            className={`fill-current ${
-                              isSelected ? 'text-black' : 'text-white'
-                            }`}
+                            className={`fill-current ${isSelected ? 'text-black' : 'text-white'
+                              }`}
                           />
                         </div>
                       )}
@@ -643,11 +663,10 @@ const SectionVideos = () => {
                   {/* Info */}
                   <div className="flex flex-col justify-center flex-1 min-w-0">
                     <h4
-                      className={`text-sm font-semibold mb-1 truncate transition-colors ${
-                        isSelected
-                          ? 'text-[#FF9D00]'
-                          : 'text-white group-hover:text-[#FF9D00]'
-                      }`}
+                      className={`text-sm font-semibold mb-1 truncate transition-colors ${isSelected
+                        ? 'text-[#FF9D00]'
+                        : 'text-white group-hover:text-[#FF9D00]'
+                        }`}
                     >
                       {video.unitName}
                     </h4>
@@ -670,9 +689,8 @@ const SectionVideos = () => {
                 ref={videoContainerRef}
                 onMouseMove={handleMouseMove}
                 onMouseLeave={() => isPlaying && setShowControls(false)}
-                className={`relative w-full aspect-video bg-black rounded-[20px] overflow-hidden border border-[#222] shadow-2xl group/player ${
-                  isPlaying && !showControls ? 'cursor-none' : ''
-                }`}
+                className={`relative w-full aspect-video bg-black rounded-[20px] overflow-hidden border border-[#222] shadow-2xl group/player ${isPlaying && !showControls ? 'cursor-none' : ''
+                  }`}
               >
                 <div ref={vimeoHostRef} className="w-full h-full"></div>
 
@@ -698,11 +716,10 @@ const SectionVideos = () => {
 
                 {/* Custom Control Bar */}
                 <div
-                  className={`absolute bottom-0 left-0 right-0 z-20 px-6 py-4 bg-gradient-to-t from-black/90 to-transparent transition-opacity duration-300 ${
-                    !isPlaying || showControls
-                      ? 'opacity-100'
-                      : 'opacity-0 overlay-shown'
-                  }`}
+                  className={`absolute bottom-0 left-0 right-0 z-20 px-6 py-4 bg-gradient-to-t from-black/90 to-transparent transition-opacity duration-300 ${!isPlaying || showControls
+                    ? 'opacity-100'
+                    : 'opacity-0 overlay-shown'
+                    }`}
                 >
                   {/* Progress Bar */}
                   <input
@@ -716,11 +733,9 @@ const SectionVideos = () => {
                     onMouseUp={onSeekMouseUp}
                     className="w-full h-1 rounded-lg appearance-none cursor-pointer accent-[#FF9D00] mb-4 hover:h-1.5 transition-all"
                     style={{
-                      background: `linear-gradient(to right, #FF9D00 ${
-                        duration > 0 ? (currentTime / duration) * 100 : 0
-                      }%, rgba(255, 255, 255, 0.1) ${
-                        duration > 0 ? (currentTime / duration) * 100 : 0
-                      }%)`
+                      background: `linear-gradient(to right, #FF9D00 ${duration > 0 ? (currentTime / duration) * 100 : 0
+                        }%, rgba(255, 255, 255, 0.1) ${duration > 0 ? (currentTime / duration) * 100 : 0
+                        }%)`
                     }}
                   />
 
@@ -753,6 +768,36 @@ const SectionVideos = () => {
                         <span className="text-gray-500 mx-1">/</span>{' '}
                         {formatTime(duration)}
                       </span>
+
+                      {/* Volume Control */}
+                      <div
+                        className="flex items-center gap-2 relative group/volume"
+                        onMouseEnter={() => setShowVolumeSlider(true)}
+                        onMouseLeave={() => setShowVolumeSlider(false)}
+                      >
+                        <button
+                          onClick={toggleMute}
+                          className="hover:text-[#FF9D00] transition-colors"
+                        >
+                          {isMuted || volume === 0 ? (
+                            <VolumeX size={20} />
+                          ) : (
+                            <Volume2 size={20} />
+                          )}
+                        </button>
+
+                        <div className={`flex items-center transition-all duration-300 ${showVolumeSlider ? 'w-20 opacity-100 ml-1' : 'w-0 opacity-0 overflow-hidden'}`}>
+                          <input
+                            type="range"
+                            min="0"
+                            max="1"
+                            step="0.1"
+                            value={isMuted ? 0 : volume}
+                            onChange={handleVolumeChange}
+                            className="w-full h-1 rounded-lg appearance-none cursor-pointer accent-[#FF9D00] bg-white/20"
+                          />
+                        </div>
+                      </div>
                     </div>
 
                     {/* Fullscreen */}
@@ -777,8 +822,8 @@ const SectionVideos = () => {
                         Would you like to continue to the next video or watch this one once more?
                       </p> */}
                       <p className="roboto text-white font-semibold text-[22px] leading-[30px] tracking-normal text-center max-w-[340px] mx-auto mb-8">
-      Would you like to continue to the next video or watch this one once more?
-    </p>
+                        Would you like to continue to the next video or watch this one once more?
+                      </p>
 
                       <div className="flex flex-row items-center justify-center gap-4">
                         <button
