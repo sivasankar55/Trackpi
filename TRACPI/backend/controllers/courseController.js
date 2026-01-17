@@ -143,13 +143,20 @@ export const createCourse = async (req, res) => {
       quizTime: quizTime
     });
 
+    // Handle course image
+    let courseImageUrl = '';
+    if (req.file) {
+      courseImageUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+    }
+
     // 1. Create the Course
     const course = new Course({
       courseName,
       courseDetail,
       sections: [],
       questions: parsedQuestions,
-      quizTime: Number(quizTime) || 60
+      quizTime: Number(quizTime) || 60,
+      courseImage: courseImageUrl
     });
 
     // Save once at the beginning
@@ -247,15 +254,21 @@ export const updateCourseById = async (req, res) => {
     }
 
     // 3. Update Course in one go
+    const updateData = {
+      courseName,
+      courseDetail,
+      questions: parsedQuestions,
+      quizTime: Number(quizTime),
+      sections: createdSectionIds
+    };
+
+    if (req.file) {
+      updateData.courseImage = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+    }
+
     const updatedCourse = await Course.findByIdAndUpdate(
       courseId,
-      {
-        courseName,
-        courseDetail,
-        questions: parsedQuestions,
-        quizTime: Number(quizTime),
-        sections: createdSectionIds
-      },
+      updateData,
       { new: true, runValidators: true }
     ).populate('sections');
 
