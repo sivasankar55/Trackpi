@@ -49,72 +49,69 @@ const HeaderB = () => {
         </nav>
 
         {/* Mobile Sidebar Overlay */}
-        {isSidebarOpen && (
-          <div className="fixed inset-0 z-50 flex justify-end sm:hidden">
-            {/* Backdrop */}
-            <div
-              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-              onClick={() => setIsSidebarOpen(false)}
-            />
+        <div className={`fixed inset-0 z-50 flex justify-end sm:hidden transition-all duration-300 ${isSidebarOpen ? 'visible' : 'invisible'}`}>
+          {/* Backdrop */}
+          <div
+            className={`absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300 ${isSidebarOpen ? 'opacity-100' : 'opacity-0'}`}
+            onClick={() => setIsSidebarOpen(false)}
+          />
 
-            {/* Sidebar Panel */}
-            <div className="relative w-[250px] h-full bg-black flex flex-col pt-6 px-6 shadow-2xl animate-in slide-in-from-right duration-300">
+          {/* Sidebar Panel */}
+          <div className={`relative w-[250px] h-full bg-black flex flex-col pt-6 px-6 shadow-2xl transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+            {/* Close Button */}
+            <div className="flex justify-end mb-6">
+              <button
+                onClick={() => setIsSidebarOpen(false)}
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                <X className="w-8 h-8" />
+              </button>
+            </div>
 
-              {/* Close Button */}
-              <div className="flex justify-end mb-6">
-                <button
-                  onClick={() => setIsSidebarOpen(false)}
-                  className="text-gray-400 hover:text-white transition-colors"
+            <div className="flex flex-col gap-8 font-sans h-full">
+              {/* Menu Items */}
+              <div className="flex flex-col gap-6">
+                <div
+                  onClick={() => { navigate('/discover-us'); setIsSidebarOpen(false); }}
+                  className={getLinkClasses('/discover-us')}
                 >
-                  <X className="w-8 h-8" />
-                </button>
+                  Discover Us
+                </div>
+                <div
+                  onClick={() => { navigate('/help-centre'); setIsSidebarOpen(false); }}
+                  className={getLinkClasses('/help-centre')}
+                >
+                  Help Centre
+                </div>
+                <div
+                  onClick={() => { navigate('/start-course/dashboard'); setIsSidebarOpen(false); }}
+                  className={location.pathname.includes('/start-course')
+                    ? "cursor-pointer text-[#FF9D00] font-bold text-lg hover:opacity-80 transition-opacity"
+                    : "cursor-pointer text-gray-300 font-medium text-lg hover:text-white transition-colors"}
+                >
+                  Courses
+                </div>
+                <div
+                  onClick={() => { navigate('/faq'); setIsSidebarOpen(false); }}
+                  className={getLinkClasses('/faq')}
+                >
+                  FAQ
+                </div>
               </div>
 
-              <div className="flex flex-col gap-8 font-sans">
-                {/* Menu Items */}
-                <div className="flex flex-col gap-6">
-                  <div
-                    onClick={() => { navigate('/discover-us'); setIsSidebarOpen(false); }}
-                    className={getLinkClasses('/discover-us')}
-                  >
-                    Discover Us
-                  </div>
-                  <div
-                    onClick={() => { navigate('/help-centre'); setIsSidebarOpen(false); }}
-                    className={getLinkClasses('/help-centre')}
-                  >
-                    Help Centre
-                  </div>
-                  <div
-                    onClick={() => { navigate('/start-course/dashboard'); setIsSidebarOpen(false); }}
-                    className={location.pathname.includes('/start-course')
-                      ? "cursor-pointer text-[#FF9D00] font-bold text-lg hover:opacity-80 transition-opacity"
-                      : "cursor-pointer text-gray-300 font-medium text-lg hover:text-white transition-colors"}
-                  >
-                    Courses
-                  </div>
-                  <div
-                    onClick={() => { navigate('/faq'); setIsSidebarOpen(false); }}
-                    className={getLinkClasses('/faq')}
-                  >
-                    FAQ
-                  </div>
-                </div>
-
-                {/* Bottom Section */}
-                <div className="mt-auto mb-8 flex flex-col gap-6">
-                  <div
-                    onClick={handleLogout}
-                    className="flex items-center gap-3 cursor-pointer text-gray-300 hover:text-white transition-colors"
-                  >
-                    <LogOut className="w-5 h-5" />
-                    <span className="font-medium text-lg">Logout</span>
-                  </div>
+              {/* Bottom Section */}
+              <div className="mt-auto mb-8 flex flex-col gap-6">
+                <div
+                  onClick={handleLogout}
+                  className="flex items-center gap-3 cursor-pointer text-gray-300 hover:text-white transition-colors"
+                >
+                  <LogOut className="w-5 h-5" />
+                  <span className="font-medium text-lg">Logout</span>
                 </div>
               </div>
             </div>
           </div>
-        )}
+        </div>
       </header>
     </>
   )

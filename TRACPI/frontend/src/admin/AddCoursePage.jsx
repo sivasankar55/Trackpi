@@ -37,6 +37,8 @@ const AddCoursePage = () => {
     // Changed: Initialize sections as empty array of objects
     const [sections, setSections] = useState([]);
     const [questions, setQuestions] = useState([]);
+    const [imageFile, setImageFile] = useState(null);
+    const [imagePreview, setImagePreview] = useState(null);
     const [loading, setLoading] = useState(false);
 
     // Check for success popup
@@ -60,6 +62,9 @@ const AddCoursePage = () => {
                         courseDetail: courseData.courseDetail,
                         quizTime: courseData.quizTime || 60
                     });
+                    if (courseData.courseImage) {
+                        setImagePreview(courseData.courseImage);
+                    }
                     const robustParse = (data) => {
                         if (!data) return [];
                         if (Array.isArray(data)) {
@@ -217,6 +222,18 @@ const AddCoursePage = () => {
         }));
     };
 
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setImageFile(file);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImagePreview(reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
     // Quiz Handlers
     const handleQuestionOptionChange = (idx, value) => {
         const newOptions = [...currentQuestion.options];
@@ -301,20 +318,30 @@ const AddCoursePage = () => {
         }
         setLoading(true);
         try {
-            const payload = {
-                courseName: formData.courseName,
-                courseDetail: formData.courseDetail,
-                sections: sections,
-                questions: questions,
-                quizTime: Number(formData.quizTime) || 60
-            };
-            console.log("Saving course with payload:", payload);
+            const formDataToSubmit = new FormData();
+            formDataToSubmit.append('courseName', formData.courseName);
+            formDataToSubmit.append('courseDetail', formData.courseDetail);
+            formDataToSubmit.append('quizTime', Number(formData.quizTime) || 60);
+            formDataToSubmit.append('sections', JSON.stringify(sections));
+            formDataToSubmit.append('questions', JSON.stringify(questions));
+
+            if (imageFile) {
+                formDataToSubmit.append('courseImage', imageFile);
+            }
+
+            console.log("Saving course with FormData");
 
             if (isEditMode) {
-                await axios.put(`http://localhost:5000/api/courses/${courseId}`, payload, { withCredentials: true });
+                await axios.put(`http://localhost:5000/api/courses/${courseId}`, formDataToSubmit, {
+                    headers: { 'Content-Type': 'multipart/form-data' },
+                    withCredentials: true
+                });
                 setSuccessPopup({ show: true, mode: 'update' });
             } else {
-                await axios.post('http://localhost:5000/api/courses', payload, { withCredentials: true });
+                await axios.post('http://localhost:5000/api/courses', formDataToSubmit, {
+                    headers: { 'Content-Type': 'multipart/form-data' },
+                    withCredentials: true
+                });
                 setSuccessPopup({ show: true, mode: 'create' });
             }
         } catch (error) {
@@ -377,6 +404,33 @@ const AddCoursePage = () => {
                                     placeholder="Enter Course Details"
                                     className="w-full h-[55px] sm:h-[60px] px-6 sm:px-8 rounded-[12px] bg-[#FFB300] text-white placeholder-white/80 focus:outline-none text-lg sm:text-xl font-bold italic"
                                 />
+                            </div>
+
+                            <div>
+                                <label className="block text-lg sm:text-[22px] font-extrabold text-[#333] mb-3 sm:mb-4">Course Image</label>
+                                <div className="space-y-4">
+                                    <label
+                                        htmlFor="courseImageInput"
+                                        className="w-full h-[55px] sm:h-[60px] px-6 sm:px-8 rounded-[12px] bg-[#FFB300] text-white flex items-center justify-between cursor-pointer text-lg sm:text-xl font-bold italic transition-all active:scale-[0.98]"
+                                    >
+                                        <span className="truncate pr-4">
+                                            {imageFile ? imageFile.name : (imagePreview ? "Change Image" : "Upload Course Image")}
+                                        </span>
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={handleImageChange}
+                                            id="courseImageInput"
+                                            className="hidden"
+                                        />
+                                    </label>
+
+                                    {imagePreview && (
+                                        <div className="w-full h-[180px] sm:h-[220px] rounded-[15px] overflow-hidden border-2 border-dashed border-[#FFB300] bg-gray-50 shadow-inner">
+                                            <img src={imagePreview} alt="Course Preview" className="w-full h-full object-cover animate-in fade-in duration-300" />
+                                        </div>
+                                    )}
+                                </div>
                             </div>
 
                             <div className="pt-2">

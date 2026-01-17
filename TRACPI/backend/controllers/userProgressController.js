@@ -469,7 +469,8 @@ export const getUserCourseStatus = async (req, res) => {
         totalSectionsCount: totalSections,
         totalVideosCount: totalCourseVideos,
         completedVideosCount: completedCourseVideos,
-        duration: durationMins
+        duration: durationMins,
+        courseImage: course.courseImage
       });
 
       // The next course is unlocked only if the current one is fully passed/completed

@@ -24,6 +24,10 @@ const courseSchema = new mongoose.Schema({
   quizTime: {
     type: Number,
     default: 60
+  },
+  courseImage: {
+    type: String,
+    trim: true
   }
 }, { timestamps: true });
 

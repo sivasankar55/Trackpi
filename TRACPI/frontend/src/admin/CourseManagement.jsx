@@ -276,7 +276,7 @@ const CourseManagement = () => {
                     <div className="p-5">
                       <div className="h-[200px] w-full rounded-[25px] overflow-hidden bg-white shadow-inner">
                         <img
-                          src={course.thumbnail || CourseImage}
+                          src={course.courseImage || CourseImage}
                           alt={course.courseName}
                           className="w-full h-full object-cover"
                           onError={(e) => {
