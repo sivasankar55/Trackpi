@@ -381,231 +381,162 @@ const AddCoursePage = () => {
     };
 
     return (
-        <div className="flex-1 bg-white min-h-screen font-['Poppins'] overflow-x-hidden pt-10">
-            {/* Top Navigation Bar */}
+        <div className="flex-1 bg-white min-h-screen font-['Poppins'] overflow-x-hidden pt-10 flex flex-col items-center">
+            <div className="w-full max-w-[1600px]">
+                {/* Top Navigation Bar */}
 
 
-            {/* Launch Course Button container */}
-            {!isAddingSection && (
-                <div className="flex justify-center sm:justify-end px-4 sm:px-12 mb-8">
-                    <button
-                        onClick={handleLaunchCourse}
-                        disabled={loading}
-                        className="w-full sm:w-auto bg-[#E20000] hover:bg-[#C10000] text-white font-bold py-3 px-12 rounded-[12px] shadow-[0px_4px_10px_rgba(226,0,0,0.3)] transition-all text-lg sm:text-xl"
-                    >
-                        {loading ? (isEditMode ? 'Updating...' : 'Launching...') : (isEditMode ? 'Update Course' : 'Launch Course')}
-                    </button>
-                </div>
-            )}
+                {/* Launch Course Button container */}
+                {!isAddingSection && (
+                    <div className="flex justify-center sm:justify-end px-4 sm:px-12 mb-8">
+                        <button
+                            onClick={handleLaunchCourse}
+                            disabled={loading}
+                            className="w-full sm:w-auto bg-[#E20000] hover:bg-[#C10000] text-white font-bold py-3 px-12 rounded-[12px] shadow-[0px_4px_10px_rgba(226,0,0,0.3)] transition-all text-lg sm:text-xl"
+                        >
+                            {loading ? (isEditMode ? 'Updating...' : 'Launching...') : (isEditMode ? 'Update Course' : 'Launch Course')}
+                        </button>
+                    </div>
+                )}
 
-            {/* Main Content Grid */}
-            {!isAddingSection ? (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-10 px-4 sm:px-12 pb-12">
-                    {/* Left Column: Course Details & Sections */}
-                    <div className="bg-white border border-[#FFB300] rounded-[20px] p-6 sm:p-8 shadow-[0px_4px_20px_rgba(255,179,0,0.1)]">
-                        <div className="space-y-6 sm:space-y-8">
-                            <div>
-                                <label className="block text-lg sm:text-[22px] font-extrabold text-[#333] mb-3 sm:mb-4">Course Name</label>
-                                <input
-                                    type="text"
-                                    name="courseName"
-                                    value={formData.courseName}
-                                    onChange={handleInputChange}
-                                    placeholder="Enter Course name"
-                                    className="w-full h-[55px] sm:h-[60px] px-6 sm:px-8 rounded-[12px] bg-[#FFB300] text-white placeholder-white/80 focus:outline-none text-lg sm:text-xl font-bold italic"
-                                />
-                            </div>
+                {/* Main Content Grid */}
+                {!isAddingSection ? (
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-10 px-4 sm:px-12 pb-12">
+                        {/* Left Column: Course Details & Sections */}
+                        <div className="bg-white border border-[#FFB300] rounded-[20px] p-6 sm:p-8 shadow-[0px_4px_20px_rgba(255,179,0,0.1)]">
+                            <div className="space-y-6 sm:space-y-8">
+                                <div>
+                                    <label className="block text-lg sm:text-[22px] font-extrabold text-[#333] mb-3 sm:mb-4">Course Name</label>
+                                    <input
+                                        type="text"
+                                        name="courseName"
+                                        value={formData.courseName}
+                                        onChange={handleInputChange}
+                                        placeholder="Enter Course name"
+                                        className="w-full h-[55px] sm:h-[60px] px-6 sm:px-8 rounded-[12px] bg-[#FFB300] text-white placeholder-white/80 focus:outline-none text-lg sm:text-xl font-bold italic"
+                                    />
+                                </div>
 
-                            <div>
-                                <label className="block text-lg sm:text-[22px] font-extrabold text-[#333] mb-3 sm:mb-4">Course Detail</label>
-                                <input
-                                    type="text"
-                                    name="courseDetail"
-                                    value={formData.courseDetail}
-                                    onChange={handleInputChange}
-                                    placeholder="Enter Course Details"
-                                    className="w-full h-[55px] sm:h-[60px] px-6 sm:px-8 rounded-[12px] bg-[#FFB300] text-white placeholder-white/80 focus:outline-none text-lg sm:text-xl font-bold italic"
-                                />
-                            </div>
+                                <div>
+                                    <label className="block text-lg sm:text-[22px] font-extrabold text-[#333] mb-3 sm:mb-4">Course Detail</label>
+                                    <input
+                                        type="text"
+                                        name="courseDetail"
+                                        value={formData.courseDetail}
+                                        onChange={handleInputChange}
+                                        placeholder="Enter Course Details"
+                                        className="w-full h-[55px] sm:h-[60px] px-6 sm:px-8 rounded-[12px] bg-[#FFB300] text-white placeholder-white/80 focus:outline-none text-lg sm:text-xl font-bold italic"
+                                    />
+                                </div>
 
-                            <div>
-                                <label className="block text-lg sm:text-[22px] font-extrabold text-[#333] mb-3 sm:mb-4">Course Image</label>
-                                <div className="space-y-4">
-                                    <div className="relative">
-                                        <input
-                                            type="file"
-                                            accept=".png, .jpg, .jpeg"
-                                            onChange={handleImageChange}
-                                            id="courseImageInput"
-                                            className="hidden"
-                                        />
+                                <div>
+                                    <label className="block text-lg sm:text-[22px] font-extrabold text-[#333] mb-3 sm:mb-4">Course Image</label>
+                                    <div className="space-y-4">
+                                        <div className="relative">
+                                            <input
+                                                type="file"
+                                                accept=".png, .jpg, .jpeg"
+                                                onChange={handleImageChange}
+                                                id="courseImageInput"
+                                                className="hidden"
+                                            />
 
-                                        {!imagePreview ? (
-                                            <label
-                                                htmlFor="courseImageInput"
-                                                className="flex flex-col items-center justify-center w-full h-[200px] border-2 border-dashed border-[#FFB300] rounded-[16px] bg-[#FFF8E7] hover:bg-[#FFF2D0] transition-all cursor-pointer group"
-                                            >
-                                                <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                                    <div className="p-4 bg-white rounded-full shadow-sm mb-3 group-hover:scale-110 transition-transform">
-                                                        <FiUploadCloud size={32} className="text-[#FFB300]" />
+                                            {!imagePreview ? (
+                                                <label
+                                                    htmlFor="courseImageInput"
+                                                    className="flex flex-col items-center justify-center w-full h-[200px] border-2 border-dashed border-[#FFB300] rounded-[16px] bg-[#FFF8E7] hover:bg-[#FFF2D0] transition-all cursor-pointer group"
+                                                >
+                                                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                                        <div className="p-4 bg-white rounded-full shadow-sm mb-3 group-hover:scale-110 transition-transform">
+                                                            <FiUploadCloud size={32} className="text-[#FFB300]" />
+                                                        </div>
+                                                        <p className="mb-2 text-sm text-[#333] font-bold">
+                                                            <span className="text-[#D35400]">Click to upload</span> or drag and drop
+                                                        </p>
+                                                        <p className="text-xs text-gray-500 font-medium">PNG, JPG or JPEG (MAX. 5MB)</p>
                                                     </div>
-                                                    <p className="mb-2 text-sm text-[#333] font-bold">
-                                                        <span className="text-[#D35400]">Click to upload</span> or drag and drop
-                                                    </p>
-                                                    <p className="text-xs text-gray-500 font-medium">PNG, JPG or JPEG (MAX. 5MB)</p>
+                                                </label>
+                                            ) : (
+                                                <div className="relative group w-full h-[220px] rounded-[16px] overflow-hidden border-2 border-[#FFB300] shadow-md">
+                                                    <img
+                                                        src={imagePreview}
+                                                        alt="Course Preview"
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
+                                                        <label
+                                                            htmlFor="courseImageInput"
+                                                            className="p-3 bg-white rounded-full cursor-pointer hover:scale-110 transition-transform shadow-lg"
+                                                            title="Change Image"
+                                                        >
+                                                            <FiEdit3 size={20} className="text-[#333]" />
+                                                        </label>
+                                                        <button
+                                                            onClick={() => {
+                                                                setImageFile(null);
+                                                                setImagePreview(null);
+                                                            }}
+                                                            className="p-3 bg-white rounded-full cursor-pointer hover:scale-110 transition-transform shadow-lg"
+                                                            title="Remove Image"
+                                                        >
+                                                            <FiX size={20} className="text-red-500" />
+                                                        </button>
+                                                    </div>
+                                                    <div className="absolute bottom-3 left-3 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-lg flex items-center gap-2">
+                                                        <FiImage className="text-white" size={14} />
+                                                        <span className="text-white text-xs font-medium truncate max-w-[150px]">
+                                                            {imageFile ? imageFile.name : "Current Image"}
+                                                        </span>
+                                                    </div>
                                                 </div>
-                                            </label>
-                                        ) : (
-                                            <div className="relative group w-full h-[220px] rounded-[16px] overflow-hidden border-2 border-[#FFB300] shadow-md">
-                                                <img
-                                                    src={imagePreview}
-                                                    alt="Course Preview"
-                                                    className="w-full h-full object-cover"
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="pt-2">
+                                    <div className="flex justify-between items-center mb-6">
+                                        <h3 className="text-lg sm:text-[22px] font-extrabold text-[#333]">Section</h3>
+                                        <button
+                                            onClick={() => {
+                                                setEditingSectionIndex(null);
+                                                setSectionData({ sectionName: '', units: [] });
+                                                setIsAddingSection(true);
+                                            }}
+                                            className="bg-[#D35400] hover:bg-[#BA4A00] text-white px-6 sm:px-10 py-2 sm:py-2.5 rounded-[10px] font-extrabold text-base sm:text-lg transition-colors shadow-sm"
+                                        >
+                                            Add
+                                        </button>
+                                    </div>
+
+                                    <div className="space-y-3 sm:space-y-4">
+                                        {sections.map((section, index) => (
+                                            <div key={index} className="flex justify-between items-center bg-[#FFB300] h-[55px] sm:h-[60px] px-6 sm:px-8 rounded-[12px] hover:shadow-md transition-shadow">
+                                                {/* Support both local 'name' and DB 'sectionName' */}
+                                                <span className="text-white font-bold text-lg sm:text-xl italic">{section.name || section.sectionName}</span>
+                                                <FiEdit3
+                                                    className="text-white text-xl sm:text-2xl cursor-pointer hover:text-white/80"
+                                                    onClick={() => handleEditSection(index)}
                                                 />
-                                                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
-                                                    <label
-                                                        htmlFor="courseImageInput"
-                                                        className="p-3 bg-white rounded-full cursor-pointer hover:scale-110 transition-transform shadow-lg"
-                                                        title="Change Image"
-                                                    >
-                                                        <FiEdit3 size={20} className="text-[#333]" />
-                                                    </label>
-                                                    <button
-                                                        onClick={() => {
-                                                            setImageFile(null);
-                                                            setImagePreview(null);
-                                                        }}
-                                                        className="p-3 bg-white rounded-full cursor-pointer hover:scale-110 transition-transform shadow-lg"
-                                                        title="Remove Image"
-                                                    >
-                                                        <FiX size={20} className="text-red-500" />
-                                                    </button>
-                                                </div>
-                                                <div className="absolute bottom-3 left-3 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-lg flex items-center gap-2">
-                                                    <FiImage className="text-white" size={14} />
-                                                    <span className="text-white text-xs font-medium truncate max-w-[150px]">
-                                                        {imageFile ? imageFile.name : "Current Image"}
-                                                    </span>
-                                                </div>
                                             </div>
+                                        ))}
+                                        {sections.length === 0 && (
+                                            <div className="text-center text-gray-400 py-4 italic">No sections added</div>
                                         )}
                                     </div>
                                 </div>
                             </div>
-
-                            <div className="pt-2">
-                                <div className="flex justify-between items-center mb-6">
-                                    <h3 className="text-lg sm:text-[22px] font-extrabold text-[#333]">Section</h3>
-                                    <button
-                                        onClick={() => {
-                                            setEditingSectionIndex(null);
-                                            setSectionData({ sectionName: '', units: [] });
-                                            setIsAddingSection(true);
-                                        }}
-                                        className="bg-[#D35400] hover:bg-[#BA4A00] text-white px-6 sm:px-10 py-2 sm:py-2.5 rounded-[10px] font-extrabold text-base sm:text-lg transition-colors shadow-sm"
-                                    >
-                                        Add
-                                    </button>
-                                </div>
-
-                                <div className="space-y-3 sm:space-y-4">
-                                    {sections.map((section, index) => (
-                                        <div key={index} className="flex justify-between items-center bg-[#FFB300] h-[55px] sm:h-[60px] px-6 sm:px-8 rounded-[12px] hover:shadow-md transition-shadow">
-                                            {/* Support both local 'name' and DB 'sectionName' */}
-                                            <span className="text-white font-bold text-lg sm:text-xl italic">{section.name || section.sectionName}</span>
-                                            <FiEdit3
-                                                className="text-white text-xl sm:text-2xl cursor-pointer hover:text-white/80"
-                                                onClick={() => handleEditSection(index)}
-                                            />
-                                        </div>
-                                    ))}
-                                    {sections.length === 0 && (
-                                        <div className="text-center text-gray-400 py-4 italic">No sections added</div>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Right Column: Quiz */}
-                    <div className="bg-white border border-[#FFB300] rounded-[20px] p-6 sm:p-8 shadow-[0px_4px_20px_rgba(255,179,0,0.1)] h-fit">
-                        <div className="flex justify-between items-center mb-6">
-                            <h3 className="text-lg sm:text-[22px] font-extrabold text-[#333]">Add quiz</h3>
-                            <button
-                                onClick={() => {
-                                    setEditingQuestionIndex(null);
-                                    setCurrentQuestion({ question: '', options: ['', '', '', ''], correctAnswer: '' });
-                                    setShowQuizPopup(true);
-                                }}
-                                className="bg-[#D35400] hover:bg-[#BA4A00] text-white px-6 sm:px-10 py-2 sm:py-2.5 rounded-[10px] font-extrabold text-base sm:text-lg transition-colors shadow-sm"
-                            >
-                                Add
-                            </button>
                         </div>
 
-                        <div className="space-y-3 sm:space-y-4">
-                            <div className="space-y-3 sm:space-y-4">
-                                {questions.map((question, index) => (
-                                    <div key={index} className="flex justify-between items-center bg-[#FFB300] h-[55px] sm:h-[60px] px-6 sm:px-8 rounded-[12px] hover:shadow-md transition-shadow">
-                                        <span className="text-white font-bold text-lg sm:text-xl italic truncate max-w-[60%]">{question.question}</span>
-                                        <div className="flex items-center gap-3">
-                                            <FiEdit3
-                                                className="text-white text-xl sm:text-2xl cursor-pointer hover:text-white/80"
-                                                onClick={() => handleEditQuestion(index)}
-                                            />
-                                            <FiTrash2
-                                                className="text-white text-xl sm:text-2xl cursor-pointer hover:text-red-200"
-                                                onClick={() => setQuestions(questions.filter((_, i) => i !== index))}
-                                            />
-                                        </div>
-                                    </div>
-                                ))}
-                                {questions.length === 0 && (
-                                    <div className="text-center text-gray-400 py-4 italic">No questions added yet</div>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Quiz Time Limit */}
-                        <div className="mt-8 pt-6 border-t border-[#FFB300]">
-                            <label className="block text-lg sm:text-[22px] font-extrabold text-[#333] mb-3 sm:mb-4">Quiz Time (Minutes)</label>
-                            <div className="flex items-center gap-4">
-                                <input
-                                    type="number"
-                                    name="quizTime"
-                                    value={formData.quizTime}
-                                    onChange={handleInputChange}
-                                    placeholder="60"
-                                    className="w-full h-[55px] sm:h-[60px] px-6 sm:px-8 rounded-[12px] bg-[#FFB300] text-white placeholder-white/80 focus:outline-none text-lg sm:text-xl font-bold italic"
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            ) : (
-                // ADD SECTION VIEW
-                <div className="px-4 sm:px-12 pb-12">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-20">
-                        {/* Left: Add Section & Units List */}
+                        {/* Right Column: Quiz */}
                         <div className="bg-white border border-[#FFB300] rounded-[20px] p-6 sm:p-8 shadow-[0px_4px_20px_rgba(255,179,0,0.1)] h-fit">
-                            <div className="mb-8">
-                                <label className="block text-lg sm:text-[22px] font-extrabold text-[#333] mb-3 sm:mb-4">Section</label>
-                                <input
-                                    type="text"
-                                    value={sectionData.sectionName}
-                                    onChange={handleSectionChange}
-                                    placeholder="Enter Section name"
-                                    className="w-full h-[55px] sm:h-[60px] px-6 sm:px-8 rounded-[12px] bg-[#FF9900] text-white placeholder-white/80 focus:outline-none text-lg sm:text-xl font-bold"
-                                />
-                            </div>
-
                             <div className="flex justify-between items-center mb-6">
-                                <h3 className="text-lg sm:text-[22px] font-extrabold text-[#333]">Units</h3>
+                                <h3 className="text-lg sm:text-[22px] font-extrabold text-[#333]">Add quiz</h3>
                                 <button
                                     onClick={() => {
-                                        setEditingUnitIndex(null);
-                                        setCurrentUnit({ name: '', description: '', videoId: '' });
-                                        setShowUnitDetails(true);
+                                        setEditingQuestionIndex(null);
+                                        setCurrentQuestion({ question: '', options: ['', '', '', ''], correctAnswer: '' });
+                                        setShowQuizPopup(true);
                                     }}
                                     className="bg-[#D35400] hover:bg-[#BA4A00] text-white px-6 sm:px-10 py-2 sm:py-2.5 rounded-[10px] font-extrabold text-base sm:text-lg transition-colors shadow-sm"
                                 >
@@ -614,270 +545,341 @@ const AddCoursePage = () => {
                             </div>
 
                             <div className="space-y-3 sm:space-y-4">
-                                {sectionData.units.map((unit, index) => (
-                                    <div key={index} className="flex justify-between items-center bg-[#FF9900] h-[70px] sm:h-[80px] px-4 sm:px-6 rounded-[12px] hover:shadow-md transition-shadow">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-[80px] h-[45px] bg-black/20 rounded-[6px] overflow-hidden flex-shrink-0 flex items-center justify-center">
-                                                {getVideoThumbnail(unit.videoId || unit.videoID) ? (
-                                                    <img
-                                                        src={getVideoThumbnail(unit.videoId || unit.videoID)}
-                                                        className="w-full h-full object-cover"
-                                                        alt="thumb"
-                                                    />
-                                                ) : (
-                                                    <FiVideo className="text-white/50" />
-                                                )}
+                                <div className="space-y-3 sm:space-y-4">
+                                    {questions.map((question, index) => (
+                                        <div key={index} className="flex justify-between items-center bg-[#FFB300] h-[55px] sm:h-[60px] px-6 sm:px-8 rounded-[12px] hover:shadow-md transition-shadow">
+                                            <span className="text-white font-bold text-lg sm:text-xl italic truncate max-w-[60%]">{question.question}</span>
+                                            <div className="flex items-center gap-3">
+                                                <FiEdit3
+                                                    className="text-white text-xl sm:text-2xl cursor-pointer hover:text-white/80"
+                                                    onClick={() => handleEditQuestion(index)}
+                                                />
+                                                <FiTrash2
+                                                    className="text-white text-xl sm:text-2xl cursor-pointer hover:text-red-200"
+                                                    onClick={() => setQuestions(questions.filter((_, i) => i !== index))}
+                                                />
                                             </div>
-                                            <span className="text-white font-bold text-base sm:text-lg italic truncate max-w-[150px] sm:max-w-[200px]">
-                                                {unit.name || unit.unitName}
-                                            </span>
                                         </div>
-                                        <FiEdit3
-                                            className="text-white text-xl sm:text-2xl cursor-pointer hover:text-white/80"
-                                            onClick={() => handleEditUnit(index)}
-                                        />
-                                    </div>
-                                ))}
-                                {sectionData.units.length === 0 && (
-                                    <div className="text-center text-gray-400 py-4 italic">No units added yet</div>
-                                )}
+                                    ))}
+                                    {questions.length === 0 && (
+                                        <div className="text-center text-gray-400 py-4 italic">No questions added yet</div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Quiz Time Limit */}
+                            <div className="mt-8 pt-6 border-t border-[#FFB300]">
+                                <label className="block text-lg sm:text-[22px] font-extrabold text-[#333] mb-3 sm:mb-4">Quiz Time (Minutes)</label>
+                                <div className="flex items-center gap-4">
+                                    <input
+                                        type="number"
+                                        name="quizTime"
+                                        value={formData.quizTime}
+                                        onChange={handleInputChange}
+                                        placeholder="60"
+                                        className="w-full h-[55px] sm:h-[60px] px-6 sm:px-8 rounded-[12px] bg-[#FFB300] text-white placeholder-white/80 focus:outline-none text-lg sm:text-xl font-bold italic"
+                                    />
+                                </div>
                             </div>
                         </div>
+                    </div>
+                ) : (
+                    // ADD SECTION VIEW
+                    <div className="px-4 sm:px-12 pb-12">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-20">
+                            {/* Left: Add Section & Units List */}
+                            <div className="bg-white border border-[#FFB300] rounded-[20px] p-6 sm:p-8 shadow-[0px_4px_20px_rgba(255,179,0,0.1)] h-fit">
+                                <div className="mb-8">
+                                    <label className="block text-lg sm:text-[22px] font-extrabold text-[#333] mb-3 sm:mb-4">Section</label>
+                                    <input
+                                        type="text"
+                                        value={sectionData.sectionName}
+                                        onChange={handleSectionChange}
+                                        placeholder="Enter Section name"
+                                        className="w-full h-[55px] sm:h-[60px] px-6 sm:px-8 rounded-[12px] bg-[#FF9900] text-white placeholder-white/80 focus:outline-none text-lg sm:text-xl font-bold"
+                                    />
+                                </div>
 
-                        {/* Right: Unit Details Form */}
-                        {showUnitDetails && (
-                            <div className="bg-white border border-[#FFB300] rounded-[20px] p-6 sm:p-8 shadow-[0px_4px_20px_rgba(255,179,0,0.1)] h-fit relative">
-                                <h3 className="text-center text-lg sm:text-[22px] font-extrabold text-[#333] mb-8">
-                                    {editingUnitIndex !== null ? 'Edit Unit' : 'Unit Details'}
-                                </h3>
+                                <div className="flex justify-between items-center mb-6">
+                                    <h3 className="text-lg sm:text-[22px] font-extrabold text-[#333]">Units</h3>
+                                    <button
+                                        onClick={() => {
+                                            setEditingUnitIndex(null);
+                                            setCurrentUnit({ name: '', description: '', videoId: '' });
+                                            setShowUnitDetails(true);
+                                        }}
+                                        className="bg-[#D35400] hover:bg-[#BA4A00] text-white px-6 sm:px-10 py-2 sm:py-2.5 rounded-[10px] font-extrabold text-base sm:text-lg transition-colors shadow-sm"
+                                    >
+                                        Add
+                                    </button>
+                                </div>
 
-                                <div className="space-y-6">
-                                    <div>
-                                        <label className="block text-base sm:text-lg font-bold text-[#333] mb-2">Unit Name</label>
-                                        <input
-                                            type="text"
-                                            name="name"
-                                            value={currentUnit.name}
-                                            onChange={handleUnitChange}
-                                            placeholder="Enter Unit Name"
-                                            className="w-full h-[50px] px-6 rounded-[10px] bg-[#FF9900] text-white placeholder-white/80 focus:outline-none text-base font-medium"
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-base sm:text-lg font-bold text-[#333] mb-2">Unit Description</label>
-                                        <input
-                                            type="text"
-                                            name="description"
-                                            value={currentUnit.description}
-                                            onChange={handleUnitChange}
-                                            placeholder="Enter unit description"
-                                            className="w-full h-[50px] px-6 rounded-[10px] bg-[#FF9900] text-white placeholder-white/80 focus:outline-none text-base font-medium"
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-base sm:text-lg font-bold text-[#333] mb-2">Video ID / URL</label>
-                                        <input
-                                            type="text"
-                                            name="videoId"
-                                            value={currentUnit.videoId}
-                                            onChange={handleUnitChange}
-                                            placeholder="Enter Video ID or URL"
-                                            className="w-full h-[50px] px-6 rounded-[10px] bg-[#FF9900] text-white placeholder-white/80 focus:outline-none text-base font-medium"
-                                        />
-                                        {currentUnit.videoId && (
-                                            <div className="mt-4">
-                                                <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">Thumbnail Preview</label>
-                                                <div className="w-full aspect-video bg-black/10 rounded-[12px] overflow-hidden flex items-center justify-center border-2 border-dashed border-[#FF9900]/30 shadow-inner">
-                                                    {getVideoThumbnail(currentUnit.videoId) ? (
+                                <div className="space-y-3 sm:space-y-4">
+                                    {sectionData.units.map((unit, index) => (
+                                        <div key={index} className="flex justify-between items-center bg-[#FF9900] h-[70px] sm:h-[80px] px-4 sm:px-6 rounded-[12px] hover:shadow-md transition-shadow">
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-[80px] h-[45px] bg-black/20 rounded-[6px] overflow-hidden flex-shrink-0 flex items-center justify-center">
+                                                    {getVideoThumbnail(unit.videoId || unit.videoID) ? (
                                                         <img
-                                                            src={getVideoThumbnail(currentUnit.videoId)}
-                                                            className="w-full h-full object-cover animate-in fade-in duration-500"
-                                                            alt="preview"
-                                                            onError={(e) => e.target.style.display = 'none'}
+                                                            src={getVideoThumbnail(unit.videoId || unit.videoID)}
+                                                            className="w-full h-full object-cover"
+                                                            alt="thumb"
                                                         />
                                                     ) : (
-                                                        <div className="text-center p-4">
-                                                            <FiVideo size={32} className="mx-auto text-white/40 mb-2" />
-                                                            <p className="text-white/60 text-xs">Enter a valid ID to see preview</p>
-                                                        </div>
+                                                        <FiVideo className="text-white/50" />
                                                     )}
                                                 </div>
+                                                <span className="text-white font-bold text-base sm:text-lg italic truncate max-w-[150px] sm:max-w-[200px]">
+                                                    {unit.name || unit.unitName}
+                                                </span>
                                             </div>
-                                        )}
-                                    </div>
-
-                                    <div className="flex justify-center mt-8">
-                                        <button
-                                            onClick={handleAddUnit}
-                                            className="bg-[#D50000] hover:bg-[#B71C1C] text-white px-12 py-3 rounded-[10px] font-extrabold text-lg shadow-md transition-all"
-                                        >
-                                            Enter
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Bottom Action Buttons */}
-                    <div className="flex justify-center flex-wrap gap-8 mt-16">
-                        <button
-                            onClick={() => {
-                                setIsAddingSection(false);
-                                setEditingSectionIndex(null);
-                                setSectionData({ sectionName: '', units: [] });
-                            }}
-                            className="w-[160px] h-[50px] bg-[#FFA000] hover:bg-[#FF8F00] text-white font-bold rounded-[10px] shadow-md transition-all text-lg"
-                        >
-                            Back
-                        </button>
-                        <button
-                            onClick={() => {
-                                if (sectionData.sectionName) {
-                                    if (editingSectionIndex !== null) {
-                                        // Update existing section
-                                        setSections(prev => {
-                                            const updated = [...prev];
-                                            updated[editingSectionIndex] = {
-                                                name: sectionData.sectionName,
-                                                units: sectionData.units
-                                            };
-                                            return updated;
-                                        });
-                                    } else {
-                                        // Add new section
-                                        setSections(prev => [...prev, {
-                                            name: sectionData.sectionName,
-                                            units: sectionData.units
-                                        }]);
-                                    }
-                                    setIsAddingSection(false);
-                                    setSectionData({ sectionName: '', units: [] });
-                                    setEditingSectionIndex(null);
-                                } else {
-                                    alert('Please enter a section name');
-                                }
-                            }}
-                            className="w-[160px] h-[50px] bg-[#C62828] hover:bg-[#B71C1C] text-white font-bold rounded-[10px] shadow-md transition-all text-lg"
-                        >
-                            Submit
-                        </button>
-                    </div>
-                </div>
-            )}
-
-            {/* QUIZ POPUP OVERLAY */}
-            {showQuizPopup && (
-                <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-                    <div className="bg-[#FF9900] rounded-[20px] p-6 sm:p-8 w-full max-w-lg relative shadow-2xl">
-                        {/* Header */}
-                        <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-white text-2xl font-bold">Question {questions.length + 1}</h2>
-                            <div className="relative">
-                                <select
-                                    className="appearance-none bg-[#FFA000] text-white font-bold py-2 px-4 pr-8 rounded-[20px] focus:outline-none cursor-pointer border border-[#FFB300]"
-                                    value={quizType}
-                                    onChange={(e) => setQuizType(e.target.value)}
-                                >
-                                    <option value="MCQ">MCQ</option>
-                                    <option value="True/False">T/F</option>
-                                </select>
-                                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-white text-sm pointer-events-none">▼</span>
-                            </div>
-                        </div>
-
-                        {/* Question Input */}
-                        <div className="mb-6">
-                            <input
-                                type="text"
-                                placeholder="Enter the question"
-                                className="w-full bg-[#FFA000] text-white placeholder-white/80 px-4 py-3 rounded-[10px] focus:outline-none font-medium border border-[#FFB300]"
-                                value={currentQuestion.question}
-                                onChange={(e) => setCurrentQuestion({ ...currentQuestion, question: e.target.value })}
-                            />
-                        </div>
-
-                        {/* Options */}
-                        <div className="mb-6">
-                            <label className="text-white font-bold text-lg mb-3 block">Options</label>
-
-                            {quizType === 'MCQ' ? (
-                                <div className="grid grid-cols-2 gap-4">
-                                    {['A', 'B', 'C', 'D'].map((optLabel, idx) => (
-                                        <input
-                                            key={idx}
-                                            type="text"
-                                            placeholder={`Option ${optLabel}`}
-                                            className="w-full bg-[#FFA000] text-white placeholder-white/60 px-4 py-3 rounded-[10px] focus:outline-none text-center border border-[#FFB300]"
-                                            value={currentQuestion.options[idx]}
-                                            onChange={(e) => handleQuestionOptionChange(idx, e.target.value)}
-                                        />
+                                            <FiEdit3
+                                                className="text-white text-xl sm:text-2xl cursor-pointer hover:text-white/80"
+                                                onClick={() => handleEditUnit(index)}
+                                            />
+                                        </div>
                                     ))}
+                                    {sectionData.units.length === 0 && (
+                                        <div className="text-center text-gray-400 py-4 italic">No units added yet</div>
+                                    )}
                                 </div>
-                            ) : (
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div
-                                        onClick={() => setCurrentQuestion({ ...currentQuestion, correctAnswer: 'True' })}
-                                        className={`w-full px-4 py-3 rounded-[10px] text-center font-bold border border-[#FFB300] cursor-pointer transition-colors ${currentQuestion.correctAnswer === 'True' ? 'bg-white text-[#FFA000]' : 'bg-[#FFA000] text-white hover:bg-[#FFB300]'}`}
-                                    >
-                                        True
-                                    </div>
-                                    <div
-                                        onClick={() => setCurrentQuestion({ ...currentQuestion, correctAnswer: 'False' })}
-                                        className={`w-full px-4 py-3 rounded-[10px] text-center font-bold border border-[#FFB300] cursor-pointer transition-colors ${currentQuestion.correctAnswer === 'False' ? 'bg-white text-[#FFA000]' : 'bg-[#FFA000] text-white hover:bg-[#FFB300]'}`}
-                                    >
-                                        False
+                            </div>
+
+                            {/* Right: Unit Details Form */}
+                            {showUnitDetails && (
+                                <div className="bg-white border border-[#FFB300] rounded-[20px] p-6 sm:p-8 shadow-[0px_4px_20px_rgba(255,179,0,0.1)] h-fit relative">
+                                    <h3 className="text-center text-lg sm:text-[22px] font-extrabold text-[#333] mb-8">
+                                        {editingUnitIndex !== null ? 'Edit Unit' : 'Unit Details'}
+                                    </h3>
+
+                                    <div className="space-y-6">
+                                        <div>
+                                            <label className="block text-base sm:text-lg font-bold text-[#333] mb-2">Unit Name</label>
+                                            <input
+                                                type="text"
+                                                name="name"
+                                                value={currentUnit.name}
+                                                onChange={handleUnitChange}
+                                                placeholder="Enter Unit Name"
+                                                className="w-full h-[50px] px-6 rounded-[10px] bg-[#FF9900] text-white placeholder-white/80 focus:outline-none text-base font-medium"
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-base sm:text-lg font-bold text-[#333] mb-2">Unit Description</label>
+                                            <input
+                                                type="text"
+                                                name="description"
+                                                value={currentUnit.description}
+                                                onChange={handleUnitChange}
+                                                placeholder="Enter unit description"
+                                                className="w-full h-[50px] px-6 rounded-[10px] bg-[#FF9900] text-white placeholder-white/80 focus:outline-none text-base font-medium"
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-base sm:text-lg font-bold text-[#333] mb-2">Video ID / URL</label>
+                                            <input
+                                                type="text"
+                                                name="videoId"
+                                                value={currentUnit.videoId}
+                                                onChange={handleUnitChange}
+                                                placeholder="Enter Video ID or URL"
+                                                className="w-full h-[50px] px-6 rounded-[10px] bg-[#FF9900] text-white placeholder-white/80 focus:outline-none text-base font-medium"
+                                            />
+                                            {currentUnit.videoId && (
+                                                <div className="mt-4">
+                                                    <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">Thumbnail Preview</label>
+                                                    <div className="w-full aspect-video bg-black/10 rounded-[12px] overflow-hidden flex items-center justify-center border-2 border-dashed border-[#FF9900]/30 shadow-inner">
+                                                        {getVideoThumbnail(currentUnit.videoId) ? (
+                                                            <img
+                                                                src={getVideoThumbnail(currentUnit.videoId)}
+                                                                className="w-full h-full object-cover animate-in fade-in duration-500"
+                                                                alt="preview"
+                                                                onError={(e) => e.target.style.display = 'none'}
+                                                            />
+                                                        ) : (
+                                                            <div className="text-center p-4">
+                                                                <FiVideo size={32} className="mx-auto text-white/40 mb-2" />
+                                                                <p className="text-white/60 text-xs">Enter a valid ID to see preview</p>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div className="flex justify-center mt-8">
+                                            <button
+                                                onClick={handleAddUnit}
+                                                className="bg-[#D50000] hover:bg-[#B71C1C] text-white px-12 py-3 rounded-[10px] font-extrabold text-lg shadow-md transition-all"
+                                            >
+                                                Enter
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             )}
                         </div>
 
-                        {/* Correct Answer */}
-                        <div className="mb-8">
-                            <label className="text-white font-bold text-lg mb-3 block">Correct Answer</label>
-                            <input
-                                type="text"
-                                placeholder="Enter Your Correct Answer"
-                                className="w-full bg-[#FFA000] text-white placeholder-white/80 px-4 py-3 rounded-[10px] focus:outline-none border border-[#FFB300]"
-                                value={currentQuestion.correctAnswer}
-                                onChange={(e) => setCurrentQuestion({ ...currentQuestion, correctAnswer: e.target.value })}
-                            />
-                        </div>
-
-                        {/* Submit Button */}
-                        <div className="flex justify-center flex-col items-center gap-4">
+                        {/* Bottom Action Buttons */}
+                        <div className="flex justify-center flex-wrap gap-8 mt-16">
                             <button
-                                onClick={handleAddQuestionWithPopup}
-                                className="bg-[#E20000] hover:bg-[#C10000] text-white font-bold py-3 px-10 rounded-[10px] shadow-lg transition-transform active:scale-95 text-lg"
+                                onClick={() => {
+                                    setIsAddingSection(false);
+                                    setEditingSectionIndex(null);
+                                    setSectionData({ sectionName: '', units: [] });
+                                }}
+                                className="w-[160px] h-[50px] bg-[#FFA000] hover:bg-[#FF8F00] text-white font-bold rounded-[10px] shadow-md transition-all text-lg"
+                            >
+                                Back
+                            </button>
+                            <button
+                                onClick={() => {
+                                    if (sectionData.sectionName) {
+                                        if (editingSectionIndex !== null) {
+                                            // Update existing section
+                                            setSections(prev => {
+                                                const updated = [...prev];
+                                                updated[editingSectionIndex] = {
+                                                    name: sectionData.sectionName,
+                                                    units: sectionData.units
+                                                };
+                                                return updated;
+                                            });
+                                        } else {
+                                            // Add new section
+                                            setSections(prev => [...prev, {
+                                                name: sectionData.sectionName,
+                                                units: sectionData.units
+                                            }]);
+                                        }
+                                        setIsAddingSection(false);
+                                        setSectionData({ sectionName: '', units: [] });
+                                        setEditingSectionIndex(null);
+                                    } else {
+                                        alert('Please enter a section name');
+                                    }
+                                }}
+                                className="w-[160px] h-[50px] bg-[#C62828] hover:bg-[#B71C1C] text-white font-bold rounded-[10px] shadow-md transition-all text-lg"
                             >
                                 Submit
                             </button>
-                            <button
-                                onClick={() => setShowQuizPopup(false)}
-                                className="text-white/80 text-sm hover:text-white underline"
-                            >
-                                Cancel
-                            </button>
                         </div>
                     </div>
-                </div>
-            )}
+                )}
 
-            {/* Success Popup */}
-            <CourseSuccessPopup
-                isOpen={successPopup.show}
-                mode={successPopup.mode}
-                onClose={handlePopupClose}
-            />
+                {/* QUIZ POPUP OVERLAY */}
+                {showQuizPopup && (
+                    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+                        <div className="bg-[#FF9900] rounded-[20px] p-6 sm:p-8 w-full max-w-lg relative shadow-2xl">
+                            {/* Header */}
+                            <div className="flex justify-between items-center mb-6">
+                                <h2 className="text-white text-2xl font-bold">Question {questions.length + 1}</h2>
+                                <div className="relative">
+                                    <select
+                                        className="appearance-none bg-[#FFA000] text-white font-bold py-2 px-4 pr-8 rounded-[20px] focus:outline-none cursor-pointer border border-[#FFB300]"
+                                        value={quizType}
+                                        onChange={(e) => setQuizType(e.target.value)}
+                                    >
+                                        <option value="MCQ">MCQ</option>
+                                        <option value="True/False">T/F</option>
+                                    </select>
+                                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-white text-sm pointer-events-none">▼</span>
+                                </div>
+                            </div>
 
-            {/* Error Popup */}
-            <ErrorPopup
-                isOpen={errorPopup.show}
-                message={errorPopup.message}
-                onClose={() => setErrorPopup({ ...errorPopup, show: false })}
-            />
+                            {/* Question Input */}
+                            <div className="mb-6">
+                                <input
+                                    type="text"
+                                    placeholder="Enter the question"
+                                    className="w-full bg-[#FFA000] text-white placeholder-white/80 px-4 py-3 rounded-[10px] focus:outline-none font-medium border border-[#FFB300]"
+                                    value={currentQuestion.question}
+                                    onChange={(e) => setCurrentQuestion({ ...currentQuestion, question: e.target.value })}
+                                />
+                            </div>
+
+                            {/* Options */}
+                            <div className="mb-6">
+                                <label className="text-white font-bold text-lg mb-3 block">Options</label>
+
+                                {quizType === 'MCQ' ? (
+                                    <div className="grid grid-cols-2 gap-4">
+                                        {['A', 'B', 'C', 'D'].map((optLabel, idx) => (
+                                            <input
+                                                key={idx}
+                                                type="text"
+                                                placeholder={`Option ${optLabel}`}
+                                                className="w-full bg-[#FFA000] text-white placeholder-white/60 px-4 py-3 rounded-[10px] focus:outline-none text-center border border-[#FFB300]"
+                                                value={currentQuestion.options[idx]}
+                                                onChange={(e) => handleQuestionOptionChange(idx, e.target.value)}
+                                            />
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div
+                                            onClick={() => setCurrentQuestion({ ...currentQuestion, correctAnswer: 'True' })}
+                                            className={`w-full px-4 py-3 rounded-[10px] text-center font-bold border border-[#FFB300] cursor-pointer transition-colors ${currentQuestion.correctAnswer === 'True' ? 'bg-white text-[#FFA000]' : 'bg-[#FFA000] text-white hover:bg-[#FFB300]'}`}
+                                        >
+                                            True
+                                        </div>
+                                        <div
+                                            onClick={() => setCurrentQuestion({ ...currentQuestion, correctAnswer: 'False' })}
+                                            className={`w-full px-4 py-3 rounded-[10px] text-center font-bold border border-[#FFB300] cursor-pointer transition-colors ${currentQuestion.correctAnswer === 'False' ? 'bg-white text-[#FFA000]' : 'bg-[#FFA000] text-white hover:bg-[#FFB300]'}`}
+                                        >
+                                            False
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Correct Answer */}
+                            <div className="mb-8">
+                                <label className="text-white font-bold text-lg mb-3 block">Correct Answer</label>
+                                <input
+                                    type="text"
+                                    placeholder="Enter Your Correct Answer"
+                                    className="w-full bg-[#FFA000] text-white placeholder-white/80 px-4 py-3 rounded-[10px] focus:outline-none border border-[#FFB300]"
+                                    value={currentQuestion.correctAnswer}
+                                    onChange={(e) => setCurrentQuestion({ ...currentQuestion, correctAnswer: e.target.value })}
+                                />
+                            </div>
+
+                            {/* Submit Button */}
+                            <div className="flex justify-center flex-col items-center gap-4">
+                                <button
+                                    onClick={handleAddQuestionWithPopup}
+                                    className="bg-[#E20000] hover:bg-[#C10000] text-white font-bold py-3 px-10 rounded-[10px] shadow-lg transition-transform active:scale-95 text-lg"
+                                >
+                                    Submit
+                                </button>
+                                <button
+                                    onClick={() => setShowQuizPopup(false)}
+                                    className="text-white/80 text-sm hover:text-white underline"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Success Popup */}
+                <CourseSuccessPopup
+                    isOpen={successPopup.show}
+                    mode={successPopup.mode}
+                    onClose={handlePopupClose}
+                />
+
+                {/* Error Popup */}
+                <ErrorPopup
+                    isOpen={errorPopup.show}
+                    message={errorPopup.message}
+                    onClose={() => setErrorPopup({ ...errorPopup, show: false })}
+                />
+            </div>
         </div>
     );
 };

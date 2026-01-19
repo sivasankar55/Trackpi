@@ -249,22 +249,10 @@ const AdminManagement = () => {
           </div>
         )}
 
-      {/* Main Content Area */}
-      <div className="w-full p-6 flex flex-col items-center">
+      {/* Main Content Box */}
+      <div className="px-4 sm:px-10 mt-6 sm:mt-8 flex justify-center">
         <div
-          style={{
-            width: '100%',
-            maxWidth: '1334px',
-            minHeight: '600px',
-            margin: '0 auto',
-            borderRadius: '20px',
-            borderWidth: '1px',
-            paddingTop: '20px',
-            paddingBottom: '20px',
-            background: '#F2F2F266',
-            border: '1px solid #FFB300'
-          }}
-          className="relative"
+          className="w-full max-w-[1600px] border border-[#FFB300] rounded-[20px] sm:rounded-[30px] bg-[#F2F2F266] p-4 sm:p-8 shadow-sm min-h-[500px] sm:min-h-[680px] flex flex-col relative"
         >
           {/* Inner Search & Filters */}
           <div className="flex items-center justify-between mb-6 px-6">
@@ -340,8 +328,8 @@ const AdminManagement = () => {
                             setIsFilterOpen(false);
                           }}
                           className={`w-full text-left px-4 py-3 text-sm hover:bg-[#FFF1CF] transition-colors border-b border-gray-100 last:border-0 ${selectedFilter === filter
-                              ? 'bg-[#FFF1CF] font-bold text-[#FF8200]'
-                              : 'text-gray-700'
+                            ? 'bg-[#FFF1CF] font-bold text-[#FF8200]'
+                            : 'text-gray-700'
                             }`}
                         >
                           {filter}
@@ -538,24 +526,23 @@ const AdminManagement = () => {
           )}
         </div>
 
-        {/* Pagination */}
-        {!loading && (
-          <div className="flex items-center justify-between mt-8 w-full max-w-[1334px]">
-            <button
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-              className="disabled:opacity-50 disabled:cursor-not-allowed shadow-md transition-all hover:bg-[#ffe0a0]"
-              style={{
-                width: '158px',
-                height: '40px',
-                borderRadius: '6px',
-                background: '#FFF0CE',
-                fontWeight: '600',
-                color: '#333'
-              }}
-            >
-              Previous
-            </button>
+        {/* Pagination Grid */}
+        {totalPages > 1 && (
+          <div className="px-4 sm:px-10 mt-6 sm:mt-10 flex flex-col sm:flex-row justify-between items-center max-w-[1600px] mx-auto w-full gap-4 sm:gap-0">         <button
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+            className="disabled:opacity-50 disabled:cursor-not-allowed shadow-md transition-all hover:bg-[#ffe0a0]"
+            style={{
+              width: '158px',
+              height: '40px',
+              borderRadius: '6px',
+              background: '#FFF0CE',
+              fontWeight: '600',
+              color: '#333'
+            }}
+          >
+            Previous
+          </button>
 
             <div className="flex items-center gap-2">
               {Array.from({ length: totalPages }, (_, i) => i + 1).map(
@@ -564,8 +551,8 @@ const AdminManagement = () => {
                     key={pageNum}
                     onClick={() => setCurrentPage(pageNum)}
                     className={`w-9 h-9 rounded-md flex items-center justify-center text-sm font-bold transition-all shadow-sm ${currentPage === pageNum
-                        ? 'bg-[#FFB300] text-white'
-                        : 'bg-[#FFF0CE] text-gray-700 hover:bg-[#ffe0a0]'
+                      ? 'bg-[#FFB300] text-white'
+                      : 'bg-[#FFF0CE] text-gray-700 hover:bg-[#ffe0a0]'
                       }`}
                   >
                     {pageNum}

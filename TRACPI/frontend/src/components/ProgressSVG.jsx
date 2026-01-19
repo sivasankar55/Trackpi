@@ -79,7 +79,7 @@ const ProgressSVG = ({ percentage = 0 }) => {
           strokeDasharray="12 4 2 4"
           opacity="0.4"
         /> */}
- 
+
         {/* Middle decorative ring */}
         {/* <circle
           cx={centerX}
@@ -89,7 +89,7 @@ const ProgressSVG = ({ percentage = 0 }) => {
           stroke="#333"
           strokeWidth="1.5"
           opacity="0.5"
-        /> */} 
+        /> */}
 
         {/* Ticks Ring */}
         <g>{ticks}</g>

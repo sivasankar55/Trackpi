@@ -44,6 +44,7 @@ const SectionVideos = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isLastSection, setIsLastSection] = useState(false);
+  const [unlockedIndices, setUnlockedIndices] = useState([0]);
 
   // Player State
   const [isPlaying, setIsPlaying] = useState(false);
@@ -99,9 +100,8 @@ const SectionVideos = () => {
 
       const activeToken = token || storageToken;
 
-      // Only show full loading spinner if we don't have the section data yet
-      // This prevents UI flash/reset when context updates (like progress change)
-      if (!section || section._id !== sectionId) {
+      const isNewSection = !section || String(section._id) !== String(sectionId);
+      if (isNewSection) {
         setLoading(true);
       }
 
@@ -137,9 +137,21 @@ const SectionVideos = () => {
           setCompletedVideos(completed);
 
           if (units.length) {
-            // Only set selectedVideo if it's not already set (initial load)
-            // preventing override when background refresh happens
-            if (!selectedVideo) {
+            // Unlocked indices: index 0 is always unlocked.
+            // Any index 'i' is unlocked if the previous index 'i-1' is in completed videos.
+            const initialUnlocked = [0];
+            units.forEach((v, i) => {
+              const normalizedId = normalizeVideoId(v.videoID);
+              if (completed.some(id => normalizeVideoId(id) === normalizedId)) {
+                if (i + 1 < units.length) {
+                  initialUnlocked.push(i + 1);
+                }
+              }
+            });
+            setUnlockedIndices([...new Set(initialUnlocked)]);
+
+            // Update selectedVideo if it's not set OR if we just changed sections
+            if (!selectedVideo || isNewSection) {
               const firstUnwatched =
                 units.find(
                   v => !completed.some(id => normalizeVideoId(id) === normalizeVideoId(v.videoID))
@@ -305,8 +317,18 @@ const SectionVideos = () => {
 
     if (!currentVideo || !currentSection) return;
 
-    try {
+    const normalizedId = normalizeVideoId(currentVideo.videoID);
 
+    // 1. Optimistic Local Update - ensures sidebar and "Play Next" logic reflect completion instantly
+    setCompletedVideos(prev => {
+      if (prev.some(id => normalizeVideoId(id) === normalizedId)) return prev;
+      const newCompleted = [...prev, normalizedId];
+      console.log("SectionVideos: Optimistically updated completed videos:", newCompleted);
+      return newCompleted;
+    });
+
+    try {
+      // 2. Persist to Backend
       await axios.post(
         "http://localhost:5000/api/progress/watch-video",
         {
@@ -320,15 +342,8 @@ const SectionVideos = () => {
       );
 
       notifyProgressChanged();
-
-      setCompletedVideos(prev => {
-        const normalizedId = normalizeVideoId(currentVideo.videoID);
-        if (prev.some(id => normalizeVideoId(id) === normalizedId)) return prev;
-        return [...prev, normalizedId];
-      });
-
     } catch (err) {
-      console.error("Error marking watched", err);
+      console.error("SectionVideos: Error marking video as watched in backend", err);
     }
   };
 
@@ -348,33 +363,30 @@ const SectionVideos = () => {
 
   const handlePlayNext = async () => {
     try {
-      // await axios.post(
-      //   "http://localhost:5000/api/progress/watch-video",
-      //   { courseId, sectionId, videoId: selectedVideo.videoID },
-      //   { headers: { Authorization: `Bearer ${token}` } }
-      // );
+      // Ensure current video completion is registered if it hasn't been already
+      const normalizedId = normalizeVideoId(selectedVideo.videoID);
+      if (!completedVideos.some(id => normalizeVideoId(id) === normalizedId)) {
+        await markAsWatched();
+      }
 
       notifyProgressChanged();
 
-      setCompletedVideos(prev => {
-        const normalizedId = normalizeVideoId(selectedVideo.videoID);
-        const isAlreadyCompleted = prev.some(id => normalizeVideoId(id) === normalizedId);
-        if (!isAlreadyCompleted) {
-          return [...prev, normalizedId];
-        }
-        return prev;
-      });
-
-      // Use indexOf for exact object reference to handle duplicate videoIDs correctly
+      // Find and select next video
       const currentIndex = videos.indexOf(selectedVideo);
       const nextIndex = currentIndex + 1;
-
       const nextVideo = videos[nextIndex];
-      if (nextVideo) setSelectedVideo(nextVideo);
 
-      setShowPopup(false);
-    } catch {
-      console.log("Error");
+      if (nextVideo) {
+        // Unlock the next video ONLY when Play Next is clicked
+        setUnlockedIndices(prev => [...new Set([...prev, nextIndex])]);
+        setSelectedVideo(nextVideo);
+        setShowPopup(false);
+      } else {
+        // Last video finished
+        setShowPopup(true);
+      }
+    } catch (error) {
+      console.error("SectionVideos: Error in handlePlayNext:", error);
     }
   };
 
@@ -411,7 +423,7 @@ const SectionVideos = () => {
   };
 
   const isVideoLocked = (video, idx) => {
-    return false;
+    return !unlockedIndices.includes(idx);
   };
 
 
@@ -616,10 +628,7 @@ const SectionVideos = () => {
                       ? 'bg-[#1A1A1A] border-[#FF9D00] shadow-[0_0_15px_rgba(255,157,0,0.1)]'
                       : 'bg-[#0A0A0A] border-[#333] hover:border-gray-500'
                     }
-                        ${locked
-                      ? 'opacity-60 grayscale cursor-not-allowed'
-                      : ''
-                    }
+                        ${locked ? 'cursor-not-allowed' : ''}
                       `}
                 >
                   {/* Video Thumbnail */}
@@ -628,8 +637,7 @@ const SectionVideos = () => {
                       <img
                         src={getVideoThumbnail(video.videoID)}
                         alt={video.unitName}
-                        className={`w-full h-full object-cover transition-transform duration-500 ${isSelected ? 'scale-110' : 'group-hover:scale-110'
-                          } ${locked ? 'opacity-40 grayscale' : ''}`}
+                        className={`w-full h-full object-cover transition-transform duration-500 ${isSelected ? 'scale-110' : 'group-hover:scale-110'}`}
                       />
                     ) : (
                       <div className="absolute inset-0 bg-gradient-to-br from-gray-700 to-gray-900" />
@@ -642,7 +650,9 @@ const SectionVideos = () => {
                         }`}
                     >
                       {locked ? (
-                        <Lock size={20} className="text-gray-400" />
+                        <div className="w-8 h-8 rounded-full flex items-center justify-center bg-black/40 backdrop-blur-md border border-[#FF9D00]/40 shadow-[0_0_15px_rgba(0,0,0,0.4)] transition-all group-hover:scale-110">
+                          <Lock size={14} className="text-[#FF9D00] drop-shadow-[0_0_5px_rgba(255,157,0,0.4)]" />
+                        </div>
                       ) : (
                         <div
                           className={`w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/30 ${isSelected
