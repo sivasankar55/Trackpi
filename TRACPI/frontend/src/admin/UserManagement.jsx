@@ -149,8 +149,8 @@ const UserManagement = () => {
     <div className="min-h-screen bg-white w-full font-['Poppins'] pb-10">
 
       {/* Main Content Box */}
-      <div className="px-4 sm:px-10 mt-6 sm:mt-8">
-        <div className="border border-[#FFB30080] rounded-[20px] sm:rounded-[30px] bg-white p-4 sm:p-8 shadow-[0px_4px_30px_rgba(0,0,0,0.02)] min-h-[500px] sm:min-h-[680px] flex flex-col">
+      <div className="px-4 sm:px-10 mt-6 sm:mt-8 max-w-[1600px] mx-auto space-y-8 sm:space-y-10">
+        <div className="w-full max-w-[1600px] border border-[#FFB30080] rounded-[20px] sm:rounded-[30px] bg-white p-4 sm:p-8 shadow-[0px_4px_30px_rgba(0,0,0,0.02)] min-h-[500px] sm:min-h-[680px] flex flex-col">
           {/* Inner Controls */}
           <div className="flex flex-col lg:flex-row justify-between items-center mb-6 sm:mb-8 gap-5 lg:gap-0">
             <div className="relative w-full lg:w-[340px] h-[44px]">
@@ -247,33 +247,33 @@ const UserManagement = () => {
           </div>
 
           {/* Table */}
-          <div className="flex-1 overflow-x-auto pb-4">
-            <table className="w-full border-separate border-spacing-y-3 sm:border-spacing-y-4 min-w-[1000px]">
+          <div className="flex-1 overflow-x-auto lg:overflow-x-hidden pb-4">
+            <table className="w-full border-separate border-spacing-y-3 sm:border-spacing-y-4 table-fixed min-w-[900px] lg:min-w-0">
               <thead className="bg-[#FFB300]">
                 <tr>
-                  <th className="px-4 sm:px-6 py-4 sm:py-5 rounded-tl-[15px] rounded-bl-[15px] text-left">
-                    <div className="flex items-center gap-3 sm:gap-4 text-white font-bold text-[16px] sm:text-[18px]">
+                  <th className="w-[15%] px-3 sm:px-4 py-4 sm:py-5 rounded-tl-[15px] rounded-bl-[15px] text-left">
+                    <div className="flex items-center gap-2 sm:gap-3 text-white font-bold text-[14px] sm:text-[16px] xl:text-[18px]">
                       <button
                         onClick={handleSelectAll}
-                        className={`w-5 h-5 rounded-full border-2 flex-shrink-0 transition-all flex items-center justify-center ${selectedUsers.length === currentUsers.length && currentUsers.length > 0
+                        className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 flex-shrink-0 transition-all flex items-center justify-center ${selectedUsers.length === currentUsers.length && currentUsers.length > 0
                           ? 'bg-white border-white'
                           : 'border-white bg-transparent'
                           }`}
                       >
                         {selectedUsers.length === currentUsers.length && currentUsers.length > 0 && (
-                          <div className="w-2.5 h-2.5 rounded-full bg-[#FFB300]"></div>
+                          <div className="w-2 sm:w-2.5 h-2 sm:h-2.5 rounded-full bg-[#FFB300]"></div>
                         )}
                       </button>
                       <span>Name</span>
                     </div>
                   </th>
-                  <th className="px-4 sm:px-6 py-4 sm:py-5 text-left text-white font-bold text-[16px] sm:text-[18px]">User Name</th>
-                  <th className="px-4 sm:px-6 py-4 sm:py-5 text-left text-white font-bold text-[16px] sm:text-[18px]">Email ID</th>
-                  <th className="px-4 sm:px-6 py-4 sm:py-5 text-left text-white font-bold text-[16px] sm:text-[18px]">Phone Number</th>
-                  <th className="px-4 sm:px-6 py-4 sm:py-5 text-left text-white font-bold text-[16px] sm:text-[18px]">Joined</th>
-                  <th className="px-4 sm:px-6 py-4 sm:py-5 text-center text-white font-bold text-[16px] sm:text-[18px]">Courses Enrolled</th>
-                  <th className="px-4 sm:px-6 py-4 sm:py-5 text-center text-white font-bold text-[16px] sm:text-[18px]">Status</th>
-                  <th className="px-4 sm:px-6 py-4 sm:py-5 rounded-tr-[15px] rounded-br-[15px] text-center text-white font-bold text-[16px] sm:text-[18px]">Action</th>
+                  <th className="w-[12%] px-3 sm:px-4 py-4 sm:py-5 text-left text-white font-bold text-[14px] sm:text-[16px] xl:text-[18px]">User Name</th>
+                  <th className="w-[20%] px-3 sm:px-4 py-4 sm:py-5 text-left text-white font-bold text-[14px] sm:text-[16px] xl:text-[18px]">Email ID</th>
+                  <th className="w-[12%] px-3 sm:px-4 py-4 sm:py-5 text-left text-white font-bold text-[14px] sm:text-[16px] xl:text-[18px]">Phone</th>
+                  <th className="w-[10%] px-3 sm:px-4 py-4 sm:py-5 text-left text-white font-bold text-[14px] sm:text-[16px] xl:text-[18px]">Joined</th>
+                  <th className="w-[10%] px-2 sm:px-4 py-4 sm:py-5 text-center text-white font-bold text-[14px] sm:text-[16px] xl:text-[18px]">Courses</th>
+                  <th className="w-[10%] px-2 sm:px-4 py-4 sm:py-5 text-center text-white font-bold text-[14px] sm:text-[16px] xl:text-[18px]">Status</th>
+                  <th className="w-[11%] px-3 sm:px-4 py-4 sm:py-5 rounded-tr-[15px] rounded-br-[15px] text-center text-white font-bold text-[14px] sm:text-[16px] xl:text-[18px]">Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -284,51 +284,62 @@ const UserManagement = () => {
                 ) : (
                   currentUsers.map((user, idx) => (
                     <tr key={user._id} className={`group hover:shadow-lg transition-all duration-300 shadow-[0px_2px_15px_rgba(0,0,0,0.05)] rounded-[15px] ${selectedUsers.includes(user._id) ? 'bg-[#FFF8E7]' : (idx % 2 === 0 ? 'bg-[#FFF9E1]' : 'bg-white')}`}>
-                      <td className="px-4 sm:px-6 py-3 sm:py-4 rounded-l-[15px] border-l border-t border-b border-gray-100 group-hover:border-[#FFB30040]">
-                        <div className="flex items-center gap-3 sm:gap-4">
+                      <td className="px-3 sm:px-4 py-3 sm:py-4 rounded-l-[15px] border-l border-t border-b border-gray-100 group-hover:border-[#FFB30040]">
+                        <div className="flex items-center gap-2 sm:gap-3 overflow-hidden">
                           <button
                             onClick={() => toggleUserSelection(user._id)}
-                            className={`w-5 h-5 rounded-full border-2 transition-all flex items-center justify-center flex-shrink-0 ${selectedUsers.includes(user._id)
+                            className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 transition-all flex items-center justify-center flex-shrink-0 ${selectedUsers.includes(user._id)
                               ? 'bg-[#FF9D00] border-[#FF9D00]'
                               : 'border-gray-300 group-hover:border-[#FFB300]'
                               }`}
                           >
                             {selectedUsers.includes(user._id) && (
-                              <div className="w-2.5 h-2.5 rounded-full bg-white"></div>
+                              <div className="w-2 sm:w-2.5 h-2 sm:h-2.5 rounded-full bg-white"></div>
                             )}
                           </button>
                           <span
                             onClick={() => navigate(`/admin/user-details/${user._id}`)}
-                            className="font-bold text-[#333] text-[14px] sm:text-[16px] whitespace-nowrap cursor-pointer hover:text-[#FF9D00] transition-colors"
+                            className="font-bold text-[#333] text-[13px] sm:text-[14px] xl:text-[16px] truncate cursor-pointer hover:text-[#FF9D00] transition-colors"
+                            title={user.name}
                           >
                             {user.name}
                           </span>
                         </div>
                       </td>
-                      <td className="px-4 sm:px-6 py-3 sm:py-4 border-t border-b border-gray-100 group-hover:border-[#FFB30040] text-gray-600 font-medium text-[14px] sm:text-[16px]">@{user.email.split('@')[0]}</td>
-                      <td className="px-4 sm:px-6 py-3 sm:py-4 border-t border-b border-gray-100 group-hover:border-[#FFB30040] text-gray-600 font-medium text-[14px] sm:text-[16px] max-w-[200px] truncate" title={user.email}>{user.email}</td>
-                      <td className="px-4 sm:px-6 py-3 sm:py-4 border-t border-b border-gray-100 group-hover:border-[#FFB30040] text-gray-600 font-medium text-[14px] sm:text-[16px]">{user.phoneNumber || '9966885555'}</td>
-                      <td className="px-4 sm:px-6 py-3 sm:py-4 border-t border-b border-gray-100 group-hover:border-[#FFB30040] text-gray-600 font-medium text-[14px] sm:text-[16px] whitespace-nowrap">{dayjs(user.createdAt).format('D/M/YYYY')}</td>
-                      <td className="px-4 sm:px-6 py-3 sm:py-4 border-t border-b border-gray-100 group-hover:border-[#FFB30040] text-center font-bold text-[#333] text-[14px] sm:text-[16px]">{user.enrollmentCount || 1}</td>
-                      <td className="px-4 sm:px-6 py-3 sm:py-4 border-t border-b border-gray-100 group-hover:border-[#FFB30040] text-center">
-                        <span className={`inline-block px-4 sm:px-6 py-1.5 rounded-full text-[12px] sm:text-[13px] font-bold uppercase tracking-wider text-white ${user.status === 'suspended' ? 'bg-[#FF0000]' : 'bg-[#00D100]'
+                      <td className="px-3 sm:px-4 py-3 sm:py-4 border-t border-b border-gray-100 group-hover:border-[#FFB30040] text-gray-600 font-medium text-[13px] sm:text-[14px] xl:text-[16px] truncate">
+                        <span title={`@${user.email.split('@')[0]}`}>@{user.email.split('@')[0]}</span>
+                      </td>
+                      <td className="px-3 sm:px-4 py-3 sm:py-4 border-t border-b border-gray-100 group-hover:border-[#FFB30040] text-gray-600 font-medium text-[13px] sm:text-[14px] xl:text-[16px] truncate" title={user.email}>
+                        {user.email}
+                      </td>
+                      <td className="px-3 sm:px-4 py-3 sm:py-4 border-t border-b border-gray-100 group-hover:border-[#FFB30040] text-gray-600 font-medium text-[13px] sm:text-[14px] xl:text-[16px] truncate">
+                        {user.phoneNumber || '9966885555'}
+                      </td>
+                      <td className="px-3 sm:px-4 py-3 sm:py-4 border-t border-b border-gray-100 group-hover:border-[#FFB30040] text-gray-600 font-medium text-[13px] sm:text-[14px] xl:text-[16px] whitespace-nowrap">
+                        {dayjs(user.createdAt).format('D/M/YYYY')}
+                      </td>
+                      <td className="px-2 sm:px-4 py-3 sm:py-4 border-t border-b border-gray-100 group-hover:border-[#FFB30040] text-center font-bold text-[#333] text-[13px] sm:text-[14px] xl:text-[16px]">
+                        {user.enrollmentCount || 1}
+                      </td>
+                      <td className="px-2 sm:px-4 py-3 sm:py-4 border-t border-b border-gray-100 group-hover:border-[#FFB30040] text-center">
+                        <span className={`inline-block px-3 sm:px-4 py-1 rounded-full text-[10px] xl:text-[12px] font-bold uppercase tracking-wider text-white ${user.status === 'suspended' ? 'bg-[#FF0000]' : 'bg-[#00D100]'
                           }`}>
                           {user.status === 'suspended' ? 'Suspended' : 'Active'}
                         </span>
                       </td>
-                      <td className="px-4 sm:px-6 py-3 sm:py-4 rounded-r-[15px] border-r border-t border-b border-gray-100 group-hover:border-[#FFB30040]">
-                        <div className="flex justify-center items-center gap-3 sm:gap-4">
+                      <td className="px-3 sm:px-4 py-3 sm:py-4 rounded-r-[15px] border-r border-t border-b border-gray-100 group-hover:border-[#FFB30040]">
+                        <div className="flex justify-center items-center gap-2 sm:gap-3">
                           <button
                             onClick={() => { setUserToDelete(user); setShowDeleteUser(true); }}
-                            className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-[10px] border border-red-100 hover:bg-red-50 transition-colors"
+                            className="w-8 h-8 xl:w-10 xl:h-10 flex items-center justify-center rounded-[8px] xl:rounded-[10px] border border-red-100 hover:bg-red-50 transition-colors"
                           >
-                            <img src={TrashIcon} alt="Delete" className="w-[16px] h-[16px] sm:w-[18px] sm:h-[18px]" style={{ filter: 'invert(16%) sepia(89%) saturate(6054%) hue-rotate(358deg) brightness(97%) contrast(113%)' }} />
+                            <img src={TrashIcon} alt="Delete" className="w-[14px] h-[14px] xl:w-[18px] xl:h-[18px]" style={{ filter: 'invert(16%) sepia(89%) saturate(6054%) hue-rotate(358deg) brightness(97%) contrast(113%)' }} />
                           </button>
                           <button
                             onClick={() => { setUserToSuspend(user); setShowSuspendUser(true); }}
-                            className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-[10px] border border-orange-100 hover:bg-orange-50 transition-colors"
+                            className="w-8 h-8 xl:w-10 xl:h-10 flex items-center justify-center rounded-[8px] xl:rounded-[10px] border border-orange-100 hover:bg-orange-50 transition-colors"
                           >
-                            <img src={LockIcon} alt="Suspend" className="w-[16px] h-[16px] sm:w-[18px] sm:h-[18px]" style={{ filter: 'invert(59%) sepia(93%) saturate(1450%) hue-rotate(5deg) brightness(102%) contrast(106%)' }} />
+                            <img src={LockIcon} alt="Suspend" className="w-[14px] h-[14px] xl:w-[18px] xl:h-[18px]" style={{ filter: 'invert(59%) sepia(93%) saturate(1450%) hue-rotate(5deg) brightness(102%) contrast(106%)' }} />
                           </button>
                         </div>
                       </td>
@@ -348,7 +359,7 @@ const UserManagement = () => {
 
       {/* Pagination Grid */}
       {totalPages > 1 && (
-        <div className="px-4 sm:px-10 mt-6 sm:mt-10 flex flex-col sm:flex-row justify-between items-center max-w-[1334px] mx-auto w-full gap-4 sm:gap-0">
+        <div className="px-4 sm:px-10 mt-6 sm:mt-10 flex flex-col sm:flex-row justify-between items-center max-w-[1600px] mx-auto w-full gap-4 sm:gap-0">
           <button
             onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
             disabled={currentPage === 1}

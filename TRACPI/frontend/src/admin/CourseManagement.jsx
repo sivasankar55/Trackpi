@@ -254,7 +254,7 @@ const CourseManagement = () => {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 sm:gap-10 min-h-[600px]">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 sm:gap-8 min-h-[400px]">
               {paginatedCourses.map((course) => {
                 const unitCount =
                   course.sections?.reduce(
@@ -265,16 +265,16 @@ const CourseManagement = () => {
                 const hours = Math.floor(totalMinutes / 60);
                 const mins = totalMinutes % 60;
                 const durationStr =
-                  hours > 0 ? `${hours}h ${mins}m` : `${totalMinutes} MINUTES`;
+                  hours > 0 ? `${hours} Hours` : `${totalMinutes} MINUTES`;
 
                 return (
                   <div
                     key={course._id}
-                    className="bg-[#FFF8E7] rounded-[35px] overflow-hidden border border-[#FFD9A0] shadow-[0px_4px_25px_rgba(0,0,0,0.04)] flex flex-col h-[520px] transition-all hover:shadow-[0px_8px_35px_rgba(255,183,0,0.15)] group"
+                    className="bg-[#FFF7E7] rounded-[25px] overflow-hidden border border-[#FFD18B] shadow-[0px_4px_20px_rgba(0,0,0,0.03)] flex flex-col h-[380px] transition-all hover:shadow-[0px_8px_30px_rgba(255,183,0,0.12)] group"
                   >
                     {/* Thumbnail Container */}
-                    <div className="p-5">
-                      <div className="h-[200px] w-full rounded-[25px] overflow-hidden bg-white shadow-inner">
+                    <div className="p-3 pb-0">
+                      <div className="h-[165px] w-full rounded-[20px] overflow-hidden bg-white shadow-sm relative">
                         <img
                           src={course.courseImage || CourseImage}
                           alt={course.courseName}
@@ -284,44 +284,42 @@ const CourseManagement = () => {
                               'https://via.placeholder.com/400x250?text=Course';
                           }}
                         />
+                        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/20 to-transparent"></div>
                       </div>
                     </div>
 
-                    <div className="px-7 pt-4 flex flex-col flex-1">
+                    <div className="px-5 pt-4 flex flex-col flex-1">
                       {/* Title & Duration Row */}
-                      <div className="flex justify-between items-center mb-10">
-                        <h3 className="font-black text-[#333] text-[18px] uppercase tracking-tight truncate max-w-[150px]">
+                      <div className="flex justify-between items-baseline mb-4">
+                        <h3 className="font-extrabold text-[#111] text-[17px] truncate max-w-[130px]">
                           {course.courseName}
                         </h3>
-                        <span className="text-[12px] text-[#888] font-bold uppercase tracking-tight">
+                        <span className="text-[12px] text-gray-500 font-medium">
                           {durationStr}
                         </span>
                       </div>
 
                       {/* Stats Section */}
-                      <div className="space-y-2 mb-10">
-                        <div className="text-[14px] text-[#333] font-bold">
-                          Sections:{' '}
-                          <span className="ml-1">
-                            {course.sections?.length || 0}
-                          </span>
+                      <div className="space-y-1.5 mb-6">
+                        <div className="text-[14px] text-gray-500 font-semibold">
+                          Sections: <span className="text-gray-700 ml-1">{course.sections?.length || 0}</span>
                         </div>
-                        <div className="text-[14px] text-[#333] font-bold">
-                          Units: <span className="ml-1">{unitCount}</span>
+                        <div className="text-[14px] text-gray-500 font-semibold">
+                          Units: <span className="text-gray-700 ml-1">{unitCount}</span>
                         </div>
                       </div>
 
                       {/* Action Buttons */}
-                      <div className="flex gap-4 mt-auto mb-8">
+                      <div className="flex gap-3 mt-auto mb-5">
                         <button
                           onClick={() => navigate(`/admin/edit-course/${course._id}`)}
-                          className="flex-1 bg-[#FFB300] hover:bg-[#FFA000] text-white text-[14px] font-black py-4 rounded-[15px] shadow-md transition-all active:scale-95 uppercase tracking-widest">
-                          EDIT
+                          className="flex-1 bg-[#FFB300] hover:bg-[#FFA000] text-white text-[13px] font-bold py-2.5 rounded-[10px] shadow-md transition-all active:scale-95">
+                          Edit
                         </button>
                         <button
                           onClick={() => handleOpenDeletePopup(course)}
-                          className="flex-1 bg-[#FF4B4B] hover:bg-[#E63939] text-white text-[14px] font-black py-4 rounded-[15px] shadow-md transition-all active:scale-95 uppercase tracking-widest">
-                          DELETE
+                          className="flex-1 bg-[#FF4238] hover:bg-[#E63939] text-white text-[13px] font-bold py-2.5 rounded-[10px] shadow-md transition-all active:scale-95">
+                          Delete
                         </button>
                       </div>
                     </div>
@@ -330,48 +328,42 @@ const CourseManagement = () => {
               })}
             </div>
 
-            {/* Centered Pagination perfectly matched to visual design */}
-            <div className="flex flex-col sm:flex-row justify-center items-center gap-6 sm:gap-10 mt-16 mb-4 w-full">
-              <div className="flex flex-col sm:flex-row items-center gap-4 bg-gray-50 px-3 py-3 rounded-[20px] shadow-sm w-full sm:w-auto">
-                <button
-                  onClick={() => handlePageChange(currentPage - 1)}
-                  disabled={currentPage === 1}
-                  className={`w-full sm:w-auto px-8 py-2.5 rounded-[12px] bg-[#FFF8E7] text-gray-400 font-bold text-sm shadow-sm transition-all border border-[#FFD9A0]/50 ${currentPage === 1
-                    ? 'opacity-30 cursor-not-allowed'
-                    : 'hover:bg-[#FFF3D0] hover:text-[#FF9D00]'
-                    }`}
-                >
-                  Previous
-                </button>
+            {/* Redesigned Pagination - Matches Provided Image */}
+            <div className="flex justify-between items-center mt-20 mb-10 w-full px-4">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className={`px-10 py-3 rounded-[10px] bg-gray-50/50 text-gray-400 font-bold text-sm transition-all border border-gray-100 ${currentPage === 1 ? 'opacity-40 cursor-not-allowed' : 'hover:bg-white hover:shadow-sm'
+                  }`}
+              >
+                Previous
+              </button>
 
-                <div className="flex items-center gap-2 overflow-x-auto max-w-[300px] sm:max-w-none justify-center">
-                  {Array.from({ length: totalPages || 5 }, (_, i) => i + 1).map(
-                    (pageNum) => (
-                      <button
-                        key={pageNum}
-                        onClick={() => handlePageChange(pageNum)}
-                        className={`w-10 h-10 rounded-[12px] flex items-center justify-center text-[15px] font-bold transition-all shadow-sm flex-shrink-0 ${currentPage === pageNum
-                          ? 'bg-[#FF9D00] text-white shadow-orange-200'
-                          : 'bg-white text-gray-500 hover:text-gray-800'
-                          }`}
-                      >
-                        {pageNum}
-                      </button>
-                    )
-                  )}
-                </div>
-
-                <button
-                  onClick={() => handlePageChange(currentPage + 1)}
-                  disabled={currentPage === totalPages}
-                  className={`w-full sm:w-auto px-10 py-2.5 rounded-[12px] bg-[#FF9D00] text-white font-bold text-sm shadow-md transition-all ${currentPage === totalPages
-                    ? 'opacity-30 cursor-not-allowed'
-                    : 'hover:bg-[#E68E00] active:scale-95'
-                    }`}
-                >
-                  Next
-                </button>
+              <div className="flex items-center gap-4">
+                {Array.from({ length: totalPages || 1 }, (_, i) => i + 1).map(
+                  (pageNum) => (
+                    <button
+                      key={pageNum}
+                      onClick={() => handlePageChange(pageNum)}
+                      className={`w-10 h-10 rounded-[8px] flex items-center justify-center text-[15px] font-bold transition-all ${currentPage === pageNum
+                          ? 'bg-[#FF9D00] text-white shadow-md'
+                          : 'text-gray-500 hover:text-gray-800'
+                        }`}
+                    >
+                      {pageNum}
+                    </button>
+                  )
+                )}
               </div>
+
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className={`px-12 py-3 rounded-[10px] bg-[#FF9D00] text-white font-bold text-sm shadow-md transition-all ${currentPage === totalPages ? 'opacity-40 cursor-not-allowed' : 'hover:bg-[#E68E00] active:scale-95'
+                  }`}
+              >
+                Next
+              </button>
             </div>
           </>
         )}

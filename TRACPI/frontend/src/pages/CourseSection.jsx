@@ -41,6 +41,7 @@ const CourseSection = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [showDetailPopup, setShowDetailPopup] = useState(false);
   const [detailCourse, setDetailCourse] = useState(null);
+  const [activeTab, setActiveTab] = useState('courses');
 
   const { token } = useContext(AuthContext)
   const { progressVersion } = useContext(ProgressContext)
@@ -183,14 +184,15 @@ const CourseSection = () => {
   }, [selectedCourse]);
 
   const allSectionsComplete = sections.length > 0 && sections.every(s => {
-    const status = sectionStatus[s._id];
-    return status && status.passed;
+    const progress = sectionProgress[s._id] || 0;
+    return progress >= 100;
   });
   const hasAnyCompletedSection = Object.values(sectionProgress).some(p => p >= 100);
 
   // Auto-open assessment if redirected from SectionVideos
   useEffect(() => {
     if (location.state?.openAssessment && sections.length > 0) {
+      setActiveTab('assessment');
       const targetSection = [...sections].reverse().find(s => (sectionProgress[s._id] || 0) >= 100) || sections[sections.length - 1];
       if (targetSection) {
         handleAssessmentClick(targetSection);
@@ -348,24 +350,28 @@ const CourseSection = () => {
 
 
 
-      {/* progress section */}
-
       {/* Toggle Buttons (Courses / Assessment) */}
       {!loading && sections.length > 0 && (
         <div className="my-5 px-5 flex justify-between gap-5 lg:justify-end">
-          <button className="rounded-[40px] px-12.5 py-3 bg-[#FF9D00] text-white text-[12px] sm:text-base font-medium cursor-pointer roboto">
+          <button
+            className={`rounded-[40px] px-12.5 py-3 font-medium sm:text-base roboto transition-all ${activeTab === 'courses' ? 'bg-[#FF9D00] text-white shadow-[0_4px_15px_rgba(255,157,0,0.2)]' : 'border border-[#FF9D00] text-[#FF9D00] hover:bg-[#FF9D00]/10'}`}
+            onClick={() => setActiveTab('courses')}
+          >
             Courses
           </button>
           <button
-            className={`rounded-[40px] px-12.5 py-3 font-medium sm:text-base roboto transition-all ${allSectionsComplete
-              ? 'bg-[#FF9D00] text-white cursor-pointer hover:bg-[#E68900]'
-              : 'border border-[#FF9D00] text-[#FF9D00] hover:bg-[#FF9D00]/10'
+            className={`rounded-[40px] px-12.5 py-3 font-medium sm:text-base roboto transition-all ${activeTab === 'assessment'
+              ? 'bg-[#FF9D00] text-white shadow-[0_4px_15px_rgba(255,157,0,0.2)]'
+              : allSectionsComplete
+                ? 'border border-[#FF9D00] text-[#FF9D00] hover:bg-[#FF9D00]/10'
+                : 'opacity-50 cursor-not-allowed border border-[#FF9D00] text-[#FF9D00]'
               }`}
             onClick={() => {
               if (!allSectionsComplete) {
                 alert("Please complete all sections to unlock the final assessment.");
                 return;
               }
+              setActiveTab('assessment');
               const lastSection = sections[sections.length - 1];
               if (lastSection) {
                 handleAssessmentClick(lastSection);

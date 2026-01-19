@@ -439,6 +439,9 @@ export const getUserCourseStatus = async (req, res) => {
               allSectionsVideosFinished = false;
             }
             if (progress.sectionAssessment?.passed) {
+              // Note: final course assessment is usually stored in the LAST section's progress record
+              // or a dedicated course-level progress record.
+              // For this logic, we'll follow the existing pattern but ensure it only counts if all sections are done.
               courseAssessmentPassed = true;
             }
           } else {
