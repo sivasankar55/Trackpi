@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import Signup from '../components/Signup';
-import hero from '../assets/hero.png';
+import heroVideo from '../assets/hero_video.mp4';
 import freeLancer from '../assets/freelancer.png';
 import group2 from '../assets/group2.png';
 import luminar from '../assets/luminar.png';
@@ -32,12 +32,18 @@ function Home() {
   return (
     <div className="bg-gradient-to-br from-[#09060E] via-[#2D1D29] to-[#694230]">
       {/* Hero Section */}
-      <section className="relative h-[100vh] md:h-[630px] flex items-center text-white overflow-hidden">
-        <img
-          src={hero}
-          alt="Hero background"
-          className="absolute top-0 left-0 w-full h-full object-cover -scale-x-100"
-        />
+      <section className="relative w-full h-[223px] sm:h-[320px] md:h-[500px] lg:h-screen flex items-center text-white overflow-hidden">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute top-0 left-0 w-full h-full object-cover"
+        >
+          <source src={heroVideo} type="video/mp4" />
+        </video>
+        {/* Overlay for better text readability */}
+        <div className="absolute top-0 left-0 w-full h-full bg-black/40 z-0"></div>
         <div className="relative z-10 text-center px-4 md:px-[48px] max-w-[993px] mx-auto">
           <h1 className="text-white font-bold leading-[1.1] text-[8vw] sm:text-[4vw] drop-shadow-md">
             Kerala's Biggest Freelancer<br className="block sm:hidden" /> Community
@@ -152,7 +158,7 @@ function Home() {
       <section className='px-4 md:px-10 mt-20'>
         <h2 className='libre-franklin font-bold text-4xl md:text-6xl text-center text-white mb-10 tracking-wide'>High-Resolution Benefits</h2>
 
-        <div className='flex flex-col md:flex-row gap-30 mb-30'>
+        <div className='flex flex-col md:flex-row items-center gap-10 md:gap-32 mb-12 md:mb-32'>
           <div className='flex flex-col justify-center gap-5 md:w-1/2'>
             <h3 className='libre-franklin text-white font-extrabold text-3xl md:text-5xl text-center'>Who We Are?</h3>
             <p className='urbanist font-normal text-lg md:text-2xl text-justify text-white'>
@@ -163,7 +169,7 @@ function Home() {
         </div>
 
 
-        <div className='flex flex-col md:flex-row-reverse gap-30 mb-20'>
+        <div className='flex flex-col md:flex-row-reverse items-center gap-10 md:gap-32 mb-20'>
           <div className='flex flex-col justify-center gap-5 md:w-1/2'>
             <h3 className='libre-franklin text-white font-extrabold text-3xl md:text-5xl text-center'>Who We Are?</h3>
             <p className='urbanist font-normal text-lg md:text-2xl text-justify text-white'>

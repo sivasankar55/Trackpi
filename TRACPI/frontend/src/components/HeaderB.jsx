@@ -28,13 +28,16 @@ const HeaderB = () => {
   return (
     <>
       <header className='relative'>
-        <nav className='flex justify-between items-center py-2.5 px-6 sm:px-[50px]'>
+        <nav className='flex justify-between items-center py-2.5 px-6 md:px-[50px]'>
           <img src={logo} alt="logo of trackpi" className='w-[85px] h-[50px]' />
+
+
+
 
           {/* Desktop Logout Button */}
           <button
             onClick={handleLogout}
-            className='hidden sm:block font-normal text-base text-white roboto cursor-pointer bg-transparent border-none hover:text-[#FF9D00] transition-colors'
+            className='hidden md:block font-normal text-base text-white roboto cursor-pointer bg-transparent border-none hover:text-[#FF9D00] transition-colors'
           >
             Logout
           </button>
@@ -42,14 +45,14 @@ const HeaderB = () => {
           {/* Mobile Hamburger Menu */}
           <button
             onClick={toggleSidebar}
-            className='sm:hidden text-white cursor-pointer'
+            className='md:hidden text-white cursor-pointer'
           >
             <AlignJustify className="w-6 h-6" />
           </button>
         </nav>
 
         {/* Mobile Sidebar Overlay */}
-        <div className={`fixed inset-0 z-50 flex justify-end sm:hidden transition-all duration-300 ${isSidebarOpen ? 'visible' : 'invisible'}`}>
+        <div className={`fixed inset-0 z-50 flex justify-end md:hidden transition-all duration-300 ${isSidebarOpen ? 'visible' : 'invisible'}`}>
           {/* Backdrop */}
           <div
             className={`absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300 ${isSidebarOpen ? 'opacity-100' : 'opacity-0'}`}
