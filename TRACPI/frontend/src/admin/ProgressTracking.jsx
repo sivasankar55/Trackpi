@@ -108,11 +108,11 @@ const ProgressTracking = () => {
             className="bg-[#FFF1CF] border border-[#FF9D00] rounded-[24px] overflow-hidden flex flex-col h-full shadow-[0px_8px_20px_rgba(0,0,0,0.08)] hover:shadow-[0px_12px_30px_rgba(255,157,0,0.15)] transition-all duration-300 group"
           >
             {/* Card Image Area with Animation */}
-            <div className="h-44 bg-gradient-to-br from-[#1a1c2c] to-[#4a1942] p-6 flex items-center justify-center relative overflow-hidden">
+            <div className="h-44 bg-gradient-to-br from-[#1a1c2c] to-[#4a1942] p-0 flex items-center justify-center relative overflow-hidden">
               <img
-                src={CourseImage}
+                src={course.courseImage || CourseImage}
                 alt={course.courseName}
-                className="w-full h-full object-contain z-10 transform group-hover:scale-110 transition-transform duration-500 ease-out"
+                className="w-full h-full object-cover z-10 transform group-hover:scale-110 transition-transform duration-500 ease-out"
               />
               {/* Decorative background overlay */}
               <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
