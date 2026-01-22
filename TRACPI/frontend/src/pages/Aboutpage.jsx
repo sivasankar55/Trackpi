@@ -1,9 +1,10 @@
-
 import React from 'react';
+import FloatingIcons from '../components/FloatingIcons';
 
 const Aboutpage = () => {
   return (
     <div className="bg-[#2D1D29] min-h-screen font-sans text-white relative overflow-x-hidden">
+      <FloatingIcons />
       {/* Background Gradient Effect */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#09060E] via-[#2D1D29] to-[#694230] opacity-90 z-0 pointer-events-none" />
 

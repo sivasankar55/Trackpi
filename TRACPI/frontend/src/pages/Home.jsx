@@ -11,6 +11,7 @@ import trade from '../assets/trade.png';
 import group3 from '../assets/group3.png';
 import group4 from '../assets/group4.png';
 import { Play, Volume2 } from 'lucide-react';
+import FloatingIcons from '../components/FloatingIcons';
 
 function Home() {
   const companyArray = [luminar, IIDM, tech, trade];
@@ -184,6 +185,7 @@ function Home() {
       <div id="signup-section">
         <Signup />
       </div>
+      <FloatingIcons />
     </div>
   );
 }
