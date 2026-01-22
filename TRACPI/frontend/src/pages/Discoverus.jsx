@@ -49,7 +49,7 @@ const Discoverus = () => {
       />
 
       {/* Hero Section */}
-      <div className="min-h-screen flex flex-col md:flex-row items-center justify-center bg-[url('/bg.png')] bg-cover bg-center px-4 md:relative md:-left-6 md:-top-8 mt-7 w-screen">
+      <div className="min-h-screen flex flex-col md:flex-row items-center justify-center bg-[linear-gradient(rgba(0,0,0,0.5),rgba(0,0,0,0.5)),url('/bg.png')] bg-cover bg-center bg-no-repeat px-4 md:relative md:-left-6 md:-top-8 mt-7 w-screen">
         {/* Left Side */}
         <div className="leftside mt-12 md:mt-48 ml-0 md:ml-24 w-full md:w-[768px] h-auto md:h-[611px]">
           <div className="header w-full md:w-[768px] h-auto md:h-[147px] flex flex-col justify-between p-0.5 box-border">
