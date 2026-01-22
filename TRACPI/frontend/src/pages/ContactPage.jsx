@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import FloatingIcons from '../components/FloatingIcons';
 
 import hero from '../assets/hero.png';
 import facebook from '../assets/facebook.png';
@@ -105,6 +106,7 @@ const ContactPage = () => {
 
   return (
     <div className="w-full min-h-screen bg-[#2D1D29] overflow-x-hidden">
+      <FloatingIcons />
       {/* Hero Section */}
       <div className="relative w-full h-[223px] sm:h-[320px] md:h-[500px] lg:h-screen">
         <img

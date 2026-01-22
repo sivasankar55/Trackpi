@@ -1,0 +1,135 @@
+.floating-icons-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1000;
+}
+
+.left-social-icons {
+    position: fixed;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    pointer-events: auto;
+}
+
+.social-icon {
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 18px;
+    text-decoration: none;
+    transition: transform 0.3s ease, width 0.3s ease;
+}
+
+.social-icon:hover {
+    transform: scale(1.1);
+    width: 45px;
+    padding-left: 10px;
+}
+
+/* Social Icon Colors */
+.insta {
+    background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+}
+
+.fb {
+    background-color: #3b5998;
+}
+
+.yt {
+    background-color: #ff0000;
+}
+
+.ln {
+    background-color: #0077b5;
+}
+
+.quora {
+    background-color: #a82400;
+}
+
+.blogger {
+    background-color: #f57d00;
+}
+
+.medium {
+    background-color: #000000;
+}
+
+.right-action-icons {
+    position: fixed;
+    right: 20px;
+    bottom: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    pointer-events: auto;
+}
+
+.action-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    position: relative;
+    transition: transform 0.3s ease;
+    text-decoration: none;
+}
+
+.action-icon:hover {
+    transform: scale(1.1);
+}
+
+.action-icon.whatsapp {
+    background-color: #25d366;
+}
+
+.action-icon.support {
+    background-color: #3b82f6;
+}
+
+.action-icon.games {
+    background-color: #1e3f31;
+}
+
+.action-icon .badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: red;
+    color: white;
+    font-size: 10px;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 10px;
+    border: 2px solid white;
+}
+
+@media (max-width: 768px) {
+    .social-icon {
+        width: 30px;
+        height: 30px;
+        font-size: 16px;
+    }
+
+    .action-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+    }
+}
