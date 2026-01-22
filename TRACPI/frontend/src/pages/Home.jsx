@@ -1,8 +1,8 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import Signup from '../components/Signup';
-import heroVideo from '../assets/hero_video.mp4';
 import freeLancer from '../assets/freelancer.png';
+import hero from '../assets/hero.png';
 import group2 from '../assets/group2.png';
 import luminar from '../assets/luminar.png';
 import IIDM from '../assets/IIDM.jpg';
@@ -10,12 +10,31 @@ import tech from '../assets/tech.jpg';
 import trade from '../assets/trade.png';
 import group3 from '../assets/group3.png';
 import group4 from '../assets/group4.png';
-import { Play, Volume2 } from 'lucide-react';
+import { Play, Volume2, VolumeX } from 'lucide-react';
 import FloatingIcons from '../components/FloatingIcons';
 
 function Home() {
   const companyArray = [luminar, IIDM, tech, trade];
   const location = useLocation();
+  const heroRef = useRef(null);
+  const videoRef = useRef(null);
+  const [isFloating, setIsFloating] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
+  const [isWatchMode, setIsWatchMode] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      // Toggle floating only when scrolled past the entire hero section height
+      if (heroRef.current && window.scrollY > heroRef.current.offsetHeight) {
+        setIsFloating(true);
+      } else {
+        setIsFloating(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   useEffect(() => {
     if (location.state && location.state.scrollToSignup) {
@@ -30,35 +49,80 @@ function Home() {
     }
   }, [location]);
 
+  const handleWatchNow = () => {
+    setIsWatchMode(true);
+    setIsMuted(false);
+    if (videoRef.current) {
+      videoRef.current.currentTime = 0;
+      videoRef.current.play();
+    }
+  };
+
+  const handleVideoEnd = () => {
+    setIsWatchMode(false);
+    setIsMuted(true);
+    if (videoRef.current) {
+      videoRef.current.pause();
+      videoRef.current.currentTime = 0;
+    }
+  };
+
   return (
     <div className="bg-gradient-to-br from-[#09060E] via-[#2D1D29] to-[#694230]">
       {/* Hero Section */}
-      <section className="relative w-full h-[223px] sm:h-[320px] md:h-[500px] lg:h-screen flex items-center text-white overflow-hidden">
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="absolute top-0 left-0 w-full h-full object-cover"
+      {/* Hero Section Container - Acts as placeholder height */}
+      <section
+        ref={heroRef}
+        className={`relative w-full max-w-[1728px] mx-auto ${isWatchMode ? 'h-auto aspect-video' : 'h-[223px] sm:h-[320px] md:h-[500px] lg:h-screen'} flex items-center text-white overflow-hidden transition-all duration-500 ease-in-out`}
+      >
+
+        {/* Floating Video Container */}
+        <div
+          className={`transition-all duration-700 ease-in-out z-50 overflow-hidden bg-black
+            ${isFloating
+              ? 'fixed top-24 right-5 w-[280px] h-[158px] md:w-[400px] md:h-[225px] rounded-xl shadow-2xl border-2 border-white/20'
+              : 'absolute top-0 left-0 w-full h-full rounded-none border-0'
+            }`}
         >
-          <source src={heroVideo} type="video/mp4" />
-        </video>
-        {/* Overlay for better text readability */}
-        <div className="absolute top-0 left-0 w-full h-full bg-black/40 z-0"></div>
-        <div className="relative z-10 text-center px-4 md:px-[48px] max-w-[993px] mx-auto">
-          <h1 className="text-white font-bold leading-[1.1] text-[8vw] sm:text-[4vw] drop-shadow-md">
-            Kerala's Biggest Freelancer<br className="block sm:hidden" /> Community
-          </h1>
-          <p className="text-white mt-4 text-base sm:text-lg">
-            Welcome to TrackPi Private Limited – Your Strategic Growth Partner.
-          </p>
-          <button className="mt-6 inline-flex items-center gap-2 px-6 py-3 bg-white/20 hover:bg-white/30 backdrop-blur-md text-white rounded-[8px] font-semibold cursor-pointer roboto transition-all duration-300">
-            ▶ Watch Now
-          </button>
+          <video
+            ref={videoRef}
+            poster={hero}
+            muted={isMuted}
+            playsInline
+            onEnded={handleVideoEnd}
+            className={`w-full h-full ${isWatchMode ? 'object-contain' : 'object-cover'}`}
+          >
+            <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4" />
+          </video>
+
+          {/* Mute/Unmute Button - Moves with video */}
+          <div
+            onClick={() => setIsMuted(!isMuted)}
+            className={`absolute z-10 flex items-center justify-center cursor-pointer bg-[#492F30]/80 rounded-full text-white hover:bg-[#492F30] transition-colors
+              ${isFloating ? 'bottom-2 right-2 w-8 h-8 scale-75' : 'bottom-4 right-4 sm:bottom-10 sm:right-6 w-8 h-8 sm:w-12 sm:h-12'}
+            `}
+          >
+            {isMuted ? <VolumeX size={isFloating ? 20 : 24} /> : <Volume2 size={isFloating ? 20 : 24} />}
+          </div>
+
+          {/* Overlay only when in full hero mode to darken background for text */}
+          {!isFloating && <div className={`absolute top-0 left-0 w-full h-full bg-black/40 pointer-events-none transition-opacity duration-1000 ${isWatchMode ? 'opacity-0' : 'opacity-100'}`}></div>}
         </div>
 
-        <div className='absolute bottom-10 right-6 z-10 w-12 h-12 bg-[#492F30] rounded-full flex items-center justify-center cursor-pointer'>
-          <Volume2 className='' />
+        {/* Hero Content - Stays in place */}
+        <div className={`relative z-[60] text-center px-4 md:px-[48px] max-w-[993px] mx-auto transition-opacity duration-1000 ${isWatchMode ? 'opacity-0 pointer-events-none' : 'opacity-100 pointer-events-auto'}`}>
+          <h1 className="text-white font-bold leading-[1.1] text-2xl sm:text-4xl md:text-[5vw] drop-shadow-md">
+            Kerala's Biggest Freelancer<br className="block sm:hidden" /> Community
+          </h1>
+          <p className="text-white mt-2 sm:mt-4 text-xs sm:text-base md:text-lg">
+            Welcome to TrackPi Private Limited – Your Strategic Growth Partner.
+          </p>
+          <button
+            onClick={handleWatchNow}
+            className="mt-3 sm:mt-6 inline-flex items-center gap-2 px-4 py-2 sm:px-6 sm:py-3 bg-white/20 hover:bg-white/30 backdrop-blur-md text-white rounded-[8px] font-semibold cursor-pointer roboto transition-all duration-300 pointer-events-auto text-sm sm:text-base"
+          >
+            ▶ Watch Now
+          </button>
         </div>
       </section>
 
