@@ -139,7 +139,7 @@ const Assessment = () => {
     if (isTimeUp) {
       return result.passed ? (
         <AssessmentTimeUpCongrats
-          onUnlock={() => navigate(`/course-section/${courseId}`)}
+          onUnlock={() => navigate(`/feedback-course/${courseId}`)}
         />
       ) : (
         <AssessmentTimeUpPopup
@@ -159,7 +159,7 @@ const Assessment = () => {
     }
     return result.passed ? (
       <AssessmentPassedPopup
-        onUnlock={() => navigate(`/course-section/${courseId}`)}
+        onUnlock={() => navigate(`/feedback-course/${courseId}`)}
       />
     ) : (
       <AssessmentFailedPopup

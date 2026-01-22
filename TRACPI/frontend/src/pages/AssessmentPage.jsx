@@ -133,7 +133,7 @@ const AssessmentPage = () => {
         timeUp={result.timeUp}
         score={result.score}
         total={result.totalQuestions || questions.length}
-        onUnlock={() => navigate(`/course-section/${courseId}`)}
+        onUnlock={() => navigate(`/feedback-course/${courseId}`)}
       />
     ) : (
       <AssessmentFailedPopup
