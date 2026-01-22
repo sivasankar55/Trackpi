@@ -1,162 +1,161 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 const ProgressSVG = ({ percentage = 0 }) => {
-  // Use original dimensions to ensure layout compatibility
-  const width = 201;
-  const height = 232;
-  const centerX = width / 2;
-  const centerY = 100; // Keep the circle centered vertically in the upper part
+  const [displayPercentage, setDisplayPercentage] = useState(0);
 
-  const radius = 70;
-  const strokeWidth = 10;
-  const circumference = 2 * Math.PI * radius;
+  // Animate percentage from 0 to target value on load/change
+  useEffect(() => {
+    const animationDuration = 1000; // 1 second animation
+    const framesPerSecond = 60;
+    const totalFrames = (animationDuration / 1000) * framesPerSecond;
+    const increment = (percentage - displayPercentage) / totalFrames;
 
-  // Safe percentage
-  const safePercentage = Math.min(Math.max(Number(percentage) || 0, 0), 100);
-  const offset = circumference - (safePercentage / 100) * circumference;
+    let currentFrame = 0;
+    const interval = setInterval(() => {
+      currentFrame++;
+      setDisplayPercentage(prev => {
+        const next = prev + increment;
+        if (currentFrame >= totalFrames) {
+          clearInterval(interval);
+          return percentage;
+        }
+        return next;
+      });
+    }, 1000 / framesPerSecond);
 
-  // Knob position calculation
-  // Percentage 0 is at 6 o'clock (90deg)
-  const startAngle = 90;
-  const currentAngle = startAngle + (safePercentage / 100) * 360;
-  const angleRad = (currentAngle * Math.PI) / 180;
+    return () => clearInterval(interval);
+  }, [percentage]);
 
-  const knobX = centerX + radius * Math.cos(angleRad);
-  const knobY = centerY + radius * Math.sin(angleRad);
+  const center = { x: 101, y: 100 };
+  const radiusProgress = 85;
+  const radiusTicks = 66;
+  const radiusKnob = 10;
+  const circumferenceProgress = 2 * Math.PI * radiusProgress;
+  const circumferenceTicks = 2 * Math.PI * radiusTicks;
 
-  // Ticks calculation - higher density for premium look
-  const ticks = [];
-  const numTicks = 150;
-  for (let i = 0; i < numTicks; i++) {
-    const tickAngle = startAngle + (i / numTicks) * 360;
-    const tickRad = (tickAngle * Math.PI) / 180;
-    const innerR = radius - 15;
-    const outerR = radius - 6;
+  const safePercentage = Math.max(0, Math.min(100, displayPercentage));
 
-    const x1 = centerX + innerR * Math.cos(tickRad);
-    const y1 = centerY + innerR * Math.sin(tickRad);
-    const x2 = centerX + outerR * Math.cos(tickRad);
-    const y2 = centerY + outerR * Math.sin(tickRad);
+  // Calculate knob position - Starting exactly from the BOTTOM (90 degrees) and moving CLOCKWISE
+  const angle = (safePercentage / 100) * 360 + 90;
+  const knobX = center.x + radiusProgress * Math.cos((angle * Math.PI) / 180);
+  const knobY = center.y + radiusProgress * Math.sin((angle * Math.PI) / 180);
 
-    const isCompleted = (i / numTicks) * 100 <= safePercentage;
-
-    ticks.push(
-      <line
-        key={i}
-        x1={x1}
-        y1={y1}
-        x2={x2}
-        y2={y2}
-        stroke={isCompleted ? "#FF9D00" : "#2A2A2A"}
-        strokeWidth="1"
-        style={{ transition: 'stroke 0.3s' }}
-      />
-    );
-  }
+  // Growth lengths for progress
+  const progressFilled = (safePercentage / 100) * circumferenceProgress;
+  const ticksFilled = (safePercentage / 100) * circumferenceTicks;
 
   return (
-    <div className="relative flex items-center justify-center dashboard-progress-wrapper" style={{ width, height }}>
-      <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
-        <defs>
-          <filter id="glowEffect" x="-20%" y="-20%" width="140%" height="140%">
-            <feGaussianBlur stdDeviation="3" result="blur" />
-            <feComposite in="SourceGraphic" in2="blur" operator="over" />
-          </filter>
-          <linearGradient id="progressGradientArc" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#FF9D00" />
-            <stop offset="100%" stopColor="#BC6B00" />
-          </linearGradient>
-        </defs>
+    <svg width="201" height="232" viewBox="0 0 201 232" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        {/* Center Circle Gradient: #BC6B00 to #925300 */}
+        <linearGradient id="centerGradient" x1="101" y1="36" x2="101" y2="166" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#BC6B00" />
+          <stop offset="1" stopColor="#925300" />
+        </linearGradient>
 
-        {/* Outer dashed ring - dash-dot pattern */}
-        {/* <circle
-          cx={centerX}
-          cy={centerY}
-          r={radius + 28}
-          fill="none"
-          stroke="#444"
-          strokeWidth="1"
-          strokeDasharray="12 4 2 4"
-          opacity="0.4"
-        /> */}
+        {/* Progress Arc Gradient: #FF9407 */}
+        <linearGradient id="progressGradient" x1="101" y1="15" x2="101" y2="185" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#FF9407" />
+          <stop offset="1" stopColor="#FF9407" stopOpacity="0.5" />
+        </linearGradient>
 
-        {/* Middle decorative ring */}
-        {/* <circle
-          cx={centerX}
-          cy={centerY}
-          r={radius + 18}
-          fill="none"
-          stroke="#333"
-          strokeWidth="1.5"
-          opacity="0.5"
-        /> */}
+        <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="3" result="blur" />
+          <feComposite in="SourceGraphic" in2="blur" operator="over" />
+        </filter>
 
-        {/* Ticks Ring */}
-        <g>{ticks}</g>
-
-        {/* Background Track (thin dark ring) */}
-        <circle
-          cx={centerX}
-          cy={centerY}
-          r={radius}
-          fill="none"
-          stroke="#1A1A1A"
-          strokeWidth={strokeWidth}
-        />
-
-        {/* Progress Arc */}
-        <circle
-          cx={centerX}
-          cy={centerY}
-          r={radius}
-          fill="none"
-          stroke="url(#progressGradientArc)"
-          strokeWidth={strokeWidth}
-          strokeDasharray={`${circumference} ${circumference}`}
-          strokeDashoffset={offset}
-          strokeLinecap="round"
-          transform={`rotate(90 ${centerX} ${centerY})`}
-          style={{ transition: 'stroke-dashoffset 1s cubic-bezier(0.4, 0, 0.2, 1)' }}
-          filter="url(#glowEffect)"
-        />
-
-        {/* Knob */}
-        <g style={{ transition: 'all 1s cubic-bezier(0.4, 0, 0.2, 1)' }}>
+        {/* Mask for Ticks Progress - Starts at bottom, moves clockwise */}
+        <mask id="ticksMask">
           <circle
-            cx={knobX}
-            cy={knobY}
-            r="9"
-            fill="#BC6B00"
-            stroke="#FF9D00"
-            strokeWidth="2"
+            cx={center.x}
+            cy={center.y}
+            r={radiusTicks}
+            stroke="white"
+            strokeWidth="12"
+            fill="none"
+            strokeDasharray={`${ticksFilled} ${circumferenceTicks}`}
+            transform={`rotate(90 ${center.x} ${center.y})`}
           />
-        </g>
+        </mask>
+      </defs>
 
-        {/* Center Container */}
-        <circle
-          cx={centerX}
-          cy={centerY}
-          r={radius - 20}
-          fill="#8D5104"
-          stroke="#BC6B00"
-          strokeWidth="1"
-        />
 
-        {/* Percentage Text */}
-        <text
-          x={centerX}
-          y={centerY + 10}
-          textAnchor="middle"
-          fill="white"
-          fontSize="30"
-          fontWeight="bold"
-          className="itim"
-          style={{ fontFamily: "'Itim', cursive, sans-serif" }}
-        >
-          {Math.round(safePercentage)}%
-        </text>
-      </svg>
-    </div>
+      {/* Background Track (Subtle Ghost Arc) */}
+      <circle
+        cx={center.x}
+        cy={center.y}
+        r={radiusProgress}
+        stroke="#FF9407"
+        strokeOpacity="0.1"
+        strokeWidth="16"
+        fill="none"
+      />
+
+      {/* Background Ticks (Faint Grey) */}
+      <circle
+        cx={center.x}
+        cy={center.y}
+        r={radiusTicks}
+        stroke="#FFFFFF"
+        strokeOpacity="0.1"
+        strokeWidth="10"
+        fill="none"
+        strokeDasharray="1 2.5"
+      />
+
+      {/* Active Progress Ticks (Bright Orange) */}
+      <circle
+        cx={center.x}
+        cy={center.y}
+        r={radiusTicks}
+        stroke="#FF9407"
+        strokeWidth="10"
+        fill="none"
+        strokeDasharray="1 2.5"
+        mask="url(#ticksMask)"
+      />
+
+      {/* Solid Progress Arc - Starts at 6 o'clock, fills strictly CLOCKWISE */}
+      <circle
+        cx={center.x}
+        cy={center.y}
+        r={radiusProgress}
+        stroke="url(#progressGradient)"
+        strokeWidth="16"
+        fill="none"
+        strokeDasharray={`${progressFilled} ${circumferenceProgress}`}
+        strokeLinecap="round"
+        transform={`rotate(90 ${center.x} ${center.y})`}
+      />
+
+      {/* Knob at the LEAD EDGE (End point of progress) */}
+      <circle
+        cx={knobX}
+        cy={knobY}
+        r={radiusKnob}
+        fill="#BC6B00"
+        stroke="#FF9407"
+        strokeWidth="2"
+        filter="url(#glow)"
+      />
+
+      {/* Center Circle Content Area */}
+      <circle cx={center.x} cy={center.y} r="60" fill="url(#centerGradient)" stroke="#FF9407" strokeOpacity="0.3" strokeWidth="2" />
+
+      {/* Percentage Text - Centered */}
+      <text
+        x={center.x}
+        y={center.y + 12}
+        fill="white"
+        fontSize="36"
+        fontWeight="bold"
+        textAnchor="middle"
+        style={{ fontFamily: 'Inter, sans-serif', filter: 'drop-shadow(0px 2px 4px rgba(0,0,0,0.5))' }}
+      >
+        {Math.round(safePercentage)}%
+      </text>
+
+    </svg>
   );
 };
 

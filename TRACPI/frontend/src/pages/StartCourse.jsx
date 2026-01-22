@@ -228,7 +228,7 @@ const StartCourse = () => {
             <div className="relative md:mt-5">
               <p className='text-white text-4xl sm:text-6xl font-extrabold k2d text-center'
                 style={{ letterSpacing: '0.05em', opacity: '0.5', backdropFilter: 'blur(10px)' }}>EARN MONEY</p>
-              <img src={squreLock} alt="square lock" className='w-[36px] h-[35px] sm:w-[46px] sm:h-[45px] absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2' />
+              {/* <img src={squreLock} alt="square lock" className='w-[36px] h-[35px] sm:w-[46px] sm:h-[45px] absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2' /> */}
             </div>
 
           </div>
