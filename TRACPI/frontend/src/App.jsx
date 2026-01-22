@@ -21,6 +21,7 @@ import ContactPage from './pages/ContactPage'
 import Discoverus from './pages/Discoverus'
 import HelpCentre from './pages/HelpCentre'
 import FeedbackForm from './components/FeedbackForm'
+import FeedbackPopup from './pages/FeedbackPopup'
 import Assessment from './components/Assessment'
 
 
@@ -92,6 +93,7 @@ function App() {
           <Route path="/courses/:courseId/sections/:sectionId" element={<SectionVideos />} />
           <Route path='/discover-us' element={<Discoverus />} />
           <Route path='/help-centre' element={<HelpCentre />} />
+          <Route path='/feedback-course' element={<FeedbackPopup />} />
           <Route path='/feedback-form' element={<FeedbackForm />} />
 
         </Route>
