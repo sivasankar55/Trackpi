@@ -260,13 +260,15 @@ export const getUserFullDetails = async (req, res) => {
 
       return {
         _id: enrollment.course?._id,
-        name: enrollment.course?.title || 'Unknown Course',
-        completionDate,
+        name: enrollment.course?.courseName || 'Unknown Course',
+        startDate: enrollment.enrollmentDate,
+        endDate: enrollment.progress === 100 ? enrollment.updatedAt : null,
+        completionDate, // keep for backward compatibility if needed
         score: avgScore,
         duration: `${durationHours}hrs ${durationMinutes}m`,
         progress: enrollment.progress,
         sections: courseProgress.map(p => ({
-          name: p.section?.title || 'Unknown Section',
+          name: p.section?.sectionName || 'Unknown Section',
           startTime: p.createdAt,
           endTime: p.updatedAt,
           score: p.sectionAssessment?.score,
