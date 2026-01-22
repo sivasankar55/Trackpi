@@ -1,6 +1,6 @@
 import React from 'react';
 
-function AssessmentPassedPopup({ onUnlock}) {
+function AssessmentPassedPopup({ onUnlock }) {
   return (
     <>
       <div
@@ -24,9 +24,9 @@ function AssessmentPassedPopup({ onUnlock}) {
         </p>
 
         <button
-         onClick={onUnlock}
-         className="bg-yellow-400 text-white font-semibold px-6 py-2 rounded-full hover:bg-yellow-300 transition w-full md:w-auto">
-          Unlock Next Section
+          onClick={onUnlock}
+          className="bg-yellow-400 text-white font-semibold px-6 py-2 rounded-full hover:bg-yellow-300 transition w-full md:w-auto">
+          Unlock Next Course
         </button>
       </div>
     </>
