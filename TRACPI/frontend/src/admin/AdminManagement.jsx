@@ -197,57 +197,7 @@ const AdminManagement = () => {
 
   return (
     <div className="min-h-screen bg-white w-full">
-      {/* Top Navigation Bar - Hidden when any popup is active */}
-      {!showAddAdmin &&
-        !showEditAdmin &&
-        !showDeleteAdmin &&
-        !showSuspendAdmin &&
-        !showExportPopup && (
-          <div className="sticky top-0 z-[1000] flex justify-between items-center px-6 py-4 shadow-md bg-white">
-            <div className="flex items-center gap-2">
-              <img
-                src={DashboardIcon}
-                alt="Dashboard Icon"
-                className="w-6 h-6 object-contain"
-              />
-              <span className="font-bold text-xl text-black">Dashboard</span>
 
-              <div className="flex items-center border border-gray-400 px-3 py-1 rounded ml-4 bg-white">
-                <input
-                  type="text"
-                  placeholder="Search"
-                  value={searchTerm}
-                  onChange={(e) => handleSearch(e.target.value)}
-                  className="outline-none text-sm placeholder-gray-600 text-black bg-white w-48"
-                />
-                <img
-                  src={SearchIcon}
-                  alt="Search Icon"
-                  className="w-4 h-4 ml-2"
-                />
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3">
-              {/* Notification & Profile */}
-              <button className="bg-[#FFF0CE] rounded-[1rem] border-2 border-[#FFB300] p-2 hover:bg-[#ffe2b5] transition">
-                <img src={BellIcon} alt="Notification" className="w-5 h-5" />
-              </button>
-              <button
-                onClick={() => navigate('/admin/profile')}
-                className="bg-[#FFF0CE] rounded-full border-2 border-[#FFB300] p-0.5 hover:bg-[#ffe2b5] transition-colors overflow-hidden flex items-center justify-center w-10 h-10"
-                title="Profile"
-              >
-
-                {adminInfo?.profilePicture ? (
-                  <img src={adminInfo.profilePicture} alt="Profile" className="w-full h-full rounded-full object-cover" />
-                ) : (
-                  <img src={UserIcon} alt="Profile" className="w-5 h-5" />
-                )}
-              </button>
-            </div>
-          </div>
-        )}
 
       {/* Main Content Box */}
       <div className="px-4 sm:px-10 mt-6 sm:mt-8 flex justify-center">
@@ -376,8 +326,8 @@ const AdminManagement = () => {
                     </th>
                     <th className="px-4 py-2 font-semibold">Admin Name</th>
                     <th className="px-4 py-2 font-semibold">Email ID</th>
-                    <th className="px-4 py-2 font-semibold">Admin Role</th>
-                    <th className="px-4 py-2 font-semibold">Last Login</th>
+                    <th className="px-4 py-2 font-semibold text-center">Admin Role</th>
+                    <th className="px-4 py-2 font-semibold text-center">Last Login</th>
                     <th className="px-4 py-2 rounded-r-[10px] text-center font-semibold pr-6">
                       Action
                     </th>
@@ -430,9 +380,9 @@ const AdminManagement = () => {
                           <td className="px-4 py-2 border-t border-b border-[#FFB300] text-gray-600">
                             {admin.email}
                           </td>
-                          <td className="px-4 py-2 border-t border-b border-[#FFB300]">
+                          <td className="px-4 py-2 border-t border-b border-[#FFB300] text-center">
                             {admin.status === 'suspended' ? (
-                              <div className="flex flex-col items-center">
+                              <div className="inline-flex flex-col items-center">
                                 <span className="bg-[#FFD9D9] border border-[#FF0000] px-3 py-0.5 rounded-full text-[10px] font-bold text-[#FF0000] uppercase tracking-tighter">
                                   Suspended
                                 </span>
@@ -446,7 +396,7 @@ const AdminManagement = () => {
                               </span>
                             )}
                           </td>
-                          <td className="px-4 py-2 border-t border-b border-[#FFB300]">
+                          <td className="px-4 py-2 border-t border-b border-[#FFB300] text-center">
                             <span className="bg-[#FFC33480] px-3 py-1 rounded-full text-xs font-semibold text-black">
                               {admin.lastLogin || 'Never'}
                             </span>

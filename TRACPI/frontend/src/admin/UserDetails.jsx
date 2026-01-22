@@ -19,6 +19,7 @@ const UserDetails = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [selectedCourse, setSelectedCourse] = useState(null);
+    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
         fetchUserDetails();
@@ -58,6 +59,10 @@ const UserDetails = () => {
     if (!userData) return null;
 
     const { user, stats, courses } = userData;
+
+    const filteredCourses = courses.filter(course =>
+        course.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     return (
         <div className="min-h-screen bg-white w-full font-['Poppins'] pb-10">
@@ -111,6 +116,8 @@ const UserDetails = () => {
                                 <input
                                     type="text"
                                     placeholder="search course"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
                                     className="w-full h-full pl-4 pr-12 rounded-[12px] border border-[#FFB300] focus:outline-none bg-white text-sm text-gray-700 placeholder-gray-400 font-medium"
                                 />
                                 <img src={SearchIcon} alt="Search" className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 opacity-40" />
@@ -122,16 +129,17 @@ const UserDetails = () => {
                                 <thead className="bg-[#FFB300] text-white">
                                     <tr>
                                         <th className="px-4 sm:px-6 py-4 sm:py-5 text-left font-bold text-[15px] sm:text-[17px] tracking-wide">Course Name</th>
-                                        <th className="px-4 sm:px-6 py-4 sm:py-5 text-left font-bold text-[15px] sm:text-[17px] tracking-wide">Completion Date</th>
+                                        <th className="px-4 sm:px-6 py-4 sm:py-5 text-left font-bold text-[15px] sm:text-[17px] tracking-wide">Starting Date</th>
+                                        <th className="px-4 sm:px-6 py-4 sm:py-5 text-left font-bold text-[15px] sm:text-[17px] tracking-wide">Ending Date</th>
                                         <th className="px-4 sm:px-6 py-4 sm:py-5 text-center font-bold text-[15px] sm:text-[17px] tracking-wide">Score</th>
                                         <th className="px-4 sm:px-6 py-4 sm:py-5 text-center font-bold text-[15px] sm:text-[17px] tracking-wide">Duration</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {courses.length === 0 ? (
-                                        <tr><td colSpan="4" className="py-20 text-center text-gray-400 italic font-medium">No courses enrolled yet</td></tr>
+                                    {filteredCourses.length === 0 ? (
+                                        <tr><td colSpan="5" className="py-20 text-center text-gray-400 italic font-medium">No courses found</td></tr>
                                     ) : (
-                                        courses.map((course, idx) => (
+                                        filteredCourses.map((course, idx) => (
                                             <tr
                                                 key={course._id}
                                                 onClick={() => setSelectedCourse(course)}
@@ -146,7 +154,10 @@ const UserDetails = () => {
                                                     </div>
                                                 </td>
                                                 <td className="px-4 sm:px-6 py-4 sm:py-5 text-gray-600 font-bold border-b border-gray-100 group-hover:bg-[#FFF4D5] text-sm sm:text-base whitespace-nowrap">
-                                                    {course.completionDate ? dayjs(course.completionDate).format('MMM DD,YYYY') : '-------'}
+                                                    {course.startDate ? dayjs(course.startDate).format('MMM DD,YYYY') : '-------'}
+                                                </td>
+                                                <td className="px-4 sm:px-6 py-4 sm:py-5 text-gray-600 font-bold border-b border-gray-100 group-hover:bg-[#FFF4D5] text-sm sm:text-base whitespace-nowrap">
+                                                    {course.endDate ? dayjs(course.endDate).format('MMM DD,YYYY') : '-------'}
                                                 </td>
                                                 <td className="px-4 sm:px-6 py-4 sm:py-5 text-center font-black text-gray-800 border-b border-gray-100 group-hover:bg-[#FFF4D5] text-sm sm:text-base">
                                                     {course.score ? `${course.score}%` : '---'}

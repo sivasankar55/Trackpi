@@ -126,68 +126,7 @@ const CourseManagement = () => {
 
   return (
     <div className="min-h-full bg-white w-full font-['Poppins'] pb-12 relative">
-      {/* Top Navigation Bar */}
-      <div className="sticky top-0 z-[1000] flex justify-between items-center px-4 sm:px-10 py-4 sm:py-5 bg-white shadow-md">
-        {/* Left: Dashboard Title + Search */}
-        <div className="flex items-center gap-8 flex-1">
-          <div className="flex items-center gap-3">
-            <div className="grid grid-cols-2 gap-0.5">
-              <div className="w-2.5 h-2.5 rounded-[2px] bg-[#333]"></div>
-              <div className="w-2.5 h-2.5 rounded-[2px] bg-[#333]"></div>
-              <div className="w-2.5 h-2.5 rounded-[2px] bg-[#333]"></div>
-              <div className="w-2.5 h-2.5 rounded-[2px] bg-[#333]"></div>
-            </div>
-            <span className="text-xl sm:text-[24px] font-bold text-[#333] hidden sm:block tracking-tighter">
-              Dashboard
-            </span>
-          </div>
 
-          {/* Navbar Search Bar */}
-          <div className="relative w-full max-w-[200px] sm:max-w-[320px]">
-            <input
-              type="text"
-              placeholder="Search"
-              className="w-full h-[36px] sm:h-[40px] pl-5 sm:pl-6 pr-8 sm:pr-10 rounded-full border border-gray-200 bg-white placeholder-gray-400 text-xs sm:text-sm focus:outline-none focus:ring-1 focus:ring-[#FFB300] transition-all"
-            />
-            <img
-              src={SearchIcon}
-              alt="Search"
-              className="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 w-3 sm:w-4 h-3 sm:h-4 opacity-30"
-            />
-          </div>
-        </div>
-
-        {/* Right side icons/buttons */}
-        <div className="flex items-center gap-2 sm:gap-6 ml-2 sm:ml-4">
-          <button
-            onClick={handleAddCourse}
-            className="bg-[#FFA000] hover:bg-[#FF8F00] text-white font-bold px-3 sm:px-8 py-2 sm:py-2.5 rounded-[10px] sm:rounded-[12px] shadow-sm transition-all text-[11px] sm:text-[14px] whitespace-nowrap active:scale-95"
-          >
-            + Add
-          </button>
-
-          <div className="relative group cursor-pointer hidden sm:block">
-            <div className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center bg-white shadow-sm hover:bg-gray-50">
-              <img
-                src={BellIcon}
-                alt="Notifications"
-                className="w-5 h-5 opacity-70"
-              />
-            </div>
-          </div>
-
-          <div
-            onClick={() => navigate('/admin/profile')}
-            className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border border-gray-200 flex items-center justify-center bg-white shadow-sm cursor-pointer hover:border-[#FFB300] transition-colors overflow-hidden"
-          >
-            <img
-              src={UserIcon}
-              alt="Profile"
-              className="w-5 h-5 sm:w-6 sm:h-6 object-contain"
-            />
-          </div>
-        </div>
-      </div>
 
       <div className="px-4 sm:px-10 mt-6 sm:mt-8 space-y-8 sm:space-y-10 max-w-[1600px] mx-auto">
         {/* Stats Row */}
@@ -346,8 +285,8 @@ const CourseManagement = () => {
                       key={pageNum}
                       onClick={() => handlePageChange(pageNum)}
                       className={`w-10 h-10 rounded-[8px] flex items-center justify-center text-[15px] font-bold transition-all ${currentPage === pageNum
-                          ? 'bg-[#FF9D00] text-white shadow-md'
-                          : 'text-gray-500 hover:text-gray-800'
+                        ? 'bg-[#FF9D00] text-white shadow-md'
+                        : 'text-gray-500 hover:text-gray-800'
                         }`}
                     >
                       {pageNum}
