@@ -138,9 +138,9 @@ const CourseManagement = () => {
           <StatsCard title="Current students" value={totalStats.students} />
         </div>
 
-        {/* Big Orange Search Bar */}
-        <div className="w-full">
-          <div className="w-full h-[45px] sm:h-[54px] bg-[#FF9D00] rounded-[12px] sm:rounded-[15px] flex items-center px-4 sm:px-6 shadow-md transition-all hover:shadow-lg focus-within:ring-2 focus-within:ring-orange-200">
+        {/* Search & Add Course Bar */}
+        <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+          <div className="w-full sm:w-[450px] h-[45px] sm:h-[54px] bg-[#FF9D00] rounded-[12px] sm:rounded-[15px] flex items-center px-4 sm:px-6 shadow-md transition-all hover:shadow-lg focus-within:ring-2 focus-within:ring-orange-200">
             <img
               src={SearchIcon}
               alt="Search"
@@ -154,6 +154,13 @@ const CourseManagement = () => {
               className="bg-transparent border-none outline-none text-white placeholder-white/90 ml-3 sm:ml-5 w-full text-sm sm:text-base font-semibold tracking-wide"
             />
           </div>
+
+          <button
+            onClick={handleAddCourse}
+            className="h-[45px] sm:h-[54px] px-8 bg-[#FF9D00] text-white rounded-[12px] sm:rounded-[15px] font-bold text-sm sm:text-base shadow-md hover:bg-[#E68E00] transition-all active:scale-95 flex items-center justify-center gap-3"
+          >
+            <span className="text-xl">+</span> Add Course
+          </button>
         </div>
 
         {/* Course Grid */}

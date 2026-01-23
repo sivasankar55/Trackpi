@@ -196,11 +196,11 @@ const AdminManagement = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white w-full">
+    <div className="min-h-screen bg-white w-full font-['Poppins'] pb-12">
 
 
       {/* Main Content Box */}
-      <div className="px-4 sm:px-10 mt-6 sm:mt-8 flex justify-center">
+      <div className="px-4 sm:px-10 mt-6 sm:mt-8 flex flex-col items-center">
         <div
           className="w-full max-w-[1600px] border border-[#FFB300] rounded-[20px] sm:rounded-[30px] bg-[#F2F2F266] p-4 sm:p-8 shadow-sm min-h-[500px] sm:min-h-[680px] flex flex-col relative"
         >
@@ -478,54 +478,34 @@ const AdminManagement = () => {
 
         {/* Pagination Grid */}
         {totalPages > 1 && (
-          <div className="px-4 sm:px-10 mt-6 sm:mt-10 flex flex-col sm:flex-row justify-between items-center max-w-[1600px] mx-auto w-full gap-4 sm:gap-0">         <button
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-            className="disabled:opacity-50 disabled:cursor-not-allowed shadow-md transition-all hover:bg-[#ffe0a0]"
-            style={{
-              width: '158px',
-              height: '40px',
-              borderRadius: '6px',
-              background: '#FFF0CE',
-              fontWeight: '600',
-              color: '#333'
-            }}
-          >
-            Previous
-          </button>
+          <div className="mt-8 mb-10 flex items-center justify-between w-full max-w-[1600px] mx-auto px-4 sm:px-10">
+            <button
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="w-[158px] h-[48px] rounded-[12px] bg-[#F9F9F9] text-[#BDBDBD] font-bold text-lg shadow-sm transition-all hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed uppercase"
+            >
+              Previous
+            </button>
 
-            <div className="flex items-center gap-2">
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                (pageNum) => (
-                  <button
-                    key={pageNum}
-                    onClick={() => setCurrentPage(pageNum)}
-                    className={`w-9 h-9 rounded-md flex items-center justify-center text-sm font-bold transition-all shadow-sm ${currentPage === pageNum
-                      ? 'bg-[#FFB300] text-white'
-                      : 'bg-[#FFF0CE] text-gray-700 hover:bg-[#ffe0a0]'
-                      }`}
-                  >
-                    {pageNum}
-                  </button>
-                )
-              )}
+            <div className="flex items-center gap-4">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+                <button
+                  key={pageNum}
+                  onClick={() => setCurrentPage(pageNum)}
+                  className={`w-[48px] h-[48px] rounded-[10px] flex items-center justify-center text-lg font-bold transition-all shadow-sm ${currentPage === pageNum
+                      ? 'bg-[#FF9D00] text-white'
+                      : 'bg-[#FFF9E1] text-[#333] hover:bg-[#FFF1CF]'
+                    }`}
+                >
+                  {pageNum}
+                </button>
+              ))}
             </div>
 
             <button
-              onClick={() =>
-                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-              }
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
               disabled={currentPage === totalPages}
-              className="disabled:opacity-50 disabled:cursor-not-allowed shadow-md transition-all hover:opacity-90"
-              style={{
-                width: '158px',
-                height: '40px',
-                borderRadius: '6px',
-                background: '#FF9D00',
-                border: '1px solid #FF9D00',
-                fontWeight: '600',
-                color: '#000'
-              }}
+              className="w-[158px] h-[48px] rounded-[12px] bg-[#FF9D00] text-white font-bold text-lg shadow-md transition-all hover:bg-[#FF8C00] disabled:opacity-50 disabled:cursor-not-allowed uppercase"
             >
               Next
             </button>
