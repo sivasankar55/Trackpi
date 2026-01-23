@@ -20,6 +20,7 @@ const UserDetails = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [selectedCourse, setSelectedCourse] = useState(null);
+    const [resetLoading, setResetLoading] = useState(false);
 
     useEffect(() => {
         fetchUserDetails();

@@ -74,13 +74,18 @@ const UserManagement = () => {
   };
 
   const filteredUsers = users.filter(user => {
+    const searchStr = searchTerm.toLowerCase();
+    const innerSearchStr = innerSearchTerm.toLowerCase();
+
     const matchesTopSearch = (
-      user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email?.toLowerCase().includes(searchTerm.toLowerCase())
+      (user.name?.toLowerCase().includes(searchStr)) ||
+      (user.email?.toLowerCase().includes(searchStr)) ||
+      (user.phoneNumber?.toLowerCase().includes(searchStr))
     );
     const matchesInnerSearch = (
-      user.name?.toLowerCase().includes(innerSearchTerm.toLowerCase()) ||
-      user.email?.toLowerCase().includes(innerSearchTerm.toLowerCase())
+      (user.name?.toLowerCase().includes(innerSearchStr)) ||
+      (user.email?.toLowerCase().includes(innerSearchStr)) ||
+      (user.phoneNumber?.toLowerCase().includes(innerSearchStr))
     );
 
     if (!matchesTopSearch || !matchesInnerSearch) return false;
@@ -156,7 +161,7 @@ const UserManagement = () => {
             <div className="relative w-full lg:w-[340px] h-[44px]">
               <input
                 type="text"
-                placeholder="search"
+                placeholder="Search by name, email, or phone..."
                 value={innerSearchTerm}
                 onChange={(e) => handleInnerSearch(e.target.value)}
                 className="w-full h-full pl-4 pr-12 rounded-[12px] border border-[#FFB300] focus:outline-none bg-white text-sm text-gray-700 placeholder-gray-400"
