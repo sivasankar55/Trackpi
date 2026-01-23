@@ -1,6 +1,7 @@
 import express from 'express';
-import { markVideoWatched, startAssessment, submitAssessment, getCurrentSection, getNextSection, getSectionProgress, getCourseProgress, getProgress, getUserCourseStatus } from '../controllers/userProgressController.js';
+import { markVideoWatched, startAssessment, submitAssessment, getCurrentSection, getNextSection, getSectionProgress, getCourseProgress, getProgress, getUserCourseStatus, resetAttempts } from '../controllers/userProgressController.js';
 import { authenticateToken } from '../middleware/auth.js';
+import { requireAdminAuth } from '../controllers/adminController.js';
 
 const router = express.Router();
 

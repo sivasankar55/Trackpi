@@ -13,6 +13,7 @@ import {
     updateAdminProfilePicture,
     upload
 } from '../controllers/adminController.js';
+import { resetAttempts as resetAssessmentAttempts } from '../controllers/userProgressController.js';
 
 const router = express.Router();
 
@@ -40,5 +41,8 @@ router.put('/profile/picture', requireAdminAuth, upload.single('profilePicture')
 router.post('/login', loginAdmin);
 // Admin logout
 router.post('/logout', logoutAdmin);
+
+// Reset user assessment attempts
+router.post('/reset-user-attempts', requireAdminAuth, resetAssessmentAttempts);
 
 export default router;
