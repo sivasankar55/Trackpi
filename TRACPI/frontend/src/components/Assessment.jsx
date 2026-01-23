@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useContext } from 'react';
+import React, { useEffect, useState, useMemo, useContext, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import AssessmentBubble from '../pages/AssessmentBubble';
 import AssessmentPassedPopup from '../pages/AssessmentPassedPopup';
@@ -26,6 +26,13 @@ const Assessment = () => {
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState(null);
   const [isTimeUp, setIsTimeUp] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  // Ref to store latest answers to avoid stale closure in timer
+  const optionsRef = useRef({});
+  useEffect(() => {
+    optionsRef.current = selectedOptions;
+  }, [selectedOptions]);
 
   // Fetch questions from API
   useEffect(() => {
@@ -59,7 +66,7 @@ const Assessment = () => {
     if (token && courseId && sectionId) {
       fetchQuestions();
     }
-  }, [token, courseId, sectionId]);
+  }, [token, courseId, sectionId, refreshKey]);
 
   // Timer logic
   useEffect(() => {
@@ -99,7 +106,7 @@ const Assessment = () => {
         courseId,
         sectionId,
         answers: fetchedQuestions.map((q, idx) => {
-          const selectedIndex = selectedOptions[idx + 1];
+          const selectedIndex = optionsRef.current[idx + 1];
           const selectedText = selectedIndex !== undefined ? q.options[selectedIndex] : "";
           return {
             questionId: q._id,
@@ -135,48 +142,13 @@ const Assessment = () => {
   if (loading) return <div className="text-white text-center mt-20 text-xl font-inter">Loading assessment...</div>;
   if (error) return <div className="text-red-500 text-center mt-20 text-xl font-inter">{error}</div>;
 
-  if (result) {
-    if (isTimeUp) {
-      return result.passed ? (
-        <AssessmentTimeUpCongrats
-          onUnlock={() => navigate(`/feedback-course/${courseId}`)}
-        />
-      ) : (
-        <AssessmentTimeUpPopup
-          onGoBack={() => navigate(`/course-section/${courseId}`)}
-          onRetake={() => {
-            setResult(null);
-            setIsTimeUp(false);
-            setCurrentPage(1);
-            setTimeLeft(ASSESSMENT_TIME); // Or fetch fresh time limit? ideally reload
-            // Ideally re-fetch or reset properly.
-            // Using navigate with state to force reload/reset might be cleaner or just window.location.reload() or internal reset.
-            // Based on existing logic:
-            navigate(`/course-section/${courseId}`, { state: { openAssessment: true } });
-          }}
-        />
-      );
-    }
-    return result.passed ? (
-      <AssessmentPassedPopup
-        onUnlock={() => navigate(`/feedback-course/${courseId}`)}
-      />
-    ) : (
-      <AssessmentFailedPopup
-        wrongAnswers={result.wrongAnswers}
-        onGoBack={() => navigate(`/course-section/${courseId}`)}
-        onRetake={() => navigate(`/course-section/${courseId}`, { state: { openAssessment: true } })}
-      />
-    );
-  }
-
   const currentQuestionIndex = currentPage - 1;
   const currentQuestion = fetchedQuestions[currentQuestionIndex];
 
-  if (!currentQuestion) return <div className="text-white text-center mt-20 text-xl font-inter">No questions found.</div>;
+  if (!currentQuestion && !result) return <div className="text-white text-center mt-20 text-xl font-inter">No questions found.</div>;
 
   return (
-    <div className="text-white font-inter">
+    <div className="text-white font-inter relative min-h-screen">
       {/* Top Pagination Bubbles */}
       <AssessmentBubble
         currentPage={currentPage}
@@ -187,7 +159,11 @@ const Assessment = () => {
       {/* Header */}
       <div className="absolute w-[88.6vw] h-[3.89vh] top-[33.87vh] left-[6vw] flex justify-between">
         <div className="text-[1.25vw] font-semibold max-[768px]:text-[14px]">
-          Question {currentPage} / {fetchedQuestions.length}
+          {result ? (
+            <>Out of <span className="text-yellow-500 font-bold">{result.score}</span> / {result.total} Questions</>
+          ) : (
+            <>Question {currentPage} / {fetchedQuestions.length}</>
+          )}
         </div>
         <div className="text-[1.25vw] font-semibold max-[768px]:text-[14px]">
           Time Remaining: {formatTime(timeLeft)}
@@ -196,33 +172,37 @@ const Assessment = () => {
 
       {/* Question Body */}
       <div className="absolute w-[88.6vw] left-[90px] top-[330px] flex flex-col gap-[50px]">
-        <div className="text-[1.25vw] font-semibold max-[768px]:text-[16px]">
-          {currentPage}) {currentQuestion.question}
-        </div>
+        {currentQuestion && (
+          <>
+            <div className="text-[1.25vw] font-semibold max-[768px]:text-[16px]">
+              {currentPage}) {currentQuestion.question}
+            </div>
 
-        <div className="grid grid-cols-2 gap-y-[5vh] gap-x-[5vw] max-[768px]:grid-cols-1">
-          {currentQuestion.options.map((option, idx) => {
-            const optionLabel = String.fromCharCode(65 + idx);
-            const isSelected = selectedOptions[currentPage] === idx;
-            return (
-              <div
-                key={idx}
-                onClick={() => handleOptionSelect(idx)}
-                className="flex items-center gap-[1.56vw] cursor-pointer text-[1.11vw] max-[768px]:text-[15px]"
-              >
-                <button
-                  className={`w-[1.5vw] h-[3.1vh] rounded-full border-[3px] transition-colors duration-200 ${isSelected
-                    ? 'border-yellow-500 bg-yellow-500'
-                    : 'border-white bg-transparent'
-                    } max-[768px]:w-[20px] max-[768px]:h-[20px]`}
-                ></button>
-                <p>
-                  {optionLabel})&nbsp;&nbsp;{option}
-                </p>
-              </div>
-            );
-          })}
-        </div>
+            <div className="grid grid-cols-2 gap-y-[5vh] gap-x-[5vw] max-[768px]:grid-cols-1">
+              {currentQuestion.options.map((option, idx) => {
+                const optionLabel = String.fromCharCode(65 + idx);
+                const isSelected = selectedOptions[currentPage] === idx;
+                return (
+                  <div
+                    key={idx}
+                    onClick={() => handleOptionSelect(idx)}
+                    className="flex items-center gap-[1.56vw] cursor-pointer text-[1.11vw] max-[768px]:text-[15px]"
+                  >
+                    <button
+                      className={`w-[1.5vw] h-[3.1vh] rounded-full border-[3px] transition-colors duration-200 ${isSelected
+                        ? 'border-yellow-500 bg-yellow-500'
+                        : 'border-white bg-transparent'
+                        } max-[768px]:w-[20px] max-[768px]:h-[20px]`}
+                    ></button>
+                    <p>
+                      {optionLabel})&nbsp;&nbsp;{option}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        )}
       </div>
 
       {/* Navigation Buttons */}
@@ -250,6 +230,47 @@ const Assessment = () => {
           </button>
         )}
       </div>
+
+      {/* Popups rendered as Overlays */}
+      {result && (
+        <>
+          {isTimeUp ? (
+            result.passed ? (
+              <AssessmentTimeUpCongrats
+                onUnlock={() => navigate(`/course-section/${courseId}`)}
+              />
+            ) : (
+              <AssessmentTimeUpPopup
+                onGoBack={() => navigate(`/course-section/${courseId}`)}
+                onRetake={() => {
+                  setResult(null);
+                  setIsTimeUp(false);
+                  setCurrentPage(1);
+                  setSelectedOptions({});
+                  setRefreshKey(prev => prev + 1);
+                }}
+              />
+            )
+          ) : (
+            result.passed ? (
+              <AssessmentPassedPopup
+                onUnlock={() => navigate(`/course-section/${courseId}`)}
+              />
+            ) : (
+              <AssessmentFailedPopup
+                wrongAnswers={result.wrongAnswers}
+                onGoBack={() => navigate(`/course-section/${courseId}`)}
+                onRetake={() => {
+                  setResult(null);
+                  setCurrentPage(1);
+                  setSelectedOptions({});
+                  setRefreshKey(prev => prev + 1);
+                }}
+              />
+            )
+          )}
+        </>
+      )}
     </div>
   );
 };
