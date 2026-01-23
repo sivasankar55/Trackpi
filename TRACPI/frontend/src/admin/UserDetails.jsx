@@ -19,7 +19,6 @@ const UserDetails = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [selectedCourse, setSelectedCourse] = useState(null);
-    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
         fetchUserDetails();
@@ -59,10 +58,7 @@ const UserDetails = () => {
     if (!userData) return null;
 
     const { user, stats, courses } = userData;
-
-    const filteredCourses = courses.filter(course =>
-        course.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredCourses = courses;
 
     return (
         <div className="min-h-screen bg-white w-full font-['Poppins'] pb-10">
@@ -111,18 +107,7 @@ const UserDetails = () => {
                 <div className="flex flex-col xl:flex-row gap-8">
                     {/* Course Table - Left side */}
                     <div className="flex-1 space-y-6">
-                        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 px-2">
-                            <div className="relative w-full sm:w-[340px] h-[44px]">
-                                <input
-                                    type="text"
-                                    placeholder="search course"
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="w-full h-full pl-4 pr-12 rounded-[12px] border border-[#FFB300] focus:outline-none bg-white text-sm text-gray-700 placeholder-gray-400 font-medium"
-                                />
-                                <img src={SearchIcon} alt="Search" className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 opacity-40" />
-                            </div>
-                        </div>
+
 
                         <div className="border border-[#FFB300] rounded-[20px] sm:rounded-[25px] overflow-hidden bg-white shadow-xl overflow-x-auto">
                             <table className="w-full border-separate border-spacing-0 min-w-[600px]">
