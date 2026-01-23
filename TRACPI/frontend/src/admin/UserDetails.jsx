@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import dayjs from 'dayjs';
+import { toast } from 'react-toastify';
 
 // Icons
 import PlusIcon from '../assets/plus.png';
@@ -39,6 +40,53 @@ const UserDetails = () => {
             setError('Failed to load user information');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleReset = async () => {
+        const targetUserId = userData?.user?._id || userId;
+        const targetCourseId = selectedCourse?._id;
+
+        console.log('--- RESET DEBUG ---');
+        console.log('Target User ID:', targetUserId);
+        console.log('Target Course ID:', targetCourseId);
+        console.log('Selected Course Object:', selectedCourse);
+        console.log('-------------------');
+
+        if (!selectedCourse) {
+            toast.info('Please select a course from the table first');
+            return;
+        }
+
+        if (!targetUserId || !targetCourseId) {
+            const missing = !targetUserId ? 'User ID' : 'Course ID';
+            toast.error(`Unable to reset: ${missing} is missing from data`);
+            return;
+        }
+
+        if (!window.confirm(`Are you sure you want to reset assessment attempts for ${selectedCourse.name}?`)) {
+            return;
+        }
+
+        try {
+            setResetLoading(true);
+            console.log('Sending reset request:', { userId: targetUserId, courseId: targetCourseId });
+
+            const response = await axios.post('http://localhost:5000/api/admin/reset-user-attempts', {
+                userId: targetUserId,
+                courseId: targetCourseId
+            }, { withCredentials: true });
+
+            console.log('Reset response:', response.data);
+            toast.success(response.data.message || 'Assessment attempts reset successfully');
+
+            // Refresh details to show zero attempts
+            fetchUserDetails();
+        } catch (err) {
+            console.error('Reset error details:', err.response?.data || err);
+            toast.error(err.response?.data?.error || 'Failed to reset attempts');
+        } finally {
+            setResetLoading(false);
         }
     };
 
@@ -126,7 +174,7 @@ const UserDetails = () => {
                                     ) : (
                                         filteredCourses.map((course, idx) => (
                                             <tr
-                                                key={course._id}
+                                                key={course._id || `course-${idx}`}
                                                 onClick={() => setSelectedCourse(course)}
                                                 className={`cursor-pointer group transition-all duration-200 hover:shadow-inner ${selectedCourse?._id === course._id ? 'bg-[#FFF1CF]' : idx % 2 === 0 ? 'bg-[#FFF9E1]' : 'bg-white'}`}
                                             >
@@ -159,7 +207,13 @@ const UserDetails = () => {
 
                         <div className="flex flex-wrap gap-4 sm:gap-6 justify-center pt-4">
                             <button className="bg-[#E20000] text-white px-8 sm:px-12 py-3 rounded-xl font-bold shadow-lg shadow-red-200 hover:bg-[#C10000] transition-all hover:-translate-y-1 active:scale-95 uppercase tracking-widest text-[11px] sm:text-sm">Print QUIZ</button>
-                            <button className="bg-[#E20000] text-white px-8 sm:px-12 py-3 rounded-xl font-bold shadow-lg shadow-red-200 hover:bg-[#C10000] transition-all hover:-translate-y-1 active:scale-95 uppercase tracking-widest text-[11px] sm:text-sm">Reset</button>
+                            <button
+                                onClick={handleReset}
+                                disabled={resetLoading}
+                                className="bg-[#E20000] text-white px-8 sm:px-12 py-3 rounded-xl font-bold shadow-lg shadow-red-200 hover:bg-[#C10000] transition-all hover:-translate-y-1 active:scale-95 uppercase tracking-widest text-[11px] sm:text-sm disabled:opacity-50"
+                            >
+                                {resetLoading ? 'RESETTING...' : 'RESET'}
+                            </button>
                         </div>
                     </div>
 
@@ -193,7 +247,7 @@ const UserDetails = () => {
                                             </tr>
                                         ) : (
                                             selectedCourse.sections.map((section, idx) => (
-                                                <tr key={idx} className="bg-[#FFF1CF] hover:bg-[#FFE8A3] transition-all duration-200 shadow-sm transform hover:scale-[1.01]">
+                                                <tr key={`section-${section.name || idx}-${idx}`} className="bg-[#FFF1CF] hover:bg-[#FFE8A3] transition-all duration-200 shadow-sm transform hover:scale-[1.01]">
                                                     <td className="px-3 sm:px-5 py-3 sm:py-4 rounded-l-xl sm:rounded-l-2xl border-l-2 border-t-2 border-b-2 border-[#FFB30030] font-black text-gray-800 text-xs sm:text-[15px]">{section.name || `Section ${idx + 1}`}</td>
                                                     <td className="px-1 sm:px-2 py-3 sm:py-4 border-t-2 border-b-2 border-[#FFB30030] text-center font-bold text-gray-700 text-[10px] sm:text-[14px] whitespace-nowrap">{dayjs(section.startTime).format('hh:mm A')}</td>
                                                     <td className="px-1 sm:px-2 py-3 sm:py-4 rounded-r-xl sm:rounded-r-2xl border-r-2 border-t-2 border-b-2 border-[#FFB30030] text-center font-bold text-gray-700 text-[10px] sm:text-[14px] whitespace-nowrap">{dayjs(section.endTime).format('hh:mm A')}</td>

@@ -2,47 +2,57 @@ import React from 'react';
 
 function AssessmentTimeUpPopup({ onGoBack, onRetake }) {
   return (
-    <>
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-[2px] px-4">
       <div
-        className="fixed top-[30vh] left-1/2 transform -translate-x-1/2 w-[90vw] max-w-[1152px] h-auto md:h-[320px] rounded-[30px] p-[20px] md:p-[40px] flex flex-col gap-[20px] md:gap-[30px] text-white"
+        className="relative w-full max-w-[1152px] h-auto min-h-[320px] rounded-[30px] p-[40px] md:p-[60px] text-white flex flex-col items-center justify-center overflow-hidden"
         style={{
           background: "linear-gradient(262.57deg, #3F280D 0.01%, #070B20 100.01%)",
         }}
       >
-        <div className="text-center">
-          <div className="text-2xl md:text-3xl font-bold flex items-center justify-center gap-2">
-            <span>⏰</span>
-            <span>Time’s Up!</span>
+        <div className="relative z-10 flex flex-col items-center text-center w-full">
+          {/* Icon and Title */}
+          <div className="flex items-center gap-3 mb-6">
+            <span className="text-3xl md:text-4xl text-white">⏰</span>
+            <h2 className="text-2xl md:text-3xl font-bold">Time’s Up!</h2>
           </div>
-          <p className="mt-2 text-base md:text-lg">
-            Your assessment time has ended.
-            <br />
-            Your answers have been automatically submitted.
+
+          {/* Error Message */}
+          <div className="mb-10 space-y-1">
+            <p className="text-base md:text-lg font-medium">
+              Your assessment time has ended.
+            </p>
+            <p className="text-base md:text-lg font-medium">
+              Your have Failed to achieve the passing mark.
+            </p>
+          </div>
+
+          {/* Subtext */}
+          <p className="text-xs md:text-sm text-gray-200 max-w-[700px] mb-12">
+            You’ll need to take the next attempt or rewatch the video sections before trying again.
           </p>
-        </div>
 
-        <p className="text-center text-xs md:text-sm">
-          You’ll need to take the next attempt or rewatch the video sections before trying again.
-        </p>
+          {/* Action Buttons */}
+          <div className="flex flex-col md:flex-row items-center justify-center gap-6 w-full max-w-[600px]">
+            <button
+              onClick={onGoBack}
+              className="w-full md:w-[240px] py-3 rounded-full border border-[#FFA726] bg-transparent text-white font-bold hover:bg-white/5 transition-all"
+            >
+              Go to Course
+            </button>
 
-        <div className="flex flex-col md:flex-row justify-center items-center gap-4">
-          <button
-            onClick={onGoBack}
-            className="text-white font-bold px-6 md:px-10 py-3 md:py-3 border-2 border-orange-500 rounded-full hover:bg-orange-500 hover:text-black transition duration-300 w-full md:w-auto"
-          >
-            Go to Course
-          </button>
-
-          <button
-            onClick={onRetake}
-            className="px-6 py-3 md:py-3 rounded-full bg-[#FFA726] text-white font-semibold w-full md:w-auto"
-          >
-            Retake Assessment
-          </button>
+            <button
+              onClick={onRetake}
+              className="w-full md:w-[240px] py-3 rounded-full bg-[#FFA726] text-white font-bold hover:bg-[#FB8C00] transition-all"
+            >
+              Retake Assessment
+            </button>
+          </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
 export default AssessmentTimeUpPopup;
+
+

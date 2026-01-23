@@ -93,8 +93,8 @@ function App() {
           <Route path="/courses/:courseId/sections/:sectionId" element={<SectionVideos />} />
           <Route path='/discover-us' element={<Discoverus />} />
           <Route path='/help-centre' element={<HelpCentre />} />
-          <Route path='/feedback-course/:courseId' element={<FeedbackPopup />} />
-          <Route path='/feedback-form/:courseId' element={<FeedbackForm />} />
+          <Route path='/feedback-course' element={<FeedbackPopup />} />
+          <Route path='/feedback-form' element={<FeedbackForm />} />
 
         </Route>
 

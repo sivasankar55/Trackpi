@@ -1,11 +1,8 @@
 import React, { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import { FaStar } from 'react-icons/fa';
 
 const FeedbackForm = () => {
-    const navigate = useNavigate();
-    const { courseId } = useParams();
     const [ratings, setRatings] = useState({
         quality: 1,
         smoothness: 1,
@@ -46,8 +43,8 @@ const FeedbackForm = () => {
             }, {
                 headers: token ? { Authorization: `Bearer ${token}` } : {}
             });
-            // navigate to course-section page dynamically
-            navigate(`/course-section/${courseId}`);
+            alert('Thank you for your feedback!');
+            setShowForm(false);
         } catch (error) {
             console.error('Error submitting feedback:', error);
             alert('Failed to submit feedback. Please try again.');
@@ -116,7 +113,7 @@ const FeedbackForm = () => {
                                     onClick={handleSubmit}
                                     className="w-full sm:w-auto px-10 py-3 rounded-full bg-[#FF9D00] text-white text-[14px] sm:text-[15px] font-bold hover:bg-[#FF8A00] transition-all duration-300 shadow-[0_4px_15px_rgba(255,157,0,0.3)] active:scale-95"
                                 >
-                                    Unlock Next Course
+                                    Submit Feedback
                                 </button>
                             </div>
                         </div>

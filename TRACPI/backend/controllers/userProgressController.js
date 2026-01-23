@@ -1,4 +1,5 @@
 import UserProgress from '../models/UserProgress.js';
+import mongoose from 'mongoose';
 import Section from '../models/Section.js';
 import Course from '../models/Course.js';
 import Question from '../models/Question.js';
@@ -539,3 +540,31 @@ export const getProgress = async (req, res) => {
 
 
 
+
+// Reset assessment attempts for a user and course (Admin only)
+export const resetAttempts = async (req, res) => {
+  try {
+    const { userId, courseId } = req.body;
+
+    if (!userId) return res.status(400).json({ error: 'BACKEND_ERR: userId is missing' });
+    if (!courseId) return res.status(400).json({ error: 'BACKEND_ERR: courseId is missing' });
+
+    // Convert to ObjectId explicitly
+    const userObjectId = new mongoose.Types.ObjectId(userId);
+    const courseObjectId = new mongoose.Types.ObjectId(courseId);
+
+    // Reset attempts for all sections in this course for this user
+    const result = await UserProgress.updateMany(
+      { user: userObjectId, course: courseObjectId },
+      { $set: { 'sectionAssessment.attempts': 0 } }
+    );
+
+    res.json({
+      message: `Successfully reset attempts for ${result.modifiedCount} sections.`,
+      modifiedCount: result.modifiedCount
+    });
+  } catch (error) {
+    console.error('Reset attempts error:', error);
+    res.status(500).json({ error: 'Server error: ' + error.message });
+  }
+};
