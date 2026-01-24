@@ -47,4 +47,3 @@ function AssessmentTimeUpCongrats({ onUnlock }) {
 }
 
 export default AssessmentTimeUpCongrats;
-

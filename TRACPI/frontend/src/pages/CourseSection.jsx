@@ -312,7 +312,7 @@ const CourseSection = () => {
                         setShowDetailPopup(true);
                       }
                     }}
-                    className={`relative rounded-[10px] border border-[#FF9D00] h-full min-w-[250px] overflow-hidden transition-all duration-300 hover:scale-105 ${isUnlocked ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+                    className={`relative rounded-[10px] border ${selectedCourse === course._id ? 'border-[#FF9D00]' : 'border-[#333]'} h-full min-w-[250px] overflow-hidden transition-all duration-300 hover:scale-105 ${isUnlocked ? 'cursor-pointer' : 'cursor-not-allowed'}`}
                     style={{
                       backgroundImage: `linear-gradient(180deg, rgba(10, 10, 10, 0) 40%, rgba(10,10,10, 0.9) 80%), url(${course.courseImage || techThumb})`,
                       backgroundSize: 'cover',

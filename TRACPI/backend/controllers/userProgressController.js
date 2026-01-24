@@ -173,12 +173,24 @@ export const startAssessment = async (req, res) => {
       return res.status(400).json({ error: 'No assessment questions found for this course.' });
     }
 
-    // Update last attempt
-    progress.sectionAssessment = progress.sectionAssessment || { attempts: 0 };
-    progress.sectionAssessment.lastAttempt = new Date();
-    await progress.save();
+    // Check for active attempt to prevent timer reset on refresh
+    const timeLimitMins = course.quizTime || 60;
+    const now = new Date();
+    const existingStart = progress.sectionAssessment?.lastAttempt;
+    const isAttemptActive = existingStart && (now - new Date(existingStart) < timeLimitMins * 60 * 1000);
 
-    res.json({ questions, timeLimit: course.quizTime || 60 });
+    if (!isAttemptActive) {
+      // Start a fresh attempt ONLY if one isn't already active
+      progress.sectionAssessment = progress.sectionAssessment || { attempts: 0 };
+      progress.sectionAssessment.lastAttempt = now;
+      await progress.save();
+    }
+
+    res.json({
+      questions,
+      timeLimit: timeLimitMins,
+      startTime: progress.sectionAssessment.lastAttempt
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -208,9 +220,10 @@ export const submitAssessment = async (req, res) => {
     const now = new Date();
     const start = progress.sectionAssessment?.lastAttempt;
 
+    let timeUp = false;
     // Add 1-minute grace period for network latency
     if (start && (now.getTime() - new Date(start).getTime()) > (maxTimeMs + 60000)) {
-      return res.status(400).json({ error: 'Assessment time limit exceeded.' });
+      timeUp = true;
     }
 
     const questions = course.questions || [];
@@ -279,6 +292,7 @@ export const submitAssessment = async (req, res) => {
     res.json({
       score,
       passed,
+      timeUp,
       attempts: progress.sectionAssessment.attempts,
       wrongAnswers,
       totalQuestions: questions.length

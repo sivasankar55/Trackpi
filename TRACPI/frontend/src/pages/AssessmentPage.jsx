@@ -5,6 +5,9 @@ import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons
 import AssessmentFirstPopup from "./AssessmentFirstPopup";
 import AssessmentPassedPopup from "./AssessmentPassedPopup";
 import AssessmentFailedPopup from "./AssessmentFailedPopup";
+import AssessmentTimeUpCongrats from "./AssessmentTimeUpCongrats";
+import AssessmentTimeUpPopup from "./AssessmentTimeUpPopup";
+import AssessmentMaxAttemptsPopup from "./AssessmentMaxAttemptsPopup";
 import { AuthContext } from "../context/AuthContext";
 import axios from "axios";
 
@@ -31,7 +34,7 @@ const AssessmentPage = () => {
   const questions = fetchedQuestions;
   const currentQuestion = questions[currentPage - 1];
 
-  // Fetch questions from API
+  // Fetch questions and sync timer with backend startTime
   useEffect(() => {
     const fetchQuestions = async () => {
       setLoading(true);
@@ -47,6 +50,20 @@ const AssessmentPage = () => {
         if (Array.isArray(res.data.questions)) {
           const shuffled = [...res.data.questions].sort(() => 0.5 - Math.random());
           setFetchedQuestions(shuffled);
+
+          // Calculate remaining time based on backend startTime to persist across refresh
+          const timeLimitSecs = (res.data.timeLimit || 60) * 60;
+          if (res.data.startTime) {
+            const startTime = new Date(res.data.startTime).getTime();
+            const now = new Date().getTime();
+            const elapsedSecs = Math.floor((now - startTime) / 1000);
+            const remaining = Math.max(0, timeLimitSecs - elapsedSecs);
+            setTimer(remaining);
+
+            if (remaining === 0) handleSubmit(true);
+          } else {
+            setTimer(timeLimitSecs);
+          }
         } else {
           setError("Invalid response format.");
         }
@@ -58,10 +75,7 @@ const AssessmentPage = () => {
       }
     };
 
-    if (token) {
-      fetchQuestions();
-      setTimer(ASSESSMENT_TIME);
-    }
+    if (token) fetchQuestions();
   }, [token, courseId, sectionId]);
 
   // Timer countdown logic
@@ -124,26 +138,54 @@ const AssessmentPage = () => {
 
 
   if (loading) return <div className="text-white text-center mt-20 text-xl">Loading questions...</div>;
-  if (error) return <div className="text-red-500 text-center mt-20 text-xl">{error}</div>;
+  if (error) {
+    if (error.includes("Maximum assessment attempts reached") || error.includes("Max attempts has reached")) {
+      return (
+        <AssessmentMaxAttemptsPopup
+          onGoBack={() => navigate(`/course-section/${courseId}`)}
+        />
+      );
+    }
+    return <div className="text-red-500 text-center mt-20 text-xl">{error}</div>;
+  }
   if (!currentQuestion) return <div className="text-white text-center mt-20 text-xl">Invalid question number.</div>;
 
   if (result) {
-    return result.passed ? (
-      <AssessmentPassedPopup
-        timeUp={result.timeUp}
-        score={result.score}
-        total={result.totalQuestions || questions.length}
-        onUnlock={() => navigate(`/course-section/${courseId}`)}
-      />
-    ) : (
-      <AssessmentFailedPopup
-        score={result.score}
-        total={result.totalQuestions || questions.length}
-        wrongAnswers={result.wrongAnswers}
-        onGoBack={() => navigate(`/courses/${courseId}/sections/${sectionId}`)}
-        onRetake={() => window.location.reload()}
-      />
-    );
+    if (result.passed) {
+      if (result.timeUp) {
+        return (
+          <AssessmentTimeUpCongrats
+            onUnlock={() => navigate(`/course-section/${courseId}`)}
+          />
+        );
+      }
+      return (
+        <AssessmentPassedPopup
+          timeUp={result.timeUp}
+          score={result.score}
+          total={result.totalQuestions || questions.length}
+          onUnlock={() => navigate(`/course-section/${courseId}`)}
+        />
+      );
+    } else {
+      if (result.timeUp) {
+        return (
+          <AssessmentTimeUpPopup
+            onGoBack={() => navigate(`/course-section/${courseId}`)}
+            onRetake={() => window.location.reload()}
+          />
+        );
+      }
+      return (
+        <AssessmentFailedPopup
+          score={result.score}
+          total={result.totalQuestions || questions.length}
+          wrongAnswers={result.wrongAnswers}
+          onGoBack={() => navigate(`/course-section/${courseId}`)}
+          onRetake={() => window.location.reload()}
+        />
+      );
+    }
   }
 
   return (
@@ -211,10 +253,10 @@ const AssessmentPage = () => {
       </div>
 
 
-      <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-[30px] w-full max-w-[536px] mx-auto mt-[40px]">
+      <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-[30px] w-full max-w-[600px] mx-auto mt-[40px]">
         <button
           onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-          className="border border-white rounded-full text-white py-2 px-6 w-full sm:w-[253px] h-[45px]"
+          className="border border-white rounded-full text-white py-2 px-6 w-full sm:w-[180px] h-[45px] transition-all duration-300 hover:scale-105 active:scale-95 hover:bg-white/10"
         >
           Previous
         </button>
@@ -227,7 +269,7 @@ const AssessmentPage = () => {
             }
           }}
           disabled={submitting}
-          className="bg-yellow-500 text-black rounded-full py-2 px-6 w-full sm:w-[253px] h-[45px] disabled:opacity-50"
+          className="bg-yellow-500 text-black rounded-full py-2 px-6 w-full sm:w-[180px] h-[45px] disabled:opacity-50 transition-all duration-300 hover:scale-105 active:scale-95 hover:bg-yellow-400 font-bold shadow-lg"
         >
           {submitting ? "Submitting..." : currentPage === questions.length ? "Submit" : "Next"}
         </button>

@@ -5,6 +5,7 @@ import AssessmentPassedPopup from '../pages/AssessmentPassedPopup';
 import AssessmentFailedPopup from '../pages/AssessmentFailedPopup';
 import AssessmentTimeUpPopup from '../pages/AssessmentTimeUpPopup';
 import AssessmentTimeUpCongrats from '../pages/AssessmentTimeUpCongrats';
+import AssessmentMaxAttemptsPopup from '../pages/AssessmentMaxAttemptsPopup';
 import { AuthContext } from '../context/AuthContext';
 import { ProgressContext } from '../context/ProgressContext';
 import axios from 'axios';
@@ -47,10 +48,25 @@ const Assessment = () => {
         );
 
         if (Array.isArray(res.data.questions)) {
-          setFetchedQuestions(res.data.questions);
-          // Set time limit from backend (convert minutes to seconds)
-          if (res.data.timeLimit) {
-            setTimeLeft(res.data.timeLimit * 60);
+          // Shuffle questions on every load/retake
+          const shuffled = [...res.data.questions].sort(() => 0.5 - Math.random());
+          setFetchedQuestions(shuffled);
+
+          // Calculate remaining time based on backend startTime to persist across refresh
+          const timeLimitSecs = (res.data.timeLimit || 60) * 60;
+          if (res.data.startTime) {
+            const startTime = new Date(res.data.startTime).getTime();
+            const now = new Date().getTime();
+            const elapsedSecs = Math.floor((now - startTime) / 1000);
+            const remaining = Math.max(0, timeLimitSecs - elapsedSecs);
+            setTimeLeft(remaining);
+
+            // If already expired, trigger submission automatically
+            if (remaining === 0) {
+              handleSubmit(true);
+            }
+          } else {
+            setTimeLeft(timeLimitSecs);
           }
         } else {
           setError("Invalid response format.");
@@ -125,7 +141,8 @@ const Assessment = () => {
         passed: res.data.passed,
         score: res.data.score,
         wrongAnswers: res.data.wrongAnswers || [],
-        total: fetchedQuestions.length
+        total: fetchedQuestions.length,
+        timeUp: timeUp || res.data.timeUp
       });
 
       if (res.data.passed) {
@@ -140,7 +157,16 @@ const Assessment = () => {
   };
 
   if (loading) return <div className="text-white text-center mt-20 text-xl font-inter">Loading assessment...</div>;
-  if (error) return <div className="text-red-500 text-center mt-20 text-xl font-inter">{error}</div>;
+  if (error) {
+    if (error.includes("Maximum assessment attempts reached") || error.includes("Max attempts has reached")) {
+      return (
+        <AssessmentMaxAttemptsPopup
+          onGoBack={() => navigate(`/course-section/${courseId}`)}
+        />
+      );
+    }
+    return <div className="text-red-500 text-center mt-20 text-xl font-inter">{error}</div>;
+  }
 
   const currentQuestionIndex = currentPage - 1;
   const currentQuestion = fetchedQuestions[currentQuestionIndex];
@@ -206,10 +232,10 @@ const Assessment = () => {
       </div>
 
       {/* Navigation Buttons */}
-      <div className="absolute top-[83.51vh] left-[36.42vw] flex gap-[1.56vw] max-[768px]:top-[100vh] max-[768px]:left-[5vw]">
+      <div className="absolute top-[83.51vh] left-[39vw] flex gap-[2vw] max-[768px]:top-[100vh] max-[768px]:left-[5vw] max-[768px]:w-[90vw]">
         <button
           onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-          className="border border-white px-10 py-2 rounded-full text-white max-[768px]:w-[40vw]"
+          className="border border-white w-[10vw] h-[5.5vh] flex items-center justify-center rounded-full text-white transition-all duration-300 hover:scale-105 active:scale-95 hover:bg-white/10 max-[768px]:w-[43%] max-[768px]:h-[45px]"
         >
           Previous
         </button>
@@ -217,14 +243,14 @@ const Assessment = () => {
           <button
             onClick={() => handleSubmit(false)}
             disabled={submitting}
-            className="bg-yellow-500 text-black px-10 py-2 rounded-full border border-white max-[768px]:w-[40vw] font-bold"
+            className="bg-yellow-500 text-black w-[10vw] h-[5.5vh] flex items-center justify-center rounded-full border border-white transition-all duration-300 hover:scale-105 active:scale-95 hover:bg-yellow-400 max-[768px]:w-[43%] max-[768px]:h-[45px] font-bold shadow-lg"
           >
-            {submitting ? "Submitting..." : "Submit Assessment"}
+            {submitting ? "Submitting..." : "Submit"}
           </button>
         ) : (
           <button
             onClick={() => setCurrentPage((prev) => Math.min(prev + 1, fetchedQuestions.length))}
-            className="bg-yellow-500 text-black px-10 py-2 rounded-full border border-white max-[768px]:w-[40vw]"
+            className="bg-yellow-500 text-black w-[10vw] h-[5.5vh] flex items-center justify-center rounded-full border border-white transition-all duration-300 hover:scale-105 active:scale-95 hover:bg-yellow-400 max-[768px]:w-[43%] max-[768px]:h-[45px]"
           >
             Next
           </button>
@@ -234,10 +260,10 @@ const Assessment = () => {
       {/* Popups rendered as Overlays */}
       {result && (
         <>
-          {isTimeUp ? (
+          {result.timeUp ? (
             result.passed ? (
               <AssessmentTimeUpCongrats
-                onUnlock={() => navigate(`/course-section/${courseId}`)}
+                onUnlock={() => navigate('/feedback-course')}
               />
             ) : (
               <AssessmentTimeUpPopup
@@ -254,7 +280,7 @@ const Assessment = () => {
           ) : (
             result.passed ? (
               <AssessmentPassedPopup
-                onUnlock={() => navigate(`/course-section/${courseId}`)}
+                onUnlock={() => navigate('/feedback-course')}
               />
             ) : (
               <AssessmentFailedPopup
