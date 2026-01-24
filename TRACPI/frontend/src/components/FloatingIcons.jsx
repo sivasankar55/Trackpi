@@ -26,13 +26,34 @@ const FloatingIcons = () => {
         <div className="floating-icons-container">
             {/* Left Social Media Icons */}
             <div className="left-social-icons">
-                <a href="https://www.instagram.com/trackpi_official" className="social-icon insta"><FaInstagram /></a>
-                <a href="https://www.facebook.com/profile.php?id=61565947096778" className="social-icon fb"><FaFacebookF /></a>
-                <a href="https://www.youtube.com/@trackpi" className="social-icon yt"><FaYoutube /></a>
-                <a href="https://www.linkedin.com/company/trackpi-private-limited/posts/?feedView=all" className="social-icon ln"><FaLinkedinIn /></a>
-                <a href="https://www.quora.com/profile/Trackpi-Private-Limited?q=trackpi" className="social-icon quora"><FaQuora /></a>
-                <a href="https://trackpi.blogspot.com/" className="social-icon blogger"><FaBloggerB /></a>
-                <a href="https://medium.com/@trackpi" className="social-icon medium"><FaMediumM /></a>
+                <a href="https://www.instagram.com/trackpi_official" className="social-icon insta">
+                    <FaInstagram />
+                    <span className="label">INSTAGRAM</span>
+                </a>
+                <a href="https://www.facebook.com/profile.php?id=61565947096778" className="social-icon fb">
+                    <FaFacebookF />
+                    <span className="label">FACEBOOK</span>
+                </a>
+                <a href="https://www.youtube.com/@trackpi" className="social-icon yt">
+                    <FaYoutube />
+                    <span className="label">YOUTUBE</span>
+                </a>
+                <a href="https://www.linkedin.com/company/trackpi-private-limited/posts/?feedView=all" className="social-icon ln">
+                    <FaLinkedinIn />
+                    <span className="label">LINKEDIN</span>
+                </a>
+                <a href="https://www.quora.com/profile/Trackpi-Private-Limited?q=trackpi" className="social-icon quora">
+                    <FaQuora />
+                    <span className="label">QUORA</span>
+                </a>
+                <a href="https://trackpi.blogspot.com/" className="social-icon blogger">
+                    <FaBloggerB />
+                    <span className="label">BLOGGER</span>
+                </a>
+                <a href="https://medium.com/@trackpi" className="social-icon medium">
+                    <FaMediumM />
+                    <span className="label">MEDIUM</span>
+                </a>
             </div>
 
             {/* Chat Bot Popup */}
@@ -50,7 +71,7 @@ const FloatingIcons = () => {
                     <span className="badge">1</span>
                     <span className="hover-label">WhatsApp</span>
                 </a>
-                <Link to="/connect-us#contact-form" className="action-icon support" data-label="Contact Us">
+                <Link to="/connect-us" className="action-icon support" data-label="Contact Us">
                     <FaHandsHelping />
                     <span className="hover-label">Contact Us</span>
                 </Link>
