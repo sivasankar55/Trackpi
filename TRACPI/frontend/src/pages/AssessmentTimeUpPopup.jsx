@@ -54,5 +54,3 @@ function AssessmentTimeUpPopup({ onGoBack, onRetake }) {
 }
 
 export default AssessmentTimeUpPopup;
-
-

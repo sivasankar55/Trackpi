@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { FaStar } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 
 const FeedbackForm = () => {
     const [ratings, setRatings] = useState({
@@ -10,6 +11,7 @@ const FeedbackForm = () => {
     });
     const [experience, setExperience] = useState('');
     const [showForm, setShowForm] = useState(true);
+    const navigate = useNavigate();
 
     const handleStarClick = (category, rating) => {
         setRatings((prev) => ({ ...prev, [category]: rating }));
@@ -45,6 +47,7 @@ const FeedbackForm = () => {
             });
             alert('Thank you for your feedback!');
             setShowForm(false);
+            navigate('/course-section');
         } catch (error) {
             console.error('Error submitting feedback:', error);
             alert('Failed to submit feedback. Please try again.');
