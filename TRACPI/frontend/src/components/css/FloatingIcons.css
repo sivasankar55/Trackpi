@@ -103,8 +103,8 @@
     background-color: #3b82f6;
 }
 
-.action-icon.games {
-    background-color: #1e3f31;
+.action-icon.ai-bot {
+    background-color: #6366f1;
 }
 
 .action-icon .badge {
@@ -132,4 +132,76 @@
         height: 40px;
         font-size: 20px;
     }
+}
+
+/* Hover Label Styles */
+.action-icon {
+    position: relative;
+    overflow: visible !important;
+}
+
+.hover-label {
+    position: absolute;
+    right: 60px;
+    color: white;
+    padding: 6px 15px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(10px);
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    pointer-events: none;
+}
+
+.hover-label::after {
+    content: '';
+    position: absolute;
+    right: -6px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-width: 6px 0 6px 6px;
+    border-style: solid;
+    border-color: transparent transparent transparent currentColor;
+    /* Uses text color, but we'll set it specifically */
+}
+
+/* Specific Label Colors */
+.whatsapp .hover-label {
+    background-color: #25d366;
+}
+
+.whatsapp .hover-label::after {
+    border-left-color: #25d366;
+}
+
+.support .hover-label {
+    background-color: #3b82f6;
+}
+
+.support .hover-label::after {
+    border-left-color: #3b82f6;
+}
+
+.ai-bot .hover-label {
+    background-color: #6366f1;
+}
+
+.ai-bot .hover-label::after {
+    border-left-color: #6366f1;
+}
+
+.action-icon.ai-bot.active {
+    background-color: #FF9D00;
+    box-shadow: 0 0 20px rgba(255, 157, 0, 0.6);
+    transform: scale(1.15);
+}
+
+.action-icon:hover .hover-label {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0);
 }

@@ -1,9 +1,6 @@
 import React from 'react';
 import logo from '../assets/targetpi logo.png';
-import { FaFacebookF, FaYoutube, FaInstagram, FaMediumM, FaLinkedinIn, FaSearch, FaBloggerB } from "react-icons/fa";
-import { FaLocationDot, FaPhone, FaEnvelope } from "react-icons/fa6"; // Usage of fa6 for newer icons if available, or just stick to fa for consistency if needed. specific imports are safer.
-import { HiLocationMarker } from "react-icons/hi"; // Alternative for location if fa6 fails or similar.
-// Actually standard Fa icons are usually safe.
+import { FaLocationDot, FaPhone, FaEnvelope } from "react-icons/fa6";
 
 const FooterA = () => {
     return (
@@ -26,27 +23,6 @@ const FooterA = () => {
                         <p className="text-white text-[16px] md:text-[18px] leading-[26px] md:leading-[28px] text-center lg:text-left font-urbanist-500">
                             Empowering businesses to succeed through expert guidance and personalized solutions. Unlocking potential and achieving success.
                         </p>
-
-                        {/* Social Icons */}
-                        <div className="flex gap-4 sm:gap-6 mt-2">
-                            {[
-                                { Icon: FaFacebookF, href: "#" },
-                                { Icon: FaYoutube, href: "#" },
-                                { Icon: FaInstagram, href: "#" },
-                                { Icon: FaMediumM, href: "#" },
-                                { Icon: FaLinkedinIn, href: "#" },
-                                { Icon: FaSearch, href: "#" },
-                                { Icon: FaBloggerB, href: "#" },
-                            ].map((social, index) => (
-                                <a
-                                    key={index}
-                                    href={social.href}
-                                    className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full border border-[#FFB200] text-[#FFB200] hover:bg-[#FFB200] hover:text-black transition-all duration-300"
-                                >
-                                    <social.Icon className="w-4 h-4 sm:w-5 sm:h-5" />
-                                </a>
-                            ))}
-                        </div>
                     </div>
 
                     {/* Right Columns (Mobile: Bottom List) */}

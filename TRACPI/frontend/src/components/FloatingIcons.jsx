@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
     FaInstagram,
     FaFacebookF,
@@ -8,12 +9,19 @@ import {
     FaBloggerB,
     FaMediumM,
     FaWhatsapp,
-    FaGamepad,
+    FaRobot,
     FaHandsHelping
 } from 'react-icons/fa';
 import './css/FloatingIcons.css';
+import ChatBotPopup from './ChatBotPopup';
 
 const FloatingIcons = () => {
+    const [isChatOpen, setIsChatOpen] = useState(false);
+
+    const toggleChat = () => {
+        setIsChatOpen(!isChatOpen);
+    };
+
     return (
         <div className="floating-icons-container">
             {/* Left Social Media Icons */}
@@ -27,6 +35,9 @@ const FloatingIcons = () => {
                 <a href="https://medium.com/@trackpi" className="social-icon medium"><FaMediumM /></a>
             </div>
 
+            {/* Chat Bot Popup */}
+            {isChatOpen && <ChatBotPopup onClose={() => setIsChatOpen(false)} />}
+
             {/* Right Floating Action Icons */}
             <div className="right-action-icons">
                 <a
@@ -37,16 +48,23 @@ const FloatingIcons = () => {
                 >
                     <FaWhatsapp />
                     <span className="badge">1</span>
+                    <span className="hover-label">WhatsApp</span>
                 </a>
-                <div className="action-icon support">
+                <Link to="/connect-us#contact-form" className="action-icon support" data-label="Contact Us">
                     <FaHandsHelping />
-                </div>
-                <div className="action-icon games">
-                    <FaGamepad />
+                    <span className="hover-label">Contact Us</span>
+                </Link>
+                <div
+                    className={`action-icon ai-bot ${isChatOpen ? 'active' : ''}`}
+                    onClick={toggleChat}
+                >
+                    <FaRobot />
+                    <span className="hover-label">Chat Bot</span>
                 </div>
             </div>
         </div>
     );
 };
+
 
 export default FloatingIcons;

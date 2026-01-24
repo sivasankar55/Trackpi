@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 import FloatingIcons from '../components/FloatingIcons';
 
@@ -22,6 +23,16 @@ const ContactPage = () => {
 
   const [errors, setErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState('');
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.hash === '#contact-form') {
+      const element = document.getElementById('contact-form');
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  }, [location]);
 
   const validateForm = () => {
     const newErrors = {};
@@ -104,83 +115,90 @@ const ContactPage = () => {
     }
   };
 
+  const isFormFocused = location.hash === '#contact-form';
+
   return (
-    <div className="w-full min-h-screen bg-[#2D1D29] overflow-x-hidden">
-      <FloatingIcons />
-      {/* Hero Section */}
-      <div className="relative w-full h-[223px] sm:h-[320px] md:h-[500px] lg:h-screen">
-        <img
-          src={hero}
-          alt="Contact Hero"
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 flex items-center justify-center bg-black/10">
-          <h1 className="text-white text-4xl sm:text-5xl md:text-6xl font-bold">
-            Contact Us
-          </h1>
+    <div className={`w-full ${isFormFocused ? '' : 'min-h-screen'} bg-[#2D1D29] overflow-x-hidden`}>
+      {!isFormFocused && <FloatingIcons />}
+
+      {/* Hero Section - Only show if form is not focused */}
+      {!isFormFocused && (
+        <div className="relative w-full h-[223px] sm:h-[320px] md:h-[500px] lg:h-screen">
+          <img
+            src={hero}
+            alt="Contact Hero"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 flex items-center justify-center bg-black/10">
+            <h1 className="text-white text-4xl sm:text-5xl md:text-6xl font-bold">
+              Contact Us
+            </h1>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Content Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16 grid grid-cols-1 lg:grid-cols-2 gap-16">
-        {/* Left Column: Contact Info */}
-        <div className="text-white space-y-10">
-          <div>
-            <p className="text-lg mb-2">For inquiries about our services.</p>
-            <p className="text-lg">
-              Please fill your details or email us directly.
-            </p>
-          </div>
+      <div className={`max-w-7xl mx-auto px-4 sm:px-6 ${isFormFocused ? 'py-10' : 'py-16'} ${isFormFocused ? 'flex justify-center' : 'grid grid-cols-1 lg:grid-cols-2'} gap-16`}>
 
-          <div>
-            <h3 className="text-2xl font-bold mb-2">Address</h3>
-            <p className="text-xl">Kakkanad, Kochi, India</p>
-          </div>
+        {/* Left Column: Contact Info - Only show if form is not focused */}
+        {!isFormFocused && (
+          <div className="text-white space-y-10">
+            <div>
+              <p className="text-lg mb-2">For inquiries about our services.</p>
+              <p className="text-lg">
+                Please fill your details or email us directly.
+              </p>
+            </div>
 
-          <div>
-            <h3 className="text-2xl font-bold mb-2">Phone Number</h3>
-            <p className="text-xl">+91 8078179646</p>
-          </div>
+            <div>
+              <h3 className="text-2xl font-bold mb-2">Address</h3>
+              <p className="text-xl">Kakkanad, Kochi, India</p>
+            </div>
 
-          <div>
-            <h3 className="text-2xl font-bold mb-2">E-Mail ID</h3>
-            <p className="text-xl break-all">operations@trackpi.in</p>
-          </div>
+            <div>
+              <h3 className="text-2xl font-bold mb-2">Phone Number</h3>
+              <p className="text-xl">+91 8078179646</p>
+            </div>
 
-          {/* Social Icons */}
-          <div className="flex gap-6 mt-12 flex-wrap">
-            <a href="https://www.facebook.com/profile.php/?id=61565947096778" target="_blank" rel="noopener noreferrer" className="hover:opacity-80">
-              <img src={facebook} alt="Facebook" className="w-8 h-8" />
-            </a>
-            <a href="https://www.youtube.com/@Trackpi" target="_blank" rel="noopener noreferrer" className="hover:opacity-80">
-              <img src={youtube} alt="Youtube" className="w-8 h-8" />
-            </a>
-            <a href="https://www.instagram.com/trackpi_official/" target="_blank" rel="noopener noreferrer" className="hover:opacity-80">
-              <img src={instagram} alt="Instagram" className="w-8 h-8" />
-            </a>
-            <a href="https://medium.com/@trackpi" target="_blank" rel="noopener noreferrer" className="hover:opacity-80">
-              <img src={mLogo} alt="Medium" className="w-8 h-8" />
-            </a>
-            <a href="https://www.linkedin.com/company/trackpi-private-limited/posts/?feedView=all" target="_blank" rel="noopener noreferrer" className="hover:opacity-80">
-              <img src={linkedin} alt="LinkedIn" className="w-8 h-8" />
-            </a>
-            <a href="https://trackpi.in/" target="_blank" rel="noopener noreferrer" className="hover:opacity-80">
-              <img src={search} alt="Search" className="w-8 h-8" />
-            </a>
+            <div>
+              <h3 className="text-2xl font-bold mb-2">E-Mail ID</h3>
+              <p className="text-xl break-all">operations@trackpi.in</p>
+            </div>
+
+            {/* Social Icons */}
+            <div className="flex gap-6 mt-12 flex-wrap">
+              <a href="https://www.facebook.com/profile.php/?id=61565947096778" target="_blank" rel="noopener noreferrer" className="hover:opacity-80">
+                <img src={facebook} alt="Facebook" className="w-8 h-8" />
+              </a>
+              <a href="https://www.youtube.com/@Trackpi" target="_blank" rel="noopener noreferrer" className="hover:opacity-80">
+                <img src={youtube} alt="Youtube" className="w-8 h-8" />
+              </a>
+              <a href="https://www.instagram.com/trackpi_official/" target="_blank" rel="noopener noreferrer" className="hover:opacity-80">
+                <img src={instagram} alt="Instagram" className="w-8 h-8" />
+              </a>
+              <a href="https://medium.com/@trackpi" target="_blank" rel="noopener noreferrer" className="hover:opacity-80">
+                <img src={mLogo} alt="Medium" className="w-8 h-8" />
+              </a>
+              <a href="https://www.linkedin.com/company/trackpi-private-limited/posts/?feedView=all" target="_blank" rel="noopener noreferrer" className="hover:opacity-80">
+                <img src={linkedin} alt="LinkedIn" className="w-8 h-8" />
+              </a>
+              <a href="https://trackpi.in/" target="_blank" rel="noopener noreferrer" className="hover:opacity-80">
+                <img src={search} alt="Search" className="w-8 h-8" />
+              </a>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Right Column: Form */}
-        <div className="bg-transparent">
-          <h2 className="text-[#FFC100] text-2xl sm:text-3xl md:text-4xl font-bold mb-6 break-words">
+        <div id="contact-form" className={`bg-transparent ${isFormFocused ? 'w-full max-w-2xl' : ''}`}>
+          <h2 className="text-[#FFC100] text-2xl sm:text-3xl md:text-4xl font-bold mb-6 break-words text-center lg:text-left">
             You’re ready to take the next step
           </h2>
-          <p className="text-white mb-8">
+          <p className="text-white mb-8 text-center lg:text-left">
             We’re all wrestling with complexity. Every company, work function,
             and team now faces a tall order: to be more adaptive, strategic,
             effective, human, and equitable amidst growing uncertainty.
           </p>
-
 
           <form className="space-y-4" onSubmit={handleSubmit}>
             <input
