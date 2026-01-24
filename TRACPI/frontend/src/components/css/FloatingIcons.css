@@ -16,52 +16,77 @@
     display: flex;
     flex-direction: column;
     pointer-events: auto;
+    z-index: 1001;
 }
 
 .social-icon {
-    width: 35px;
-    height: 35px;
+    width: 45px;
+    height: 45px;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     color: white;
-    font-size: 18px;
+    font-size: 20px;
     text-decoration: none;
-    transition: transform 0.3s ease, width 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    overflow: hidden;
+    white-space: nowrap;
+    position: relative;
+    padding-left: 12px;
+    border-radius: 0 5px 5px 0;
 }
 
 .social-icon:hover {
-    transform: scale(1.1);
-    width: 45px;
-    padding-left: 10px;
+    width: 160px;
+    padding-left: 15px;
+}
+
+.social-icon svg {
+    flex-shrink: 0;
+    margin-right: 15px;
+}
+
+.social-icon .label {
+    font-family: 'Roboto', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: all 0.3s ease;
+}
+
+.social-icon:hover .label {
+    opacity: 1;
+    transform: translateX(0);
 }
 
 /* Social Icon Colors */
-.insta {
+.social-icon.insta {
     background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
 }
 
-.fb {
-    background-color: #3b5998;
+.social-icon.fb {
+    background-color: #4267B2;
 }
 
-.yt {
-    background-color: #ff0000;
+.social-icon.yt {
+    background-color: #FF0000;
 }
 
-.ln {
+.social-icon.ln {
     background-color: #0077b5;
 }
 
-.quora {
+.social-icon.quora {
     background-color: #a82400;
 }
 
-.blogger {
-    background-color: #f57d00;
+.social-icon.blogger {
+    background-color: #ff5722;
 }
 
-.medium {
+.social-icon.medium {
     background-color: #000000;
 }
 
@@ -122,9 +147,20 @@
 
 @media (max-width: 768px) {
     .social-icon {
-        width: 30px;
-        height: 30px;
+        width: 35px;
+        height: 35px;
         font-size: 16px;
+        padding-left: 8px;
+    }
+
+    .social-icon:hover {
+        width: 35px;
+        /* Disable expansion on mobile */
+    }
+
+    .social-icon .label {
+        display: none;
+        /* Hide labels on mobile */
     }
 
     .action-icon {
