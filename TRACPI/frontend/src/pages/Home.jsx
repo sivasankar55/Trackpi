@@ -20,7 +20,6 @@ function Home() {
   const videoRef = useRef(null);
   const [isFloating, setIsFloating] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
-  const [isWatchMode, setIsWatchMode] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -44,36 +43,25 @@ function Home() {
           section.scrollIntoView({ behavior: 'smooth' });
         }, 500); // Delay as requested
       }
-      // Clear state to prevent scroll on refresh (optional but good practice, though React Router state usually persists. 
-      // We can manually clear it but it's tricky without navigating again. For now, this is fine.)
     }
   }, [location]);
 
-  const handleWatchNow = () => {
-    setIsWatchMode(true);
-    setIsMuted(false);
-    if (videoRef.current) {
-      videoRef.current.currentTime = 0;
-      videoRef.current.play();
-    }
-  };
-
-  const handleVideoEnd = () => {
-    setIsWatchMode(false);
-    setIsMuted(true);
-    if (videoRef.current) {
-      videoRef.current.pause();
-      videoRef.current.currentTime = 0;
-    }
-  };
+  useEffect(() => {
+    // Delay video playback by 3 seconds to show thumbnail
+    const timer = setTimeout(() => {
+      if (videoRef.current) {
+        videoRef.current.play().catch(e => console.log("Autoplay prevented:", e));
+      }
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <div className="bg-gradient-to-br from-[#09060E] via-[#2D1D29] to-[#694230]">
       {/* Hero Section */}
-      {/* Hero Section Container - Acts as placeholder height */}
       <section
         ref={heroRef}
-        className={`relative w-full max-w-[1728px] mx-auto ${isWatchMode ? 'h-auto aspect-video' : 'h-[223px] sm:h-[320px] md:h-[500px] lg:h-screen'} flex items-center text-white overflow-hidden transition-all duration-500 ease-in-out`}
+        className={`relative w-full max-w-[1728px] mx-auto h-[223px] sm:h-[320px] md:h-[500px] lg:h-screen flex items-center text-white overflow-hidden transition-all duration-500 ease-in-out`}
       >
 
         {/* Floating Video Container */}
@@ -88,9 +76,9 @@ function Home() {
             ref={videoRef}
             poster={hero}
             muted={isMuted}
+            loop
             playsInline
-            onEnded={handleVideoEnd}
-            className={`w-full h-full ${isWatchMode ? 'object-contain' : 'object-cover'}`}
+            className="w-full h-full object-cover"
           >
             <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4" />
           </video>
@@ -104,25 +92,6 @@ function Home() {
           >
             {isMuted ? <VolumeX size={isFloating ? 20 : 24} /> : <Volume2 size={isFloating ? 20 : 24} />}
           </div>
-
-          {/* Overlay only when in full hero mode to darken background for text */}
-          {!isFloating && <div className={`absolute top-0 left-0 w-full h-full bg-black/40 pointer-events-none transition-opacity duration-1000 ${isWatchMode ? 'opacity-0' : 'opacity-100'}`}></div>}
-        </div>
-
-        {/* Hero Content - Stays in place */}
-        <div className={`relative z-[60] text-center px-4 md:px-[48px] max-w-[993px] mx-auto transition-opacity duration-1000 ${isWatchMode ? 'opacity-0 pointer-events-none' : 'opacity-100 pointer-events-auto'}`}>
-          <h1 className="text-white font-bold leading-[1.1] text-2xl sm:text-4xl md:text-[5vw] drop-shadow-md">
-            Kerala's Biggest Freelancer<br className="block sm:hidden" /> Community
-          </h1>
-          <p className="text-white mt-2 sm:mt-4 text-xs sm:text-base md:text-lg">
-            Welcome to TrackPi Private Limited – Your Strategic Growth Partner.
-          </p>
-          <button
-            onClick={handleWatchNow}
-            className="mt-3 sm:mt-6 inline-flex items-center gap-2 px-4 py-2 sm:px-6 sm:py-3 bg-white/20 hover:bg-white/30 backdrop-blur-md text-white rounded-[8px] font-semibold cursor-pointer roboto transition-all duration-300 pointer-events-auto text-sm sm:text-base"
-          >
-            ▶ Watch Now
-          </button>
         </div>
       </section>
 
