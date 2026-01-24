@@ -46,7 +46,7 @@ const AssessmentBubble = ({ currentPage, setCurrentPage, totalPages = 30 }) => {
       </div>
 
       {/* Bubble Row */}
-      <div className="absolute top-[15.6vh] ml-[5vw] w-[90vw] h-[7.5vh] flex items-center gap-[37vw] justify-start">
+      <div className="mt-8 ml-[5vw] w-[90vw] h-auto flex items-center justify-between flex-wrap gap-4">
         {/* Capsule with 1 and < */}
         <div className="flex items-center border border-white/90 rounded-full px-[0px]">
           <button

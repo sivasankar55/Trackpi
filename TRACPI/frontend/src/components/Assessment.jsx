@@ -209,7 +209,7 @@ const Assessment = () => {
       <div className="absolute top-[83.51vh] left-[36.42vw] flex gap-[1.56vw] max-[768px]:top-[100vh] max-[768px]:left-[5vw]">
         <button
           onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-          className="border border-white px-20 py-2 rounded-full text-white max-[768px]:w-[40vw]"
+          className="border border-white px-10 py-2 rounded-full text-white max-[768px]:w-[40vw]"
         >
           Previous
         </button>
@@ -217,14 +217,14 @@ const Assessment = () => {
           <button
             onClick={() => handleSubmit(false)}
             disabled={submitting}
-            className="bg-yellow-500 text-black px-20 py-2 rounded-full border border-white max-[768px]:w-[40vw] font-bold"
+            className="bg-yellow-500 text-black px-10 py-2 rounded-full border border-white max-[768px]:w-[40vw] font-bold"
           >
             {submitting ? "Submitting..." : "Submit Assessment"}
           </button>
         ) : (
           <button
             onClick={() => setCurrentPage((prev) => Math.min(prev + 1, fetchedQuestions.length))}
-            className="bg-yellow-500 text-black px-20 py-2 rounded-full border border-white max-[768px]:w-[40vw]"
+            className="bg-yellow-500 text-black px-10 py-2 rounded-full border border-white max-[768px]:w-[40vw]"
           >
             Next
           </button>
