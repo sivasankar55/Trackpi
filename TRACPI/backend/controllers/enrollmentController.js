@@ -48,8 +48,10 @@ export const getCourseUsersProgress = async (req, res) => {
       username: e.user?.email || 'N/A',
       courseName: e.course?.courseName || 'Deleted Course',
       startDate: e.enrollmentDate ? new Date(e.enrollmentDate).toLocaleDateString() : 'N/A',
+      rawDate: e.enrollmentDate,
       progress: e.progress,
-      userId: e.user?._id
+      userId: e.user?._id,
+      status: e.user?.status || 'active'
     }));
 
     res.json(progressData);
