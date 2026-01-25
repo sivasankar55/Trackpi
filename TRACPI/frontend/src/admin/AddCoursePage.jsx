@@ -97,16 +97,16 @@ const AddCoursePage = () => {
                                     .replace(/'/g, '"')
                                     .replace(/([{,]\s*)([a-zA-Z0-9_]+)\s*:/g, '$1"$2":')
                                     .replace(/,\s*([\]}])/g, '$1');
-                            } catch (e) { return str; }
+                            } catch (error) { return str; }
                         };
                         try {
                             const parsed = JSON.parse(s);
                             return robustParse(parsed);
-                        } catch (e) {
+                        } catch (_) {
                             try {
                                 const parsed = JSON.parse(cleanJS(s));
                                 return robustParse(parsed);
-                            } catch (e2) {
+                            } catch (__) {
                                 const matches = s.match(/\{[^{}]+\}/g);
                                 if (matches) {
                                     return matches.map(m => {
@@ -117,7 +117,9 @@ const AddCoursePage = () => {
                                                 if (obj.type && !obj.quizType) obj.quizType = obj.type;
                                                 return obj;
                                             }
-                                        } catch (err) { }
+                                        } catch (err) {
+                                            console.error('Json parse error in matches:', err);
+                                        }
                                         return null;
                                     }).filter(i => i && typeof i === 'object');
                                 }

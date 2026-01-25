@@ -25,7 +25,7 @@ const AddCourse = ({ onClose, onCourseAdded }) => {
         setSuccess('');
 
         try {
-            const response = await axios.post('http://localhost:5000/api/courses', {
+            await axios.post('http://localhost:5000/api/courses', {
                 courseName: formData.courseName,
                 courseDetail: formData.courseDetail
             }, {
@@ -59,8 +59,8 @@ const AddCourse = ({ onClose, onCourseAdded }) => {
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 z-50">
             <div
                 className="w-[732px] p-[50px] rounded-[10px] border-[2px] border-[#FFB300] bg-[#FF8200]
-                   shadow-[4px_4px_50px_10px_rgba(0,0,0,0.25)] backdrop-blur-[100px]
-                   shadow-inner shadow-[1px_1px_10px_0px_rgba(255,241,207,0.5)] text-white relative"
+                   shadow-[4px_4px_50px_10px_rgba(0,0,0,0.25),inset_1px_1px_10px_0px_rgba(255,241,207,0.5)] 
+                   backdrop-blur-[100px] text-white relative"
             >
                 {/* Close Button */}
                 <button
@@ -139,7 +139,7 @@ const AddCourse = ({ onClose, onCourseAdded }) => {
                             type="submit"
                             disabled={loading}
                             className="w-[302px] h-[46px] rounded-[5px] border border-[#8F0000] bg-[#E20000]
-                            shadow-[0px_0px_10px_1px_rgba(10,10,10,0.25)] text-white font-semibold transition disabled:opacity-50 hover:bg-[#FF0000]"
+                            shadow-[0px_0px_10px_1px_rgba(10,10,10,0.25)] text-white font-semibold transition disabled:opacity-50 hover:bg-[#FF0000] active:scale-[0.98]"
                         >
                             {loading ? 'Adding...' : 'Add'}
                         </button>
