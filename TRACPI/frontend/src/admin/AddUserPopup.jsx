@@ -11,7 +11,15 @@ const AddUserPopup = ({ onClose, onUserAdded }) => {
     const [error, setError] = useState('');
 
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+
+        if (name === 'phoneNumber') {
+            // Only allow numbers and limit to 10 digits
+            const newValue = value.replace(/[^0-9]/g, '').slice(0, 10);
+            setFormData({ ...formData, [name]: newValue });
+        } else {
+            setFormData({ ...formData, [name]: value });
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -69,6 +77,7 @@ const AddUserPopup = ({ onClose, onUserAdded }) => {
                             value={formData.phoneNumber}
                             onChange={handleChange}
                             required
+                            maxLength="10"
                             className="w-full h-[44px] px-4 rounded-[10px] bg-[#FFB347] border-none text-white placeholder-white placeholder-opacity-70 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-30 transition-all font-medium"
                         />
                     </div>
