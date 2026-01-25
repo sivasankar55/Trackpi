@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import SearchIcon from '../assets/search2.png';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import ExportProgressPopup from './ExportProgressPopup';
 
 const CourseProgressDetails = () => {
     const navigate = useNavigate();
@@ -13,9 +14,16 @@ const CourseProgressDetails = () => {
     const [activeTab, setActiveTab] = useState('completed'); // 'completed' or 'inprogress'
     const [currentPage, setCurrentPage] = useState(1);
     const [searchTerm, setSearchTerm] = useState('');
+    const [filterOption, setFilterOption] = useState('all'); // 'all', 'suspended', 'latest', 'oldest'
+    const [showFilterDropdown, setShowFilterDropdown] = useState(false);
+    const filterRef = useRef(null);
+    const [sortOption, setSortOption] = useState('none'); // 'none', 'ascending', 'descending'
+    const [showSortDropdown, setShowSortDropdown] = useState(false);
+    const sortRef = useRef(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [allData, setAllData] = useState([]);
+    const [showExport, setShowExport] = useState(false);
     const itemsPerPage = 10;
 
     useEffect(() => {
@@ -43,12 +51,45 @@ const CourseProgressDetails = () => {
         fetchProgress();
     }, [courseId]);
 
-    const filteredData = allData.filter(item => {
-        const matchesSearch = (item.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            item.username?.toLowerCase().includes(searchTerm.toLowerCase()));
-        const matchesTab = activeTab === 'completed' ? item.progress === 100 : item.progress < 100;
-        return matchesSearch && matchesTab;
-    });
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (filterRef.current && !filterRef.current.contains(event.target)) {
+                setShowFilterDropdown(false);
+            }
+            if (sortRef.current && !sortRef.current.contains(event.target)) {
+                setShowSortDropdown(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    const filteredData = allData
+        .filter(item => {
+            const matchesSearch = (item.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                item.username?.toLowerCase().includes(searchTerm.toLowerCase()));
+            const matchesTab = activeTab === 'completed' ? item.progress === 100 : item.progress < 100;
+            const matchesFilter = filterOption === 'suspended' ? item.status === 'suspended' : true;
+            return matchesSearch && matchesTab && matchesFilter;
+        })
+        .sort((a, b) => {
+            // Priority 1: Name Sort (Ascending/Descending)
+            if (sortOption === 'ascending') {
+                return (a.name || '').localeCompare(b.name || '');
+            }
+            if (sortOption === 'descending') {
+                return (b.name || '').localeCompare(a.name || '');
+            }
+
+            // Priority 2: Filter-based sorting (Latest/Oldest)
+            if (filterOption === 'latest') {
+                return new Date(b.rawDate) - new Date(a.rawDate);
+            }
+            if (filterOption === 'oldest') {
+                return new Date(a.rawDate) - new Date(b.rawDate);
+            }
+            return 0;
+        });
 
     const totalPages = Math.ceil(filteredData.length / itemsPerPage) || 1;
     const currentData = filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
@@ -92,18 +133,93 @@ const CourseProgressDetails = () => {
                     </div>
                 </div>
 
-                <div className="flex flex-wrap gap-3">
-                    <button className="px-6 py-2 rounded-lg border border-[#FFB300] bg-white hover:bg-yellow-50 text-black font-medium transition-colors">
-                        Filter
-                    </button>
-                    <button className="px-6 py-2 rounded-lg border border-[#FFB300] bg-white hover:bg-yellow-50 text-black font-medium transition-colors">
-                        Sort
-                    </button>
-                    <button className="px-8 py-2 rounded-lg bg-[#D00000] text-white hover:bg-red-700 font-bold shadow-md transition-all">
+                <div className="flex flex-wrap gap-3 relative">
+                    <div className="relative" ref={filterRef}>
+                        <button
+                            onClick={() => setShowFilterDropdown(!showFilterDropdown)}
+                            className="px-6 py-2 rounded-lg border border-[#FFB300] bg-white hover:bg-yellow-50 text-black font-medium transition-colors flex items-center gap-2"
+                        >
+                            Filter
+                            <span className="text-[10px] bg-[#FFB300] text-white px-1.5 rounded-full capitalize">{filterOption}</span>
+                        </button>
+
+                        {showFilterDropdown && (
+                            <div className="absolute top-full left-0 mt-2 w-48 bg-white border border-[#FFB300] rounded-xl shadow-xl z-50 overflow-hidden">
+                                {[
+                                    { id: 'all', label: 'All Users' },
+                                    { id: 'suspended', label: 'Suspended' },
+                                    { id: 'latest', label: 'Latest Joined' },
+                                    { id: 'oldest', label: 'Oldest Joined' }
+                                ].map((option) => (
+                                    <button
+                                        key={option.id}
+                                        onClick={() => {
+                                            setFilterOption(option.id);
+                                            setShowFilterDropdown(false);
+                                            setCurrentPage(1);
+                                        }}
+                                        className={`w-full text-left px-4 py-2 text-sm hover:bg-[#FFF1CF] transition-colors ${filterOption === option.id ? 'bg-[#FFB300] text-white' : 'text-black'
+                                            }`}
+                                    >
+                                        {option.label}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                    {/* Closing div for filter relative container was missing or implied? No, I'll just wrap the button. */}
+
+                    <div className="relative" ref={sortRef}>
+                        <button
+                            onClick={() => setShowSortDropdown(!showSortDropdown)}
+                            className="px-6 py-2 rounded-lg border border-[#FFB300] bg-white hover:bg-yellow-50 text-black font-medium transition-colors flex items-center gap-2"
+                        >
+                            Sort
+                            {sortOption !== 'none' && (
+                                <span className="text-[10px] bg-[#FFB300] text-white px-1.5 rounded-full capitalize">{sortOption}</span>
+                            )}
+                        </button>
+
+                        {showSortDropdown && (
+                            <div className="absolute top-full left-0 mt-2 w-48 bg-white border border-[#FFB300] rounded-xl shadow-xl z-50 overflow-hidden">
+                                {[
+                                    { id: 'none', label: 'Default' },
+                                    { id: 'ascending', label: 'Ascending (A-Z)' },
+                                    { id: 'descending', label: 'Descending (Z-A)' }
+                                ].map((option) => (
+                                    <button
+                                        key={option.id}
+                                        onClick={() => {
+                                            setSortOption(option.id);
+                                            setShowSortDropdown(false);
+                                            setCurrentPage(1);
+                                        }}
+                                        className={`w-full text-left px-4 py-2 text-sm hover:bg-[#FFF1CF] transition-colors ${sortOption === option.id ? 'bg-[#FFB300] text-white' : 'text-black'
+                                            }`}
+                                    >
+                                        {option.label}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                    <button
+                        onClick={() => setShowExport(true)}
+                        className="px-8 py-2 rounded-lg bg-[#D00000] text-white hover:bg-red-700 font-bold shadow-md transition-all"
+                    >
                         Export
                     </button>
                 </div>
             </div>
+
+            {/* Export Popup */}
+            {showExport && (
+                <ExportProgressPopup
+                    onClose={() => setShowExport(false)}
+                    data={filteredData}
+                    courseName={allData[0]?.courseName}
+                />
+            )}
 
             {/* Tabs */}
             <div className="flex w-full">
@@ -145,10 +261,14 @@ const CourseProgressDetails = () => {
                 {/* Table Body */}
                 <div className="space-y-3">
                     {currentData.length > 0 ? currentData.map((item, index) => (
-                        <div key={item.userId || index} className="bg-white border border-[#FFB300]/30 rounded-xl grid grid-cols-5 px-6 py-4 items-center text-center hover:bg-white/80 hover:scale-[1.005] transition-all shadow-sm">
+                        <div
+                            key={item.userId || index}
+                            onClick={() => navigate(`/admin/user-details/${item.userId}`)}
+                            className="bg-white border border-[#FFB300]/30 rounded-xl grid grid-cols-5 px-6 py-4 items-center text-center hover:bg-white/80 hover:scale-[1.005] transition-all shadow-sm cursor-pointer group"
+                        >
                             <div className="text-left flex items-center gap-3">
-                                <div className="w-4 h-4 rounded-md border-2 border-[#FFB300]"></div>
-                                <span className="font-bold text-black">{item.name}</span>
+                                <div className="w-4 h-4 rounded-md border-2 border-[#FFB300] group-hover:bg-[#FFB300]"></div>
+                                <span className="font-bold text-black border-b border-transparent group-hover:border-[#FFB300] group-hover:text-[#FF9D00] transition-all">{item.name}</span>
                             </div>
                             <div className="text-gray-600 truncate px-2">{item.username}</div>
                             <div className="text-gray-600 italic">{item.courseName}</div>
