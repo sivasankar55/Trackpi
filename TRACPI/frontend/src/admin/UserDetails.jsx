@@ -207,7 +207,7 @@ const UserDetails = () => {
                         </div>
 
                         <div className="flex flex-wrap gap-4 sm:gap-6 justify-center pt-4">
-                            <button className="bg-[#E20000] text-white px-8 sm:px-12 py-3 rounded-xl font-bold shadow-lg shadow-red-200 hover:bg-[#C10000] transition-all hover:-translate-y-1 active:scale-95 uppercase tracking-widest text-[11px] sm:text-sm">Print QUIZ</button>
+
                             <button
                                 onClick={handleReset}
                                 disabled={resetLoading}

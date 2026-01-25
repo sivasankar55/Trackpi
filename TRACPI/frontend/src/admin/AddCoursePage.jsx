@@ -323,7 +323,24 @@ const AddCoursePage = () => {
         setShowQuizPopup(true);
     };
 
+    const validateCourseDetails = () => {
+        if (!formData.courseName.trim()) {
+            setErrorPopup({ show: true, message: 'Please enter a Course Name before adding/editing sections.' });
+            return false;
+        }
+        if (!formData.courseDetail.trim()) {
+            setErrorPopup({ show: true, message: 'Please enter Course Details before adding/editing sections.' });
+            return false;
+        }
+        if (!imagePreview) {
+            setErrorPopup({ show: true, message: 'Please upload a Course Image before adding/editing sections.' });
+            return false;
+        }
+        return true;
+    };
+
     const handleEditSection = (index) => {
+        if (!validateCourseDetails()) return;
         const sectionToEdit = sections[index];
         setSectionData({
             sectionName: sectionToEdit.name || sectionToEdit.sectionName || '',
@@ -499,6 +516,7 @@ const AddCoursePage = () => {
                                         <h3 className="text-lg sm:text-[22px] font-extrabold text-[#333]">Section</h3>
                                         <button
                                             onClick={() => {
+                                                if (!validateCourseDetails()) return;
                                                 setEditingSectionIndex(null);
                                                 setSectionData({ sectionName: '', units: [] });
                                                 setIsAddingSection(true);
@@ -604,6 +622,10 @@ const AddCoursePage = () => {
                                     <h3 className="text-lg sm:text-[22px] font-extrabold text-[#333]">Units</h3>
                                     <button
                                         onClick={() => {
+                                            if (!sectionData.sectionName.trim()) {
+                                                setErrorPopup({ show: true, message: 'Please enter a Section Name before adding units.' });
+                                                return;
+                                            }
                                             setEditingUnitIndex(null);
                                             setCurrentUnit({ name: '', description: '', videoId: '' });
                                             setShowUnitDetails(true);
@@ -736,30 +758,35 @@ const AddCoursePage = () => {
                             </button>
                             <button
                                 onClick={() => {
-                                    if (sectionData.sectionName) {
-                                        if (editingSectionIndex !== null) {
-                                            // Update existing section
-                                            setSections(prev => {
-                                                const updated = [...prev];
-                                                updated[editingSectionIndex] = {
-                                                    name: sectionData.sectionName,
-                                                    units: sectionData.units
-                                                };
-                                                return updated;
-                                            });
-                                        } else {
-                                            // Add new section
-                                            setSections(prev => [...prev, {
+                                    if (!sectionData.sectionName.trim()) {
+                                        setErrorPopup({ show: true, message: 'Please enter a Section Name.' });
+                                        return;
+                                    }
+                                    if (sectionData.units.length === 0) {
+                                        setErrorPopup({ show: true, message: 'Please add at least one Unit to this section.' });
+                                        return;
+                                    }
+
+                                    if (editingSectionIndex !== null) {
+                                        // Update existing section
+                                        setSections(prev => {
+                                            const updated = [...prev];
+                                            updated[editingSectionIndex] = {
                                                 name: sectionData.sectionName,
                                                 units: sectionData.units
-                                            }]);
-                                        }
-                                        setIsAddingSection(false);
-                                        setSectionData({ sectionName: '', units: [] });
-                                        setEditingSectionIndex(null);
+                                            };
+                                            return updated;
+                                        });
                                     } else {
-                                        alert('Please enter a section name');
+                                        // Add new section
+                                        setSections(prev => [...prev, {
+                                            name: sectionData.sectionName,
+                                            units: sectionData.units
+                                        }]);
                                     }
+                                    setIsAddingSection(false);
+                                    setSectionData({ sectionName: '', units: [] });
+                                    setEditingSectionIndex(null);
                                 }}
                                 className="w-[160px] h-[50px] bg-[#C62828] hover:bg-[#B71C1C] text-white font-bold rounded-[10px] shadow-md transition-all text-lg"
                             >
