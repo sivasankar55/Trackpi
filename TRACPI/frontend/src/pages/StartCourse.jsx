@@ -125,113 +125,110 @@ const StartCourse = () => {
           </div>
         </section>
 
-        <div className='flex justify-between items-center mt-[30px] xl:mt-[50px] '>
-          <p className='font-bold text-[18px] xl:text-3xl leading-[100%] text-white roboto'>24 Hours Cycle</p>
+        <div className='flex justify-end items-center mt-[30px] xl:mt-[50px] mb-14 xl:mb-24'>
           <div className='flex flex-col xl:flex-row items-end xl:items-center gap-[10px]'>
             <button className='py-2 xl:py-3 px-4 xl:px-5 2xl:px-7.5 rounded-[40px] bg-[#FF9D00] font-medium text-[12px] xl:text-base cursor-pointer text-white roboto whitespace-nowrap' >Company Brochure</button>
             <button className='py-2 xl:py-3 px-4 xl:px-5 2xl:px-7.5 rounded-[40px] font-medium text-[12px] xl:text-base cursor-pointer text-white roboto whitespace-nowrap' style={{ backgroundColor: 'rgba(255, 157, 0, 0.5)', border: '1px solid rgba(255, 157, 0, 0.5)' }}>Watch Testimonials</button>
           </div>
         </div>
 
-        <section className="w-full flex flex-col items-center mt-10 mb-10">
-          <h2 className="text-white text-2xl font-normal mb-8 xl:mb-1 itim text-center">Course Completion Level</h2>
+        <section className="w-full flex flex-col items-center mt-10 mb-20">
 
-          <div className="flex flex-col xl:flex-row items-center justify-center gap-4 xl:gap-2 relative w-full" style={{ maxWidth: '1400px' }}>
 
-            {/* Mobile Top Row Wrapper: Signup -> Arrow -> My Course */}
-            <div className="flex flex-row items-center justify-center gap-2 xl:contents">
-              {/* Step 1: Signup */}
-              <button className='h-[59px] px-12.5 rounded-[30px] border-1 border-[#FF9D00] text-white text-2xl font-normal itim cursor-pointer'>Signup</button>
+          <div className="flex flex-col xl:flex-row items-center xl:items-center justify-center gap-10 xl:gap-6 w-full h-full" style={{ maxWidth: '1400px' }}>
 
-              {/* Arrow (Horizontal on both Mobile Top Row and Desktop) */}
+            {/* Left Side: Process Flow */}
+            <div className="flex flex-col xl:flex-row items-center xl:items-center gap-4 xl:gap-2">
+
+              {/* Mobile: Vertical Stack (Signup -> Arrow -> My Course) */}
+              <div className="flex flex-col xl:hidden items-center gap-1">
+                <p className='font-bold text-[18px] leading-[100%] text-white roboto mb-2'>24 Hours Cycle</p>
+                <button className='h-[59px] px-6 rounded-[30px] border-1 border-[#FF9D00] text-white text-xl font-normal itim cursor-pointer whitespace-nowrap'>Signup</button>
+                <div className="rotate-90 mt-10 mb-6"><ProgressArrow /></div>
+                <button className='h-[59px] px-6 rounded-[30px] border-1 border-[#FF9D00] text-white text-lg font-normal itim cursor-pointer whitespace-nowrap'>My Course</button>
+              </div>
+
+              {/* Desktop: Relative Wrapper (Signup Absolute above My Course) */}
+              <div className="hidden xl:flex relative flex-col items-center">
+                {/* Signup + Arrow Floating Above */}
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 flex flex-col items-center gap-0 pb-9">
+                  <p className='font-bold text-3xl leading-[100%] text-white roboto mb-4 whitespace-nowrap'>24 Hours Cycle</p>
+                  <button className='h-[59px] px-8 rounded-[30px] border-1 border-[#FF9D00] text-white text-2xl font-normal itim cursor-pointer whitespace-nowrap'>Signup</button>
+                  <div className="rotate-90 mt-10 mb-1"><ProgressArrow /></div>
+                </div>
+                {/* My Course (Static in Flow) */}
+                <button className='h-[59px] px-7.5 rounded-[30px] border-1 border-[#FF9D00] text-white text-[22px] font-normal itim cursor-pointer whitespace-nowrap'>My Course</button>
+              </div>
+
+              {/* Mobile Only: Curved Arrow */}
+              <div className="flex xl:hidden w-full justify-center pl-40 -mt-6 -mb-6">
+                <CurvedArrow />
+              </div>
+
+              {/* Desktop Only: Arrow */}
+              <div className="hidden xl:flex items-center justify-center">
+                <ProgressArrow />
+              </div>
+
+              {/* Step 3: Progress Circle */}
+              <div className="relative flex flex-col items-center my-2 xl:my-0">
+                <h2 className="text-white text-2xl font-normal mb-8 xl:absolute xl:bottom-full xl:mb-10 xl:left-1/2 xl:-translate-x-1/2 itim text-center whitespace-nowrap">Course Completion Level</h2>
+                <div className="relative flex flex-col items-center justify-center scale-90 xl:scale-100">
+                  <ProgressSVG percentage={percentage} />
+                </div>
+              </div>
+
+              {/* Arrow */}
               <div className="flex items-center justify-center">
-                {/* Mobile: Orange Arrow */}
-                <div className="xl:hidden">
-                  <ProgressArrow color="#FF9D00" />
+                <div className="hidden xl:block"><ProgressArrow /></div>
+                <div className="block xl:hidden"><VerticalArrow /></div>
+              </div>
+
+              {/* Step 4: Start Onboarding Process */}
+              <div className="relative flex flex-col items-center">
+                <div className="relative group flex flex-col items-center">
+                  <div className="flex flex-col rounded-[30px] border-2 border-[#FF9D00] px-7.5 py-2.5 text-white text-xl itim bg-black/60 shadow-lg opacity-70 cursor-pointer text-center" style={{ minWidth: 171, minHeight: 59, display: 'flex', alignItems: 'center', justifyContent: 'center', borderColor: '#FF9D00' }}>
+                    <p>Start Onboarding </p>
+                    <p>Process</p>
+                  </div>
+                  {/* Tooltip */}
+                  <div className="absolute w-[320px] top-full mt-2 bg-black text-white text-sm px-3 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10">
+                    Begin with pre-boarding activities like sending a welcome email, gathering paperwork, and setting up the workspace, followed by a structured orientation, training, and integration into the team and company culture.
+                  </div>
                 </div>
-                {/* Desktop: Default Grey Arrow */}
-                <div className="hidden xl:block">
-                  <ProgressArrow />
+
+                {/* Text under button */}
+                <div className="flex flex-col items-center mt-4 text-center xl:absolute xl:top-full xl:left-1/2 xl:-translate-x-1/2 xl:w-max">
+                  <span className="text-white text-lg roboto">Fill in offer letter details</span>
+                  <span className="text-white text-lg roboto">and get Approved</span>
                 </div>
               </div>
 
-              {/* Step 2: My Course */}
-              <button className='px-7.5 h-[59px] rounded-[30px] border-1 border-[#FF9D00] text-white text-[22px] font-normal itim cursor-pointer'>My Course</button>
             </div>
 
-            {/* Mobile Only: Curved Arrow connecting My Course to Progress */}
-            <div className="flex xl:hidden w-full justify-center pl-40 -mt-6 -mb-6">
-              <CurvedArrow />
-            </div>
 
-            {/* Desktop Only: Horizontal Arrow */}
-            <div className="hidden xl:flex items-center justify-center">
-              <ProgressArrow />
-            </div>
 
-            {/* Step 3: Progress Circle */}
-            <div className="flex flex-col items-center my-2 xl:my-0">
-              <div className="relative flex flex-col items-center justify-center scale-90 xl:scale-100">
-                {/* progress svg */}
-                <ProgressSVG percentage={percentage} />
+            {/* Right Side: Earn Money Text Only */}
+            <div className="flex flex-col items-center mt-4 xl:mt-0">
+              {/* Text */}
+              <div className="relative">
+                <p className='text-white text-4xl sm:text-6xl font-extrabold k2d text-center'
+                  style={{ letterSpacing: '0.05em' }}>EARN MONEY</p>
               </div>
             </div>
 
-            {/* Arrow */}
-            <div className="flex items-center justify-center">
-              <div className="hidden xl:block"><ProgressArrow /></div>
-              <div className="block xl:hidden"><VerticalArrow /></div>
-            </div>
-
-            {/* Step 4: Start Onboarding Process */}
-            <div className="flex flex-col items-center relative group">
-              <div className="flex flex-col rounded-[30px] border-2 border-[#FF9D00] px-7.5 py-2.5 text-white text-xl itim bg-black/60 shadow-lg opacity-70 cursor-pointer text-center" style={{ minWidth: 171, minHeight: 59, display: 'flex', alignItems: 'center', justifyContent: 'center', borderColor: '#FF9D00' }}>
-                <p>Start Onboarding </p>
-                <p>Process</p>
-              </div>
-              {/* Tooltip */}
-              <div className="absolute w-[320px] top-full mt-2 bg-black text-white text-sm px-3 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10">
-                Begin with pre-boarding activities like sending a welcome email, gathering paperwork, and setting up the workspace, followed by a structured orientation, training, and integration into the team and company culture.
-              </div>
-            </div>
-
-            {/* Right-side text (Mobile: Below Onboarding) */}
-            <div className="flex flex-col items-center ml-0 xl:ml-6 mt-4 xl:mt-0 text-center">
-              <span className="text-white text-lg roboto">Fill in offer letter details</span>
-              <span className="text-white text-lg roboto">and get Approved</span>
-            </div>
           </div>
-
-          {/* Mobile Only Arrow connecting to Earn Money */}
-          <div className="flex xl:hidden items-center justify-center mt-4">
-            <VerticalArrow />
-          </div>
-
         </section>
 
-        {/* start course and earn money */}
+        {/* Start Course Button Section (Moved back to bottom) */}
         <section className="w-full flex flex-col items-center pb-20">
-
-          {/* Mobile Order: Text First, then Button */}
-          <div className="flex flex-col-reverse xl:flex-col items-center gap-5 xl:gap-0">
-
-            {/* Button */}
-            <Link to='/course-section' className='py-5 px-12.5 rounded-[30px] text-white text-2xl font-bold k2d cursor-pointer z-10'
-              style={{
-                background: 'linear-gradient(103.71deg, #FF9D00 49.37%, #FFC100 49.39%)',
-                borderWidth: '1px',
-              }}>
-              Start Course
-            </Link>
-
-            {/* Text */}
-            <div className="relative md:mt-5">
-              <p className='text-white text-4xl sm:text-6xl font-extrabold k2d text-center'
-                style={{ letterSpacing: '0.05em', opacity: '0.5', backdropFilter: 'blur(10px)' }}>EARN MONEY</p>
-              {/* <img src={squreLock} alt="square lock" className='w-[36px] h-[35px] sm:w-[46px] sm:h-[45px] absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2' /> */}
-            </div>
-
-          </div>
+          <Link to='/course-section' className='py-5 px-12.5 rounded-[30px] text-white text-2xl font-bold k2d cursor-pointer z-10'
+            style={{
+              background: 'linear-gradient(103.71deg, #FF9D00 49.37%, #FFC100 49.39%)',
+              borderWidth: '1px',
+            }}>
+            Start Course
+          </Link>
         </section>
 
       </div>

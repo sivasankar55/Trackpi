@@ -50,6 +50,8 @@ const HeaderB = () => {
             <AlignJustify className="w-6 h-6" />
           </button>
         </nav>
+        {/* Divider Line */}
+        <div className="w-full h-[0.5px] bg-white/20"></div>
 
         {/* Mobile Sidebar Overlay */}
         <div className={`fixed inset-0 z-50 flex justify-end md:hidden transition-all duration-300 ${isSidebarOpen ? 'visible' : 'invisible'}`}>
