@@ -827,38 +827,35 @@ const SectionVideos = () => {
                 {/* Popup Overlay within the video area if ended */}
                 {showPopup && (
                   <div className="absolute inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center animate-in fade-in duration-500">
-                    <div className="text-center p-8 max-w-lg w-full">
-                      {/* <p className="text-white text-lg font-medium mb-8 leading-relaxed max-w-[340px] mx-auto">
-                        Would you like to continue to the next video or watch this one once more?
-                      </p> */}
-                      <p className="roboto text-white font-semibold text-[22px] leading-[30px] tracking-normal text-center max-w-[340px] mx-auto mb-8">
+                    <div className="text-center p-4 md:p-8 max-w-lg w-full">
+                      <p className="roboto text-white font-semibold text-[16px] md:text-[22px] leading-[22px] md:leading-[30px] tracking-normal text-center max-w-[340px] mx-auto mb-6 md:mb-8">
                         Would you like to continue to the next video or watch this one once more?
                       </p>
 
-                      <div className="flex flex-row items-center justify-center gap-4">
+                      <div className="flex flex-row items-center justify-center gap-2 md:gap-4 w-full">
                         <button
                           onClick={handlePlayAgain}
-                          className="flex items-center gap-2 px-6 py-2.5 rounded-[12px] border border-white/40 bg-white/5 hover:bg-white/10 transition-all text-sm font-semibold text-white"
+                          className="flex items-center justify-center gap-1.5 md:gap-2 flex-1 max-w-[140px] md:max-w-none px-2 md:px-6 py-2.5 rounded-[12px] border border-white/40 bg-white/5 hover:bg-white/10 transition-all text-[11px] md:text-sm font-semibold text-white whitespace-nowrap"
                         >
-                          <RotateCcw size={18} /> Play Again
+                          <RotateCcw size={14} className="md:w-[18px] md:h-[18px]" /> Play Again
                         </button>
                         {(() => {
                           const isLastVideo =
                             videos.indexOf(selectedVideo) === videos.length - 1;
                           if (isLastVideo) {
                             return (
-                              <div className="flex flex-row items-center justify-center gap-4">
+                              <div className="flex flex-row items-center justify-center gap-2 md:gap-4 flex-1">
                                 {isLastSection ? (
                                   <button
                                     onClick={handleTakeAssessment}
-                                    className="flex items-center gap-2 px-8 py-2.5 rounded-[12px] bg-[#FF9D00] hover:bg-[#E68900] text-black font-bold text-sm transition-all shadow-[0_4px_20px_rgba(255,157,0,0.3)]"
+                                    className="flex items-center justify-center gap-1.5 md:gap-2 w-full px-2 md:px-8 py-2.5 rounded-[12px] bg-[#FF9D00] hover:bg-[#E68900] text-black font-bold text-[11px] md:text-sm transition-all shadow-[0_4px_20px_rgba(255,157,0,0.3)] whitespace-nowrap"
                                   >
                                     Unlock Assessment
                                   </button>
                                 ) : (
                                   <button
                                     onClick={handleUnlockAssessment}
-                                    className="flex items-center gap-2 px-8 py-2.5 rounded-[12px] bg-[#FF9D00] hover:bg-[#E68900] text-black font-bold text-sm transition-all shadow-[0_4px_20px_rgba(255,157,0,0.3)]"
+                                    className="flex items-center justify-center gap-1.5 md:gap-2 w-full px-2 md:px-8 py-2.5 rounded-[12px] bg-[#FF9D00] hover:bg-[#E68900] text-black font-bold text-[11px] md:text-sm transition-all shadow-[0_4px_20px_rgba(255,157,0,0.3)] whitespace-nowrap"
                                   >
                                     Go to Next Session
                                   </button>
@@ -869,10 +866,9 @@ const SectionVideos = () => {
                           return (
                             <button
                               onClick={handlePlayNext}
-                              className="flex items-center gap-2 px-8 py-2.5 rounded-[12px] bg-[#FF9D00] hover:bg-[#E68900] text-black font-bold text-sm transition-all shadow-[0_4px_20px_rgba(255,157,0,0.3)]"
+                              className="flex items-center justify-center gap-1.5 md:gap-2 flex-1 max-w-[140px] md:max-w-none px-2 md:px-8 py-2.5 rounded-[12px] bg-[#FF9D00] hover:bg-[#E68900] text-black font-bold text-[11px] md:text-sm transition-all shadow-[0_4px_20px_rgba(255,157,0,0.3)] whitespace-nowrap"
                             >
-                              <Play size={18} className="fill-black" /> Play
-                              Next
+                              <Play size={14} className="fill-black md:w-[18px] md:h-[18px]" /> Play Next
                             </button>
                           );
                         })()}

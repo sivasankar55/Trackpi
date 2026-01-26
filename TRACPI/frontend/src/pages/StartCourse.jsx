@@ -8,6 +8,8 @@ import CurvedArrow from '../components/CurvedArrow';
 import squreLock from '../assets/square-lock-02.png'
 import { AuthContext } from '../context/AuthContext';
 import { ProgressContext } from '../context/ProgressContext';
+import Arrow22 from '../assets/Arrow 22.png'
+import Arrow19 from '../assets/Arrow 19.png'
 import axios from 'axios';
 
 const StartCourse = () => {
@@ -125,10 +127,13 @@ const StartCourse = () => {
           </div>
         </section>
 
-        <div className='flex justify-end items-center mt-[30px] xl:mt-[50px] mb-14 xl:mb-24'>
-          <div className='flex flex-col xl:flex-row items-end xl:items-center gap-[10px]'>
-            <button className='py-2 xl:py-3 px-4 xl:px-5 2xl:px-7.5 rounded-[40px] bg-[#FF9D00] font-medium text-[12px] xl:text-base cursor-pointer text-white roboto whitespace-nowrap' >Company Brochure</button>
-            <button className='py-2 xl:py-3 px-4 xl:px-5 2xl:px-7.5 rounded-[40px] font-medium text-[12px] xl:text-base cursor-pointer text-white roboto whitespace-nowrap' style={{ backgroundColor: 'rgba(255, 157, 0, 0.5)', border: '1px solid rgba(255, 157, 0, 0.5)' }}>Watch Testimonials</button>
+        <div className='flex justify-between xl:justify-end items-center mt-[30px] xl:mt-[50px] mb-14 xl:mb-24 w-full'>
+          {/* Mobile Only: 24 Hours Cycle Heading */}
+          <p className='xl:hidden font-extrabold text-[18px] sm:text-[24px] leading-[100%] text-white roboto'>24 Hours Cycle</p>
+
+          <div className='flex flex-col xl:flex-row items-end xl:items-center gap-[6px] sm:gap-[10px]'>
+            <button className='py-2 px-4 sm:px-5 rounded-[40px] bg-[#FF9D00] font-medium text-[11px] sm:text-[14px] xl:text-base cursor-pointer text-white roboto whitespace-nowrap' >Company Brochure</button>
+            <button className='py-2 px-4 sm:px-5 rounded-[40px] font-medium text-[11px] sm:text-[14px] xl:text-base cursor-pointer text-white roboto whitespace-nowrap' style={{ backgroundColor: 'rgba(255, 157, 0, 0.5)', border: '1px solid rgba(255, 157, 0, 0.5)' }}>Watch Testimonials</button>
           </div>
         </div>
 
@@ -140,12 +145,22 @@ const StartCourse = () => {
             {/* Left Side: Process Flow */}
             <div className="flex flex-col xl:flex-row items-center xl:items-center gap-4 xl:gap-2">
 
-              {/* Mobile: Vertical Stack (Signup -> Arrow -> My Course) */}
-              <div className="flex flex-col xl:hidden items-center gap-1">
-                <p className='font-bold text-[18px] leading-[100%] text-white roboto mb-2'>24 Hours Cycle</p>
-                <button className='h-[59px] px-6 rounded-[30px] border-1 border-[#FF9D00] text-white text-xl font-normal itim cursor-pointer whitespace-nowrap'>Signup</button>
-                <div className="rotate-90 mt-10 mb-6"><ProgressArrow /></div>
-                <button className='h-[59px] px-6 rounded-[30px] border-1 border-[#FF9D00] text-white text-lg font-normal itim cursor-pointer whitespace-nowrap'>My Course</button>
+              {/* Mobile: Horizontal Flow (Signup -> Arrow -> My Course) */}
+              <div className="flex flex-col xl:hidden items-center gap-4 sm:gap-6 mb-8 w-full">
+                <h2 className="text-white text-xl sm:text-2xl font-normal itim text-center whitespace-nowrap">Course Completion Level</h2>
+                <div className="flex items-center gap-1 sm:gap-3">
+                  <button className='h-[45px] sm:h-[59px] min-w-[110px] sm:min-w-[140px] px-6 sm:px-8 rounded-[30px] border-1 border-[#FF9D00] text-white text-base sm:text-xl font-normal itim cursor-pointer whitespace-nowrap'>Signup</button>
+                  <div className="shrink-0">
+                    <img src={Arrow19} alt="Arrow" className="w-[50px] sm:w-[70px] h-auto object-contain" />
+                  </div>
+                  <div className="relative">
+                    <button className='h-[45px] sm:h-[59px] min-w-[110px] sm:min-w-[140px] px-6 sm:px-8 rounded-[30px] border-1 border-[#FF9D00] text-white text-base sm:text-lg font-normal itim cursor-pointer whitespace-nowrap'>My Course</button>
+                    {/* Mobile Only: Curved Arrow starting from exact center of My Course */}
+                    <div className="absolute top-[105%] right-[35%] z-0 pointer-events-none">
+                      <CurvedArrow />
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {/* Desktop: Relative Wrapper (Signup Absolute above My Course) */}
@@ -154,25 +169,24 @@ const StartCourse = () => {
                 <div className="absolute bottom-full left-1/2 -translate-x-1/2 flex flex-col items-center gap-0 pb-9">
                   <p className='font-bold text-3xl leading-[100%] text-white roboto mb-4 whitespace-nowrap'>24 Hours Cycle</p>
                   <button className='h-[59px] px-8 rounded-[30px] border-1 border-[#FF9D00] text-white text-2xl font-normal itim cursor-pointer whitespace-nowrap'>Signup</button>
-                  <div className="rotate-90 mt-10 mb-1"><ProgressArrow /></div>
+                  <div className="mt-10 mb-1">
+                    <img src={Arrow19} alt="Arrow" className="w-[100px] h-auto object-contain rotate-90" />
+                  </div>
                 </div>
                 {/* My Course (Static in Flow) */}
                 <button className='h-[59px] px-7.5 rounded-[30px] border-1 border-[#FF9D00] text-white text-[22px] font-normal itim cursor-pointer whitespace-nowrap'>My Course</button>
               </div>
 
-              {/* Mobile Only: Curved Arrow */}
-              <div className="flex xl:hidden w-full justify-center pl-40 -mt-6 -mb-6">
-                <CurvedArrow />
-              </div>
+
 
               {/* Desktop Only: Arrow */}
               <div className="hidden xl:flex items-center justify-center">
-                <ProgressArrow />
+                <img src={Arrow19} alt="Arrow" className="w-[90px] h-auto object-contain" />
               </div>
 
               {/* Step 3: Progress Circle */}
-              <div className="relative flex flex-col items-center my-2 xl:my-0">
-                <h2 className="text-white text-2xl font-normal mb-8 xl:absolute xl:bottom-full xl:mb-10 xl:left-1/2 xl:-translate-x-1/2 itim text-center whitespace-nowrap">Course Completion Level</h2>
+              <div className="relative flex flex-col items-center mt-2 mb-0 xl:my-0">
+                <h2 className="hidden xl:block text-white text-2xl font-normal mb-8 xl:absolute xl:bottom-full xl:mb-10 xl:left-1/2 xl:-translate-x-1/2 itim text-center whitespace-nowrap">Course Completion Level</h2>
                 <div className="relative flex flex-col items-center justify-center scale-90 xl:scale-100">
                   <ProgressSVG percentage={percentage} />
                 </div>
@@ -180,8 +194,12 @@ const StartCourse = () => {
 
               {/* Arrow */}
               <div className="flex items-center justify-center">
-                <div className="hidden xl:block"><ProgressArrow /></div>
-                <div className="block xl:hidden"><VerticalArrow /></div>
+                <div className="hidden xl:block">
+                  <img src={Arrow19} alt="Arrow" className="w-[90px] h-auto object-contain" />
+                </div>
+                <div className="block xl:hidden mt-[-35px]">
+                  <img src={Arrow22} alt="Arrow" className="w-[30px] h-auto object-contain" />
+                </div>
               </div>
 
               {/* Step 4: Start Onboarding Process */}
@@ -201,6 +219,10 @@ const StartCourse = () => {
                 <div className="flex flex-col items-center mt-4 text-center xl:absolute xl:top-full xl:left-1/2 xl:-translate-x-1/2 xl:w-max">
                   <span className="text-white text-lg roboto">Fill in offer letter details</span>
                   <span className="text-white text-lg roboto">and get Approved</span>
+                  {/* Mobile Only: Arrow pointing to Earn Money section */}
+                  <div className="block xl:hidden mt-4 mb-[-20px] relative z-20">
+                    <img src={Arrow22} alt="Arrow" className="w-[30px] h-auto object-contain" />
+                  </div>
                 </div>
               </div>
 
@@ -209,7 +231,7 @@ const StartCourse = () => {
 
 
             {/* Right Side: Earn Money Text Only */}
-            <div className="flex flex-col items-center mt-4 xl:mt-0">
+            <div className="flex flex-col items-center mt-0 xl:mt-0">
               {/* Text */}
               <div className="relative">
                 <p className='text-white text-4xl sm:text-6xl font-extrabold k2d text-center'
