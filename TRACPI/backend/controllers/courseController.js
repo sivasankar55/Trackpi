@@ -1,6 +1,8 @@
 import Course from '../models/Course.js';
 import Section from '../models/Section.js';
 import Enrollment from '../models/Enrollment.js';
+import User from '../models/User.js';
+import UserProgress from '../models/UserProgress.js';
 
 /**
  * Extremely robust parser that handles:
@@ -293,12 +295,14 @@ export const updateCourseById = async (req, res) => {
 export const deleteCourseById = async (req, res) => {
   try {
     const course = await Course.findByIdAndDelete(req.params.id);
-    if (!course) return res.status(404).json({ error: 'Course not found' });
+    // Also delete associated sections, enrollments, and progress
+    await Promise.all([
+      Section.deleteMany({ course: req.params.id }),
+      Enrollment.deleteMany({ course: req.params.id }),
+      UserProgress.deleteMany({ course: req.params.id })
+    ]);
 
-    // Also delete associated sections
-    await Section.deleteMany({ course: req.params.id });
-
-    res.json({ message: 'Course and related sections deleted' });
+    res.json({ message: 'Course and all associated data deleted' });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -307,19 +311,48 @@ export const deleteCourseById = async (req, res) => {
 export const getAllCoursesWithGlobalStats = async (req, res) => {
   try {
     const courses = await Course.find().populate('sections');
-    const allEnrollments = await Enrollment.find();
+    const allUsers = await User.find();
+    const allEnrollments = await Enrollment.find().populate('user');
 
     const globalStats = {
-      totalEnrolled: allEnrollments.length,
+      totalEnrolled: allUsers.length,
       notStarted: 0,
       completed: 0,
       inProgress: 0
     };
 
-    allEnrollments.forEach(e => {
-      if (e.progress === 0) globalStats.notStarted++;
-      else if (e.progress === 100) globalStats.completed++;
-      else globalStats.inProgress++;
+    const validCourseIds = courses.map(c => c._id.toString());
+    const totalCourseCount = validCourseIds.length;
+
+    allUsers.forEach(user => {
+      const userIdStr = user._id.toString();
+      // Filter enrollments for this user and only for courses that actually exist
+      const userEnrollments = allEnrollments.filter(e =>
+        e.user &&
+        e.user._id.toString() === userIdStr &&
+        e.course &&
+        validCourseIds.includes(e.course.toString())
+      );
+
+      if (totalCourseCount === 0) {
+        globalStats.notStarted++;
+        return;
+      }
+
+      const completedCount = userEnrollments.filter(e => e.progress === 100).length;
+      const hasFinishedAll = (totalCourseCount > 0) && (completedCount === totalCourseCount);
+
+      if (hasFinishedAll) {
+        globalStats.completed++;
+      } else {
+        // InProgress if they have started at least one existing course OR if they have completed some but not all
+        const hasStartedAny = userEnrollments.some(e => e.progress > 0);
+        if (hasStartedAny) {
+          globalStats.inProgress++;
+        } else {
+          globalStats.notStarted++;
+        }
+      }
     });
 
     const coursesWithStats = courses.map(course => {
