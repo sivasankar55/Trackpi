@@ -5,7 +5,7 @@ function AssessmentMaxAttemptsPopup({ onGoBack }) {
     return (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-[2px] px-4">
             <div
-                className="relative w-full max-w-[950px] h-auto rounded-[30px] py-[30px] px-[40px] md:py-[40px] md:px-[60px] text-white flex flex-col items-center justify-center overflow-hidden shadow-2xl"
+                className="relative w-full max-w-[950px] h-auto max-h-[90vh] rounded-[30px] py-[30px] px-[40px] md:py-[40px] md:px-[60px] text-white flex flex-col items-center justify-center overflow-y-auto shadow-2xl"
                 style={{
                     background: "linear-gradient(262.57deg, #3F280D 0.01%, #070B20 100.01%)",
                 }}
@@ -21,7 +21,7 @@ function AssessmentMaxAttemptsPopup({ onGoBack }) {
                     <div className="mb-5 max-w-[700px]">
                         <p className="text-base md:text-[20px] font-semibold leading-relaxed">
                             You have reached the maximum number of assessment attempts for this section.
-                            <br />
+                            <br className="hidden md:block" />
                             Please contact our team to unlock more chances.
                         </p>
                     </div>
@@ -54,3 +54,5 @@ function AssessmentMaxAttemptsPopup({ onGoBack }) {
 }
 
 export default AssessmentMaxAttemptsPopup;
+
+

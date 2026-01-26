@@ -10,10 +10,10 @@ function AssessmentFailedPopup({ wrongAnswers = [], onGoBack, onRetake }) {
         }}
       >
         <div className="text-center ml-1">
-         <h2 className="text-xl  md:text-2xl font-bold flex items-center justify-center gap-2">
-  <span className="not-italic  font-sans">⚠️</span>
-  Assessment Not Passed
-</h2>
+          <h2 className="text-xl  md:text-2xl font-bold flex items-center justify-center gap-2">
+            <span className="not-italic  font-sans">⚠️</span>
+            Assessment Not Passed
+          </h2>
 
           <p className="mt-2 text-sm md:text-base">
             Thanks for taking the assessment.
