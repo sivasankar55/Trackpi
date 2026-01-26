@@ -63,28 +63,23 @@ export const markVideoWatched = async (req, res) => {
     progress.unitComplete = allWatched;
     progress.sectionComplete = allWatched;
 
-    // Update course progress by checking ALL sections in the course
+    // Update course progress granularly by averaging the progress of ALL sections
     const allSectionsInCourse = await Section.find({ course: courseId });
-    let completedSectionsCount = 0;
+    let totalProgressSum = 0;
 
     for (const s of allSectionsInCourse) {
-      if (s.units.length === 0) {
-        completedSectionsCount++;
-        continue;
-      }
-      // Check if user has a completion record for this specific section
       const sProgress = await UserProgress.findOne({
         user: userId,
         course: courseId,
         section: s._id
       });
-      if (sProgress && sProgress.sectionComplete) {
-        completedSectionsCount++;
+      if (sProgress) {
+        totalProgressSum += (sProgress.sectionProgress || 0);
       }
     }
 
     progress.courseProgress = allSectionsInCourse.length > 0
-      ? Math.round((completedSectionsCount / allSectionsInCourse.length) * 100)
+      ? Math.round(totalProgressSum / allSectionsInCourse.length)
       : 0;
 
     await progress.save();
@@ -272,17 +267,17 @@ export const submitAssessment = async (req, res) => {
     // but progress.courseProgress is already updated in markVideoWatched.
     // However, if completion depends on assessment, we should update it here.
 
-    // Recalculate course progress if needed (optional but recommended)
+    // Recalculate course progress granularly
     const allSectionsInCourse = await Section.find({ course: courseId });
-    let completedSectionsCount = 0;
+    let totalProgressSum = 0;
     for (const s of allSectionsInCourse) {
       const sProgress = await UserProgress.findOne({ user: userId, course: courseId, section: s._id });
-      if (sProgress && sProgress.sectionComplete && (sProgress.sectionAssessment?.passed || !course.questions?.length)) {
-        completedSectionsCount++;
+      if (sProgress) {
+        totalProgressSum += (sProgress.sectionProgress || 0);
       }
     }
     const courseProgress = allSectionsInCourse.length > 0
-      ? Math.round((completedSectionsCount / allSectionsInCourse.length) * 100)
+      ? Math.round(totalProgressSum / allSectionsInCourse.length)
       : 0;
 
     await Enrollment.findOneAndUpdate(

@@ -20,9 +20,9 @@ const ProgressTracking = () => {
   const itemsPerPage = 10;
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchData = async (showLoading = true) => {
       try {
-        setLoading(true);
+        if (showLoading) setLoading(true);
         const response = await axios.get('http://localhost:5000/api/courses/stats-with-courses', {
           withCredentials: true
         });
@@ -33,11 +33,14 @@ const ProgressTracking = () => {
         console.error('Error fetching progress data:', err);
         setError('Failed to load live data. Please try again later.');
       } finally {
-        setLoading(false);
+        if (showLoading) setLoading(false);
       }
     };
 
     fetchData();
+    // Background polling every 30 seconds for live data reflection
+    const interval = setInterval(() => fetchData(false), 30000);
+    return () => clearInterval(interval);
   }, []);
 
   const filteredCourses = courses.filter(course =>

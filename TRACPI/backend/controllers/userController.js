@@ -135,11 +135,16 @@ export const deleteUser = async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    // Also delete user's enrollments
-    await Enrollment.deleteMany({ user: id });
+    // Also delete user's enrollments and progress
+    await Promise.all([
+      Enrollment.deleteMany({ user: id }),
+      UserProgress.deleteMany({ user: id })
+    ]);
 
+    console.log(`User ${id} and all associated data deleted`);
     res.json({ message: 'User deleted successfully' });
   } catch (error) {
+    console.error('Error deleting user:', error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -151,7 +156,8 @@ export const getAllUsers = async (req, res) => {
 
     // Get enrollment details for each user
     const usersWithEnrollments = await Promise.all(users.map(async (user) => {
-      const enrollments = await Enrollment.find({ user: user._id });
+      const rawEnrollments = await Enrollment.find({ user: user._id }).populate('course');
+      const enrollments = rawEnrollments.filter(e => e.course !== null);
       const enrollmentCount = enrollments.length;
       const maxProgress = enrollmentCount > 0
         ? Math.max(...enrollments.map(e => e.progress || 0))
@@ -229,8 +235,9 @@ export const getUserFullDetails = async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    // Get enrollments with course details
-    const enrollments = await Enrollment.find({ user: id }).populate('course');
+    // Get enrollments with course details and filter out orphaned ones
+    const rawEnrollments = await Enrollment.find({ user: id }).populate('course');
+    const enrollments = rawEnrollments.filter(e => e.course !== null);
 
     // Get all progress documents for this user
     const progressDocs = await UserProgress.find({ user: id })
