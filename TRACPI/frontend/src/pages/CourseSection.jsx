@@ -7,6 +7,7 @@ import '../components/css/WaveAnimation.css'
 import { ProgressContext } from '../context/ProgressContext'
 import { AuthContext } from '../context/AuthContext'
 import AssessmentFirstPopup from './AssessmentFirstPopup'
+import AssessmentMaxAttemptsPopup from './AssessmentMaxAttemptsPopup'
 import CourseDetailPopup from '../components/CourseDetailPopup'
 import '../components/css/CourseDetailPopup.css'
 import techThumb from '../assets/tech.jpg'
@@ -40,6 +41,7 @@ const CourseSection = () => {
   const [timeLimit, setTimeLimit] = useState(60);
   const [searchQuery, setSearchQuery] = useState("");
   const [showDetailPopup, setShowDetailPopup] = useState(false);
+  const [showMaxAttemptsPopup, setShowMaxAttemptsPopup] = useState(false);
   const [detailCourse, setDetailCourse] = useState(null);
   const [activeTab, setActiveTab] = useState('courses');
 
@@ -209,13 +211,17 @@ const CourseSection = () => {
         headers: { Authorization: `Bearer ${token}` }
       });
       const attempts = res.data.assessment?.attempts || 0;
-      setAttemptsLeft(ASSESSMENT_MAX_ATTEMPTS - attempts);
+      const totalAllowed = res.data.assessment?.maxAttempts || 5;
+
+      // Format as "Used / Total" (e.g., "5/10")
+      setAttemptsLeft(`${attempts}/${totalAllowed}`);
+
       setNumQuestions(res.data.numQuestions || 0);
       setCurrentCourseName(res.data.courseName || "");
       console.log("Fetched section progress, timeLimit:", res.data.timeLimit);
       setTimeLimit(res.data.timeLimit || 60);
     } catch {
-      setAttemptsLeft(ASSESSMENT_MAX_ATTEMPTS);
+      setAttemptsLeft(`0/5`);
       setNumQuestions(0);
       setCurrentCourseName("");
       setTimeLimit(60);
@@ -229,6 +235,14 @@ const CourseSection = () => {
   };
 
   const handleStartAssessment = () => {
+    // Check if attempts are exhausted
+    // attemptsLeft is in format "Used/Total"
+    const [used, total] = String(attemptsLeft).split('/').map(Number);
+    if (used >= total) {
+      setShowMaxAttemptsPopup(true);
+      return;
+    }
+
     setShowAssessmentPopup(false);
     if (popupSection) {
       navigate(`/assessment/${selectedCourse}/${popupSection._id}`);
@@ -479,6 +493,15 @@ const CourseSection = () => {
         <CourseDetailPopup
           course={detailCourse}
           onClose={() => setShowDetailPopup(false)}
+        />
+      )}
+
+      {showMaxAttemptsPopup && (
+        <AssessmentMaxAttemptsPopup
+          onGoBack={() => {
+            setShowMaxAttemptsPopup(false);
+            setShowAssessmentPopup(false);
+          }}
         />
       )}
 

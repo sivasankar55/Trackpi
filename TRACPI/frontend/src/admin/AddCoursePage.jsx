@@ -909,7 +909,7 @@ const AddCoursePage = () => {
                     onClose={() => setErrorPopup({ ...errorPopup, show: false })}
                 />
             </div>
-        </div>
+        </div >
     );
 };
 
