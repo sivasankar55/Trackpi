@@ -68,7 +68,8 @@ const CourseProgressDetails = () => {
         .filter(item => {
             const matchesSearch = (item.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 item.username?.toLowerCase().includes(searchTerm.toLowerCase()));
-            const matchesTab = activeTab === 'completed' ? item.progress === 100 : item.progress < 100;
+            const isCompleted = item.progress === 100 && item.passedAssessment;
+            const matchesTab = activeTab === 'completed' ? isCompleted : !isCompleted;
             const matchesFilter = filterOption === 'suspended' ? item.status === 'suspended' : true;
             return matchesSearch && matchesTab && matchesFilter;
         })
@@ -230,7 +231,7 @@ const CourseProgressDetails = () => {
                         : 'bg-[#FFF9E5] text-black/40 border-b border-[#FFB300]/30 hover:bg-[#FFF1CF]'
                         }`}
                 >
-                    Completed users ({allData.filter(d => d.progress === 100).length})
+                    Completed users ({allData.filter(d => d.progress === 100 && d.passedAssessment).length})
                 </button>
                 <button
                     onClick={() => { setActiveTab('inprogress'); setCurrentPage(1); }}
@@ -239,7 +240,7 @@ const CourseProgressDetails = () => {
                         : 'bg-[#FFF9E5] text-black/40 border-b border-[#FFB300]/30 hover:bg-[#FFF1CF]'
                         }`}
                 >
-                    In Progress users ({allData.filter(d => d.progress < 100).length})
+                    In Progress users ({allData.filter(d => !(d.progress === 100 && d.passedAssessment)).length})
                 </button>
             </div>
 
@@ -274,11 +275,11 @@ const CourseProgressDetails = () => {
                             <div className="text-gray-600 italic">{item.courseName}</div>
                             <div className="text-gray-500 text-sm">{item.startDate}</div>
                             <div className="flex justify-center flex-col items-center">
-                                <span className={`font-bold text-xs px-3 py-1 rounded-full ${item.progress === 100 ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
-                                    {item.progress === 100 ? 'COMPLETED' : `${item.progress}% DONE`}
+                                <span className={`font-bold text-xs px-3 py-1 rounded-full ${item.progress === 100 && item.passedAssessment ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
+                                    {item.progress === 100 && item.passedAssessment ? 'COMPLETED' : `${item.progress}% DONE`}
                                 </span>
                                 <div className="w-24 h-1.5 bg-gray-100 rounded-full mt-2 overflow-hidden">
-                                    <div className={`h-full transition-all duration-1000 ${item.progress === 100 ? 'bg-green-500' : 'bg-blue-500'}`} style={{ width: `${item.progress}%` }}></div>
+                                    <div className={`h-full transition-all duration-1000 ${item.progress === 100 && item.passedAssessment ? 'bg-green-500' : 'bg-blue-500'}`} style={{ width: `${item.progress}%` }}></div>
                                 </div>
                             </div>
                         </div>

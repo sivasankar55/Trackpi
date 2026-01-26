@@ -158,9 +158,9 @@ const UserDetails = () => {
                     <div className="flex-1 space-y-6">
 
 
-                        <div className="border border-[#FFB300] rounded-[20px] sm:rounded-[25px] overflow-hidden bg-white shadow-xl overflow-x-auto">
+                        <div className="border border-[#FFB300] rounded-[24px] overflow-hidden bg-white shadow-[0px_8px_30px_rgba(0,0,0,0.04)] overflow-x-auto">
                             <table className="w-full border-separate border-spacing-0 min-w-[600px]">
-                                <thead className="bg-[#FFB300] text-white">
+                                <thead className="bg-[#FF9D00] text-white">
                                     <tr>
                                         <th className="px-4 sm:px-6 py-4 sm:py-5 text-left font-bold text-[15px] sm:text-[17px] tracking-wide">Course Name</th>
                                         <th className="px-4 sm:px-6 py-4 sm:py-5 text-left font-bold text-[15px] sm:text-[17px] tracking-wide">Starting Date</th>
@@ -177,9 +177,9 @@ const UserDetails = () => {
                                             <tr
                                                 key={course._id || `course-${idx}`}
                                                 onClick={() => setSelectedCourse(course)}
-                                                className={`cursor-pointer group transition-all duration-200 hover:shadow-inner ${selectedCourse?._id === course._id ? 'bg-[#FFF1CF]' : idx % 2 === 0 ? 'bg-[#FFF9E1]' : 'bg-white'}`}
+                                                className={`cursor-pointer group transition-all duration-300 border-b border-[#FFB300]/10 ${selectedCourse?._id === course._id ? 'bg-[#FFF2D9]' : idx % 2 === 0 ? 'bg-[#FFFAF0]' : 'bg-white'}`}
                                             >
-                                                <td className="px-4 sm:px-6 py-4 sm:py-5 border-b border-gray-100 group-hover:bg-[#FFF4D5]">
+                                                <td className="px-4 sm:px-6 py-4 sm:py-5 group-hover:bg-[#FFF8EC] transition-colors">
                                                     <div className="flex items-center gap-3 sm:gap-4">
                                                         <div className={`w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full border-2 transition-all flex items-center justify-center shrink-0 ${selectedCourse?._id === course._id ? 'bg-[#FF9D00] border-[#FF9D00]' : 'border-[#FFB300]'}`}>
                                                             {selectedCourse?._id === course._id && <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-white"></div>}
@@ -187,16 +187,16 @@ const UserDetails = () => {
                                                         <span className="font-bold text-gray-800 text-sm sm:text-[16px]">{course.name}</span>
                                                     </div>
                                                 </td>
-                                                <td className="px-4 sm:px-6 py-4 sm:py-5 text-gray-600 font-bold border-b border-gray-100 group-hover:bg-[#FFF4D5] text-sm sm:text-base whitespace-nowrap">
-                                                    {course.startDate ? dayjs(course.startDate).format('MMM DD,YYYY') : '-------'}
+                                                <td className="px-4 sm:px-6 py-4 sm:py-5 text-gray-600 font-bold group-hover:bg-[#FFF8EC] text-sm sm:text-base whitespace-nowrap">
+                                                    {course.startDate ? dayjs(course.startDate).format('MMM DD, YYYY') : '-------'}
                                                 </td>
-                                                <td className="px-4 sm:px-6 py-4 sm:py-5 text-gray-600 font-bold border-b border-gray-100 group-hover:bg-[#FFF4D5] text-sm sm:text-base whitespace-nowrap">
-                                                    {course.endDate ? dayjs(course.endDate).format('MMM DD,YYYY') : '-------'}
+                                                <td className="px-4 sm:px-6 py-4 sm:py-5 text-gray-600 font-bold group-hover:bg-[#FFF8EC] text-sm sm:text-base whitespace-nowrap">
+                                                    {course.endDate ? dayjs(course.endDate).format('MMM DD, YYYY') : '-------'}
                                                 </td>
-                                                <td className="px-4 sm:px-6 py-4 sm:py-5 text-center font-black text-gray-800 border-b border-gray-100 group-hover:bg-[#FFF4D5] text-sm sm:text-base">
+                                                <td className="px-4 sm:px-6 py-4 sm:py-5 text-center font-black text-gray-800 group-hover:bg-[#FFF8EC] text-sm sm:text-base">
                                                     {course.score ? `${course.score}%` : '---'}
                                                 </td>
-                                                <td className="px-4 sm:px-6 py-4 sm:py-5 text-center text-gray-600 font-bold border-b border-gray-100 group-hover:bg-[#FFF4D5] text-sm sm:text-base whitespace-nowrap">
+                                                <td className="px-4 sm:px-6 py-4 sm:py-5 text-center text-gray-600 font-bold group-hover:bg-[#FFF8EC] text-sm sm:text-base whitespace-nowrap">
                                                     {course.duration}
                                                 </td>
                                             </tr>
