@@ -14,17 +14,12 @@
   
 
   .progress-bar-container {
-    width: 260px;
-    margin: 32px auto 0 auto;
+    width: 100%;
   }
   .progress-bar {
-    width: 260px;
-    height: 150px;
-    border-radius: 100px;
-    background: #0A0A0A;
-    overflow: hidden;
+    width: 100%;
     position: relative;
-    box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+    overflow: hidden;
   }
   #wave {
     position: absolute;
