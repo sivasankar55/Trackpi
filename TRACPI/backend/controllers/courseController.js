@@ -321,12 +321,13 @@ export const getAllCoursesWithGlobalStats = async (req, res) => {
       inProgress: 0
     };
 
+    const allUserProgress = await UserProgress.find();
+
     const validCourseIds = courses.map(c => c._id.toString());
     const totalCourseCount = validCourseIds.length;
 
     allUsers.forEach(user => {
       const userIdStr = user._id.toString();
-      // Filter enrollments for this user and only for courses that actually exist
       const userEnrollments = allEnrollments.filter(e =>
         e.user &&
         e.user._id.toString() === userIdStr &&
@@ -339,15 +340,28 @@ export const getAllCoursesWithGlobalStats = async (req, res) => {
         return;
       }
 
-      const completedCount = userEnrollments.filter(e => e.progress === 100).length;
-      const hasFinishedAll = (totalCourseCount > 0) && (completedCount === totalCourseCount);
+      // Check for completion across ALL courses
+      let allFinishedAndPassed = userEnrollments.length === totalCourseCount;
+      if (allFinishedAndPassed) {
+        for (const e of userEnrollments) {
+          const courseRef = courses.find(c => c._id.toString() === e.course.toString());
+          const hasQuestions = courseRef?.questions?.length > 0;
+          const userRecords = allUserProgress.filter(up => up.user.toString() === userIdStr && up.course.toString() === e.course.toString());
+          const passedAny = userRecords.some(up => up.sectionAssessment?.passed);
 
-      if (hasFinishedAll) {
+          if (e.progress < 100 || (hasQuestions && !passedAny)) {
+            allFinishedAndPassed = false;
+            break;
+          }
+        }
+      }
+
+      if (allFinishedAndPassed) {
         globalStats.completed++;
       } else {
-        // InProgress if they have started at least one existing course OR if they have completed some but not all
-        const hasStartedAny = userEnrollments.some(e => e.progress > 0);
-        if (hasStartedAny) {
+        const hasFootprint = userEnrollments.some(e => e.progress > 0) ||
+          allUserProgress.some(up => up.user.toString() === userIdStr && validCourseIds.includes(up.course.toString()));
+        if (hasFootprint) {
           globalStats.inProgress++;
         } else {
           globalStats.notStarted++;
@@ -356,10 +370,27 @@ export const getAllCoursesWithGlobalStats = async (req, res) => {
     });
 
     const coursesWithStats = courses.map(course => {
-      const courseEnrollments = allEnrollments.filter(e => e.course.toString() === course._id.toString());
+      const courseIdStr = course._id.toString();
+      const courseEnrollments = allEnrollments.filter(e => e.course.toString() === courseIdStr);
+      const hasQuestions = course.questions && course.questions.length > 0;
 
-      const completedCount = courseEnrollments.filter(e => e.progress === 100).length;
-      const inProgressCount = courseEnrollments.filter(e => e.progress > 0 && e.progress < 100).length;
+      const completedCount = courseEnrollments.filter(e => {
+        const userProgress = allUserProgress.filter(up => up.user.toString() === e.user?._id?.toString() && up.course.toString() === courseIdStr);
+        const passedAsmt = hasQuestions ? userProgress.some(up => up.sectionAssessment?.passed) : true;
+        return e.progress === 100 && passedAsmt;
+      }).length;
+
+      const inProgressCount = courseEnrollments.length - completedCount;
+      // Note: we can refine inProgressCount to only those with >0 progress if needed, 
+      // but keeping it simple for now based on card UI needs. 
+      // UI usually wants (Total - Completed) or specifically Started.
+      // Re-filtering for accuracy with the Card UI which shows 'InProgress' specifically:
+      const startedButNotFinished = courseEnrollments.filter(e => {
+        const userProgress = allUserProgress.filter(up => up.user.toString() === e.user?._id?.toString() && up.course.toString() === courseIdStr);
+        const isFinished = e.progress === 100 && (hasQuestions ? userProgress.some(up => up.sectionAssessment?.passed) : true);
+        const hasStarted = e.progress > 0 || userProgress.length > 0;
+        return hasStarted && !isFinished;
+      }).length;
 
       let totalUnits = 0;
       if (course.sections) {
@@ -382,7 +413,7 @@ export const getAllCoursesWithGlobalStats = async (req, res) => {
         ...course.toObject(),
         stats: {
           completed: completedCount,
-          inProgress: inProgressCount
+          inProgress: startedButNotFinished
         },
         duration: duration
       };

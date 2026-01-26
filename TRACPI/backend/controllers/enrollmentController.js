@@ -47,16 +47,27 @@ export const getCourseUsersProgress = async (req, res) => {
     const allSections = await Section.find({ course: courseId });
     const sectionCount = allSections.length;
 
+    const course = await Course.findById(courseId);
+    if (!course) return res.status(404).json({ error: 'Course not found' });
+    const hasQuestions = course.questions && course.questions.length > 0;
+
     const progressData = await Promise.all(enrollments.map(async (e) => {
-      // Recalculate granular progress on-the-fly for real-time accuracy
       const userProgressRecords = await UserProgress.find({ user: e.user?._id, course: courseId });
+
       let totalSectionProgress = 0;
+      let passedAsmt = false;
+
       userProgressRecords.forEach(up => {
         totalSectionProgress += up.sectionProgress || 0;
+        if (up.sectionAssessment?.passed) passedAsmt = true;
       });
+
       const granularProgress = sectionCount > 0 ? Math.round(totalSectionProgress / sectionCount) : 0;
 
-      // Self-heal: Update the record in the database if it was stuck at 0 or a jumpy value
+      // If no questions, they pass by finishing the videos
+      const assessmentStatus = hasQuestions ? passedAsmt : true;
+
+      // Self-heal: Update the record in the database
       if (e.progress !== granularProgress) {
         e.progress = granularProgress;
         await e.save();
@@ -69,6 +80,7 @@ export const getCourseUsersProgress = async (req, res) => {
         startDate: e.enrollmentDate ? new Date(e.enrollmentDate).toLocaleDateString() : 'N/A',
         rawDate: e.enrollmentDate,
         progress: granularProgress,
+        passedAssessment: assessmentStatus,
         userId: e.user?._id,
         status: e.user?.status || 'active'
       };
