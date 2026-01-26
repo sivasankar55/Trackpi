@@ -182,29 +182,29 @@ const Assessment = () => {
         totalPages={fetchedQuestions.length}
       />
 
-      {/* Header */}
-      <div className="absolute w-[88.6vw] h-[3.89vh] top-[33.87vh] left-[6vw] flex justify-between">
-        <div className="text-[1.25vw] font-semibold max-[768px]:text-[14px]">
+      {/* Header - Absolute on Desktop, Relative on Mobile */}
+      <div className="md:absolute w-full md:w-[88.6vw] h-auto md:h-[3.89vh] md:top-[33.87vh] md:left-[6vw] flex flex-row justify-between items-center px-[6vw] md:px-0 mt-10 md:mt-0">
+        <div className="text-[12px] sm:text-[18px] md:text-[1.25vw] font-bold">
           {result ? (
             <>Out of <span className="text-yellow-500 font-bold">{result.score}</span> / {result.total} Questions</>
           ) : (
             <>Question {currentPage} / {fetchedQuestions.length}</>
           )}
         </div>
-        <div className="text-[1.25vw] font-semibold max-[768px]:text-[14px]">
+        <div className="text-[12px] sm:text-[18px] md:text-[1.25vw] font-bold">
           Time Remaining: {formatTime(timeLeft)}
         </div>
       </div>
 
-      {/* Question Body */}
-      <div className="absolute w-[88.6vw] left-[90px] top-[330px] flex flex-col gap-[50px]">
+      {/* Question Body - Absolute on Desktop, Relative on Mobile */}
+      <div className="md:absolute w-full md:w-[88.6vw] px-[6vw] md:px-0 md:left-[90px] md:top-[420px] lg:top-[330px] flex flex-col gap-[30px] md:gap-[50px] mt-10 md:mt-0 pb-32">
         {currentQuestion && (
           <>
-            <div className="text-[1.25vw] font-semibold max-[768px]:text-[16px]">
+            <div className="text-[16px] sm:text-[20px] md:text-[1.25vw] font-bold leading-relaxed">
               {currentPage}) {currentQuestion.question}
             </div>
 
-            <div className="grid grid-cols-2 gap-y-[5vh] gap-x-[5vw] max-[768px]:grid-cols-1">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-y-[3vh] md:gap-y-[5vh] gap-x-[5vw]">
               {currentQuestion.options.map((option, idx) => {
                 const optionLabel = String.fromCharCode(65 + idx);
                 const isSelected = selectedOptions[currentPage] === idx;
@@ -212,14 +212,16 @@ const Assessment = () => {
                   <div
                     key={idx}
                     onClick={() => handleOptionSelect(idx)}
-                    className="flex items-center gap-[1.56vw] cursor-pointer text-[1.11vw] max-[768px]:text-[15px]"
+                    className="flex items-center gap-[1.56vw] cursor-pointer text-[15px] md:text-[1.11vw]"
                   >
                     <button
-                      className={`w-[1.5vw] h-[3.1vh] rounded-full border-[3px] transition-colors duration-200 ${isSelected
+                      className={`w-[20px] h-[20px] md:w-[1.5vw] md:h-[1.5vw] rounded-full border-2 md:border-[3px] transition-colors duration-200 flex-shrink-0 ${isSelected
                         ? 'border-yellow-500 bg-yellow-500'
                         : 'border-white bg-transparent'
-                        } max-[768px]:w-[20px] max-[768px]:h-[20px]`}
-                    ></button>
+                        }`}
+                    >
+                      {isSelected && <div className="w-full h-full border-2 border-black rounded-full"></div>}
+                    </button>
                     <p>
                       {optionLabel})&nbsp;&nbsp;{option}
                     </p>
@@ -231,11 +233,11 @@ const Assessment = () => {
         )}
       </div>
 
-      {/* Navigation Buttons */}
-      <div className="absolute top-[83.51vh] left-[39vw] flex gap-[2vw] max-[768px]:top-[100vh] max-[768px]:left-[5vw] max-[768px]:w-[90vw]">
+      {/* Navigation Buttons - Absolute on Desktop, Centered Bottom on Mobile */}
+      <div className="fixed bottom-10 left-1/2 -translate-x-1/2 md:translate-x-0 md:absolute md:top-[83.51vh] md:left-[39vw] flex gap-[4vw] md:gap-[2vw] w-[90vw] md:w-auto justify-center">
         <button
           onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-          className="border border-white w-[10vw] h-[5.5vh] flex items-center justify-center rounded-full text-white transition-all duration-300 hover:scale-105 active:scale-95 hover:bg-white/10 max-[768px]:w-[43%] max-[768px]:h-[45px]"
+          className="border border-white w-[140px] md:w-[10vw] h-11 md:h-[5.5vh] flex items-center justify-center rounded-full text-white transition-all duration-300 hover:scale-105 active:scale-95 hover:bg-white/10"
         >
           Previous
         </button>
@@ -243,14 +245,14 @@ const Assessment = () => {
           <button
             onClick={() => handleSubmit(false)}
             disabled={submitting}
-            className="bg-yellow-500 text-black w-[10vw] h-[5.5vh] flex items-center justify-center rounded-full border border-white transition-all duration-300 hover:scale-105 active:scale-95 hover:bg-yellow-400 max-[768px]:w-[43%] max-[768px]:h-[45px] font-bold shadow-lg"
+            className="bg-yellow-500 text-black w-[140px] md:w-[10vw] h-11 md:h-[5.5vh] flex items-center justify-center rounded-full border border-white transition-all duration-300 hover:scale-105 active:scale-95 hover:bg-yellow-400 font-bold shadow-lg"
           >
             {submitting ? "Submitting..." : "Submit"}
           </button>
         ) : (
           <button
             onClick={() => setCurrentPage((prev) => Math.min(prev + 1, fetchedQuestions.length))}
-            className="bg-yellow-500 text-black w-[10vw] h-[5.5vh] flex items-center justify-center rounded-full border border-white transition-all duration-300 hover:scale-105 active:scale-95 hover:bg-yellow-400 max-[768px]:w-[43%] max-[768px]:h-[45px]"
+            className="bg-yellow-500 text-black w-[140px] md:w-[10vw] h-11 md:h-[5.5vh] flex items-center justify-center rounded-full border border-white transition-all duration-300 hover:scale-105 active:scale-95 hover:bg-yellow-400 font-bold"
           >
             Next
           </button>
@@ -302,3 +304,5 @@ const Assessment = () => {
 };
 
 export default Assessment;
+
+
