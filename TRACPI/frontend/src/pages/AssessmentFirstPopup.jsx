@@ -67,7 +67,7 @@ function AssessmentFirstPopup({ maxAttempts, onButtonClick, courseName, numQuest
 
               <div className="flex flex-col items-center justify-center gap-2 h-[70px] md:h-[118px] border border-[#303030] rounded-[10px] px-4 md:px-[40px] py-3 md:py-[15px] text-center">
                 <p className="font-medium text-sm md:text-base">
-                  Number of attempts left
+                  Assessment Attempts
                 </p>
                 <p className="text-xl md:text-3xl font-bold">{maxAttempts}</p>
               </div>

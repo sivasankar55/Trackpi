@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 
 const sectionAssessmentSchema = new mongoose.Schema({
   attempts: { type: Number, default: 0 },
+  maxAttempts: { type: Number, default: 5 },
   score: { type: Number, default: 0 },
   passed: { type: Boolean, default: false },
   timeSpent: { type: Number, default: 0 }, // in minutes

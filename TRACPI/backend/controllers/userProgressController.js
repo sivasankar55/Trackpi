@@ -160,8 +160,9 @@ export const startAssessment = async (req, res) => {
     }
 
     // Check attempts
-    if (progress.sectionAssessment && progress.sectionAssessment.attempts >= 5) {
-      return res.status(400).json({ error: 'Maximum assessment attempts reached.' });
+    const currentMax = progress.sectionAssessment?.maxAttempts || 5;
+    if (progress.sectionAssessment && progress.sectionAssessment.attempts >= currentMax) {
+      return res.status(400).json({ error: `Maximum assessment attempts (${currentMax}) reached.` });
     }
 
     // Fetch questions and timeLimit from Course model
@@ -208,8 +209,9 @@ export const submitAssessment = async (req, res) => {
     }
 
     // Check attempts
-    if (progress.sectionAssessment && progress.sectionAssessment.attempts >= 5) {
-      return res.status(400).json({ error: 'Maximum assessment attempts reached.' });
+    const currentMax = progress.sectionAssessment?.maxAttempts || 5;
+    if (progress.sectionAssessment && progress.sectionAssessment.attempts >= currentMax) {
+      return res.status(400).json({ error: `Maximum assessment attempts (${currentMax}) reached.` });
     }
 
     // Fetch correct answers and timeLimit from Course model
@@ -567,14 +569,20 @@ export const resetAttempts = async (req, res) => {
     const userObjectId = new mongoose.Types.ObjectId(userId);
     const courseObjectId = new mongoose.Types.ObjectId(courseId);
 
-    // Reset attempts for all sections in this course for this user
+    // Increase maxAttempts by 5 as requested, but do NOT reset the current attempts count
     const result = await UserProgress.updateMany(
       { user: userObjectId, course: courseObjectId },
-      { $set: { 'sectionAssessment.attempts': 0 } }
+      [
+        {
+          $set: {
+            'sectionAssessment.maxAttempts': { $add: [{ $ifNull: ['$sectionAssessment.maxAttempts', 5] }, 5] }
+          }
+        }
+      ]
     );
 
     res.json({
-      message: `Successfully reset attempts for ${result.modifiedCount} sections.`,
+      message: `Successfully added 5 bonus attempts for ${result.modifiedCount} sections.`,
       modifiedCount: result.modifiedCount
     });
   } catch (error) {
