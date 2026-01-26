@@ -132,7 +132,7 @@ const StartCourse = () => {
           <p className='xl:hidden font-extrabold text-[18px] sm:text-[24px] leading-[100%] text-white roboto'>24 Hours Cycle</p>
 
           <div className='flex flex-col xl:flex-row items-end xl:items-center gap-[6px] sm:gap-[10px]'>
-            <button className='py-2 px-4 sm:px-5 rounded-[40px] bg-[#FF9D00] font-medium text-[11px] sm:text-[14px] xl:text-base cursor-pointer text-white roboto whitespace-nowrap' >Company Brochure</button>
+            <button className='py-2 px-4 sm:px-5 rounded-[40px] bg-[#FFB700] font-medium text-[11px] sm:text-[14px] xl:text-base cursor-pointer text-white roboto whitespace-nowrap' >Company Brochure</button>
             <button className='py-2 px-4 sm:px-5 rounded-[40px] font-medium text-[11px] sm:text-[14px] xl:text-base cursor-pointer text-white roboto whitespace-nowrap' style={{ backgroundColor: 'rgba(255, 157, 0, 0.5)', border: '1px solid rgba(255, 157, 0, 0.5)' }}>Watch Testimonials</button>
           </div>
         </div>
@@ -149,12 +149,12 @@ const StartCourse = () => {
               <div className="flex flex-col xl:hidden items-center gap-4 sm:gap-6 mb-8 w-full">
                 <h2 className="text-white text-xl sm:text-2xl font-normal itim text-center whitespace-nowrap">Course Completion Level</h2>
                 <div className="flex items-center gap-1 sm:gap-3">
-                  <button className='h-[45px] sm:h-[59px] min-w-[110px] sm:min-w-[140px] px-6 sm:px-8 rounded-[30px] border-1 border-[#FF9D00] text-white text-base sm:text-xl font-normal itim cursor-pointer whitespace-nowrap'>Signup</button>
+                  <button className='h-[45px] sm:h-[59px] min-w-[110px] sm:min-w-[140px] px-6 sm:px-8 rounded-[30px] border-1 border-[#FFB700] text-white text-base sm:text-xl font-normal itim cursor-pointer whitespace-nowrap'>Signup</button>
                   <div className="shrink-0">
                     <img src={Arrow19} alt="Arrow" className="w-[50px] sm:w-[70px] h-auto object-contain" />
                   </div>
                   <div className="relative">
-                    <button className='h-[45px] sm:h-[59px] min-w-[110px] sm:min-w-[140px] px-6 sm:px-8 rounded-[30px] border-1 border-[#FF9D00] text-white text-base sm:text-lg font-normal itim cursor-pointer whitespace-nowrap'>My Course</button>
+                    <button className='h-[45px] sm:h-[59px] min-w-[110px] sm:min-w-[140px] px-6 sm:px-8 rounded-[30px] border-1 border-[#FFB700] text-white text-base sm:text-lg font-normal itim cursor-pointer whitespace-nowrap'>My Course</button>
                     {/* Mobile Only: Curved Arrow starting from exact center of My Course */}
                     <div className="absolute top-[105%] right-[35%] z-0 pointer-events-none">
                       <CurvedArrow />
@@ -168,13 +168,13 @@ const StartCourse = () => {
                 {/* Signup + Arrow Floating Above */}
                 <div className="absolute bottom-full left-1/2 -translate-x-1/2 flex flex-col items-center gap-0 pb-9">
                   <p className='font-bold text-3xl leading-[100%] text-white roboto mb-4 whitespace-nowrap'>24 Hours Cycle</p>
-                  <button className='h-[59px] px-8 rounded-[30px] border-1 border-[#FF9D00] text-white text-2xl font-normal itim cursor-pointer whitespace-nowrap'>Signup</button>
+                  <button className='h-[59px] px-8 rounded-[30px] border-1 border-[#FFB700] text-white text-2xl font-normal itim cursor-pointer whitespace-nowrap'>Signup</button>
                   <div className="mt-10 mb-1">
                     <img src={Arrow19} alt="Arrow" className="w-[100px] h-auto object-contain rotate-90" />
                   </div>
                 </div>
                 {/* My Course (Static in Flow) */}
-                <button className='h-[59px] px-7.5 rounded-[30px] border-1 border-[#FF9D00] text-white text-[22px] font-normal itim cursor-pointer whitespace-nowrap'>My Course</button>
+                <button className='h-[59px] px-7.5 rounded-[30px] border-1 border-[#FFB700] text-white text-[22px] font-normal itim cursor-pointer whitespace-nowrap'>My Course</button>
               </div>
 
 
@@ -205,7 +205,7 @@ const StartCourse = () => {
               {/* Step 4: Start Onboarding Process */}
               <div className="relative flex flex-col items-center">
                 <div className="relative group flex flex-col items-center">
-                  <div className="flex flex-col rounded-[30px] border-2 border-[#FF9D00] px-7.5 py-2.5 text-white text-xl itim bg-black/60 shadow-lg opacity-70 cursor-pointer text-center" style={{ minWidth: 171, minHeight: 59, display: 'flex', alignItems: 'center', justifyContent: 'center', borderColor: '#FF9D00' }}>
+                  <div className="flex flex-col rounded-[30px] border-2 border-[#FFB700] px-7.5 py-2.5 text-white text-xl itim bg-black/60 shadow-lg opacity-70 cursor-pointer text-center" style={{ minWidth: 171, minHeight: 59, display: 'flex', alignItems: 'center', justifyContent: 'center', borderColor: '#FFB700' }}>
                     <p>Start Onboarding </p>
                     <p>Process</p>
                   </div>

@@ -552,7 +552,7 @@ const SectionVideos = () => {
     return (
       <div className="flex items-center justify-center min-h-screen text-white bg-[#040508]">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-[#FF9D00] border-t-transparent rounded-full animate-spin"></div>
+          <div className="w-12 h-12 border-4 border-[#FFB700] border-t-transparent rounded-full animate-spin"></div>
           <p className="text-lg font-medium">Loading Content...</p>
         </div>
       </div>
@@ -565,7 +565,7 @@ const SectionVideos = () => {
         <p className="text-gray-400 mb-8 max-w-md">{error}</p>
         <button
           onClick={() => window.location.reload()}
-          className="px-8 py-3 bg-[#FF9D00] text-black font-bold rounded-xl hover:bg-[#E68900] transition-all"
+          className="px-8 py-3 bg-[#FFB700] text-black font-bold rounded-xl hover:bg-[#E68900] transition-all"
         >
           Try Again
         </button>
@@ -597,7 +597,7 @@ const SectionVideos = () => {
               placeholder="Search..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-[#1A1A1A] text-white pl-10 pr-4 py-2.5 rounded-[12px] border border-[#333] focus:border-[#FF9D00] outline-none text-sm transition-all"
+              className="w-full bg-[#1A1A1A] text-white pl-10 pr-4 py-2.5 rounded-[12px] border border-[#333] focus:border-[#FFB700] outline-none text-sm transition-all"
             />
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 w-4 h-4" />
           </div>
@@ -625,7 +625,7 @@ const SectionVideos = () => {
                   onClick={() => !locked && setSelectedVideo(video)}
                   className={`relative flex gap-4 p-3 rounded-[16px] border transition-all cursor-pointer group overflow-hidden
                         ${isSelected
-                      ? 'bg-[#1A1A1A] border-[#FF9D00] shadow-[0_0_15px_rgba(255,157,0,0.1)]'
+                      ? 'bg-[#1A1A1A] border-[#FFB700] shadow-[0_0_15px_rgba(255,157,0,0.1)]'
                       : 'bg-[#0A0A0A] border-[#333] hover:border-gray-500'
                     }
                         ${locked ? 'cursor-not-allowed' : ''}
@@ -645,18 +645,18 @@ const SectionVideos = () => {
 
                     <div
                       className={`absolute inset-0 flex items-center justify-center transition-all duration-300 ${isSelected
-                        ? 'bg-[#FF9D00]/20'
+                        ? 'bg-[#FFB700]/20'
                         : 'bg-black/40 group-hover:bg-black/20'
                         }`}
                     >
                       {locked ? (
-                        <div className="w-8 h-8 rounded-full flex items-center justify-center bg-black/40 backdrop-blur-md border border-[#FF9D00]/40 shadow-[0_0_15px_rgba(0,0,0,0.4)] transition-all group-hover:scale-110">
-                          <Lock size={14} className="text-[#FF9D00] drop-shadow-[0_0_5px_rgba(255,157,0,0.4)]" />
+                        <div className="w-8 h-8 rounded-full flex items-center justify-center bg-black/40 backdrop-blur-md border border-[#FFB700]/40 shadow-[0_0_15px_rgba(0,0,0,0.4)] transition-all group-hover:scale-110">
+                          <Lock size={14} className="text-[#FFB700] drop-shadow-[0_0_5px_rgba(255,157,0,0.4)]" />
                         </div>
                       ) : (
                         <div
                           className={`w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/30 ${isSelected
-                            ? 'bg-[#FF9D00] border-none'
+                            ? 'bg-[#FFB700] border-none'
                             : 'bg-black/40 group-hover:scale-110 transition-transform'
                             }`}
                         >
@@ -674,8 +674,8 @@ const SectionVideos = () => {
                   <div className="flex flex-col justify-center flex-1 min-w-0">
                     <h4
                       className={`text-sm font-semibold mb-1 truncate transition-colors ${isSelected
-                        ? 'text-[#FF9D00]'
-                        : 'text-white group-hover:text-[#FF9D00]'
+                        ? 'text-[#FFB700]'
+                        : 'text-white group-hover:text-[#FFB700]'
                         }`}
                     >
                       {video.unitName}
@@ -710,8 +710,9 @@ const SectionVideos = () => {
                     onClick={togglePlay}
                     className="absolute inset-0 z-10 flex items-center justify-center bg-black/30 cursor-pointer group-hover/player:bg-black/40 transition-all text-white"
                   >
-                    <div className="w-20 h-20 rounded-full border-2 border-white flex items-center justify-center pl-1 bg-black/40 backdrop-blur-sm hover:scale-110 transition-transform">
-                      <Play size={40} className="fill-white" />
+                    <div className="w-12 h-12 sm:w-20 sm:h-20 rounded-full border-2 border-white flex items-center justify-center pl-1 bg-black/40 backdrop-blur-sm hover:scale-110 transition-transform">
+                      <Play size={24} className="sm:hidden fill-white" />
+                      <Play size={40} className="hidden sm:block fill-white" />
                     </div>
                   </div>
                 )}
@@ -741,9 +742,9 @@ const SectionVideos = () => {
                     onInput={handleSeek}
                     onMouseDown={onSeekMouseDown}
                     onMouseUp={onSeekMouseUp}
-                    className="w-full h-1 rounded-lg appearance-none cursor-pointer accent-[#FF9D00] mb-4 hover:h-1.5 transition-all"
+                    className="w-full h-1 rounded-lg appearance-none cursor-pointer accent-[#FFB700] mb-4 hover:h-1.5 transition-all"
                     style={{
-                      background: `linear-gradient(to right, #FF9D00 ${duration > 0 ? (currentTime / duration) * 100 : 0
+                      background: `linear-gradient(to right, #FFB700 ${duration > 0 ? (currentTime / duration) * 100 : 0
                         }%, rgba(255, 255, 255, 0.1) ${duration > 0 ? (currentTime / duration) * 100 : 0
                         }%)`
                     }}
@@ -754,7 +755,7 @@ const SectionVideos = () => {
                       {/* Play/Pause Small */}
                       <button
                         onClick={togglePlay}
-                        className="hover:text-[#FF9D00] transition-colors"
+                        className="hover:text-[#FFB700] transition-colors"
                       >
                         {isPlaying ? (
                           <Pause size={24} className="fill-current" />
@@ -766,7 +767,7 @@ const SectionVideos = () => {
                       {/* Rewatch */}
                       <button
                         onClick={startRewatch}
-                        className="hover:text-[#FF9D00] transition-colors"
+                        className="hover:text-[#FFB700] transition-colors"
                         title="Rewatch"
                       >
                         <RotateCcw size={20} />
@@ -787,7 +788,7 @@ const SectionVideos = () => {
                       >
                         <button
                           onClick={toggleMute}
-                          className="hover:text-[#FF9D00] transition-colors"
+                          className="hover:text-[#FFB700] transition-colors"
                         >
                           {isMuted || volume === 0 ? (
                             <VolumeX size={20} />
@@ -804,7 +805,7 @@ const SectionVideos = () => {
                             step="0.1"
                             value={isMuted ? 0 : volume}
                             onChange={handleVolumeChange}
-                            className="w-full h-1 rounded-lg appearance-none cursor-pointer accent-[#FF9D00] bg-white/20"
+                            className="w-full h-1 rounded-lg appearance-none cursor-pointer accent-[#FFB700] bg-white/20"
                           />
                         </div>
                       </div>
@@ -813,7 +814,7 @@ const SectionVideos = () => {
                     {/* Fullscreen */}
                     <button
                       onClick={toggleFullScreen}
-                      className="hover:text-[#FF9D00] transition-colors"
+                      className="hover:text-[#FFB700] transition-colors"
                     >
                       {isFullScreen ? (
                         <Minimize size={24} />
@@ -848,14 +849,14 @@ const SectionVideos = () => {
                                 {isLastSection ? (
                                   <button
                                     onClick={handleTakeAssessment}
-                                    className="flex items-center justify-center gap-1.5 md:gap-2 w-full px-2 md:px-8 py-2.5 rounded-[12px] bg-[#FF9D00] hover:bg-[#E68900] text-black font-bold text-[11px] md:text-sm transition-all shadow-[0_4px_20px_rgba(255,157,0,0.3)] whitespace-nowrap"
+                                    className="flex items-center justify-center gap-1.5 md:gap-2 w-full px-2 md:px-8 py-2.5 rounded-[12px] bg-[#FFB700] hover:bg-[#E68900] text-black font-bold text-[11px] md:text-sm transition-all shadow-[0_4px_20px_rgba(255,157,0,0.3)] whitespace-nowrap"
                                   >
                                     Unlock Assessment
                                   </button>
                                 ) : (
                                   <button
                                     onClick={handleUnlockAssessment}
-                                    className="flex items-center justify-center gap-1.5 md:gap-2 w-full px-2 md:px-8 py-2.5 rounded-[12px] bg-[#FF9D00] hover:bg-[#E68900] text-black font-bold text-[11px] md:text-sm transition-all shadow-[0_4px_20px_rgba(255,157,0,0.3)] whitespace-nowrap"
+                                    className="flex items-center justify-center gap-1.5 md:gap-2 w-full px-2 md:px-8 py-2.5 rounded-[12px] bg-[#FFB700] hover:bg-[#E68900] text-black font-bold text-[11px] md:text-sm transition-all shadow-[0_4px_20px_rgba(255,157,0,0.3)] whitespace-nowrap"
                                   >
                                     Go to Next Session
                                   </button>
@@ -866,7 +867,7 @@ const SectionVideos = () => {
                           return (
                             <button
                               onClick={handlePlayNext}
-                              className="flex items-center justify-center gap-1.5 md:gap-2 flex-1 max-w-[140px] md:max-w-none px-2 md:px-8 py-2.5 rounded-[12px] bg-[#FF9D00] hover:bg-[#E68900] text-black font-bold text-[11px] md:text-sm transition-all shadow-[0_4px_20px_rgba(255,157,0,0.3)] whitespace-nowrap"
+                              className="flex items-center justify-center gap-1.5 md:gap-2 flex-1 max-w-[140px] md:max-w-none px-2 md:px-8 py-2.5 rounded-[12px] bg-[#FFB700] hover:bg-[#E68900] text-black font-bold text-[11px] md:text-sm transition-all shadow-[0_4px_20px_rgba(255,157,0,0.3)] whitespace-nowrap"
                             >
                               <Play size={14} className="fill-black md:w-[18px] md:h-[18px]" /> Play Next
                             </button>

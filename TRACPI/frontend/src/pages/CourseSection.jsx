@@ -270,11 +270,11 @@ const CourseSection = () => {
   return (
 
     <div className="course-section-wrapper">
-      <section className='container-search px-5 '>
-        <div className='flex justify-between mt-5'>
-          <h1 className='text-white font-bold text-2xl roboto'>Courses</h1>
-          <div className='relative '>
-            <i className='fa fa-search text-[#B3B6B6] text-[18px] absolute left-3 top-1/2 transform -translate-y-1/2'></i>
+      <section className='container-search px-5'>
+        <div className='flex flex-row justify-between items-center gap-2 mt-5'>
+          <h1 className='text-white font-bold text-xl sm:text-2xl roboto whitespace-nowrap'>Courses</h1>
+          <div className='relative w-auto max-w-[160px] sm:max-w-none'>
+            <i className='fa fa-search text-[#B3B6B6] text-[14px] sm:text-[18px] absolute left-3 top-1/2 transform -translate-y-1/2'></i>
             <input
               type="search"
               name="search"
@@ -282,7 +282,7 @@ const CourseSection = () => {
               placeholder='Search...'
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className='rounded-[15px] w-50 px-13.5 py-1.5 text-3 font-medium bg-transparent text-white roboto border border-[#333] focus:border-[#FF9D00] outline-none'
+              className='rounded-[15px] w-full sm:w-64 px-8 sm:px-10 py-1.5 text-[12px] sm:text-[14px] font-medium bg-transparent text-white roboto border border-[#333] focus:border-[#FFB700] outline-none'
             />
           </div>
         </div>
@@ -326,7 +326,7 @@ const CourseSection = () => {
                         setShowDetailPopup(true);
                       }
                     }}
-                    className={`relative rounded-[10px] border ${selectedCourse === course._id ? 'border-[#FF9D00]' : 'border-[#333]'} h-full min-w-[250px] overflow-hidden transition-all duration-300 hover:scale-105 ${isUnlocked ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+                    className={`relative rounded-[10px] border ${selectedCourse === course._id ? 'border-[#FFB700]' : 'border-[#333]'} h-full min-w-[250px] overflow-hidden transition-all duration-300 hover:scale-105 ${isUnlocked ? 'cursor-pointer' : 'cursor-not-allowed'}`}
                     style={{
                       backgroundImage: `linear-gradient(180deg, rgba(10, 10, 10, 0) 40%, rgba(10,10,10, 0.9) 80%), url(${course.courseImage || techThumb})`,
                       backgroundSize: 'cover',
@@ -366,19 +366,19 @@ const CourseSection = () => {
 
       {/* Toggle Buttons (Courses / Assessment) */}
       {!loading && sections.length > 0 && (
-        <div className="my-5 px-5 flex justify-between gap-5 lg:justify-end">
+        <div className="my-5 px-5 flex justify-center sm:justify-end gap-3 sm:gap-5">
           <button
-            className={`rounded-[40px] px-12.5 py-3 font-medium sm:text-base roboto transition-all ${activeTab === 'courses' ? 'bg-[#FF9D00] text-white shadow-[0_4px_15px_rgba(255,157,0,0.2)]' : 'border border-[#FF9D00] text-[#FF9D00] hover:bg-[#FF9D00]/10'}`}
+            className={`rounded-[40px] w-[140px] h-[45px] sm:w-[200px] sm:h-[50px] flex items-center justify-center font-medium text-[14px] sm:text-base roboto transition-all ${activeTab === 'courses' ? 'bg-[#FFB700] text-white shadow-[0_4px_15px_rgba(255,157,0,0.2)]' : 'border border-[#FFB700] text-[#FFB700] hover:bg-[#FFB700]/10'}`}
             onClick={() => setActiveTab('courses')}
           >
             Courses
           </button>
           <button
-            className={`rounded-[40px] px-12.5 py-3 font-medium sm:text-base roboto transition-all ${activeTab === 'assessment'
-              ? 'bg-[#FF9D00] text-white shadow-[0_4px_15px_rgba(255,157,0,0.2)]'
+            className={`rounded-[40px] w-[140px] h-[45px] sm:w-[200px] sm:h-[50px] flex items-center justify-center font-medium text-[14px] sm:text-base roboto transition-all ${activeTab === 'assessment'
+              ? 'bg-[#FFB700] text-white shadow-[0_4px_15px_rgba(255,157,0,0.2)]'
               : allSectionsComplete
-                ? 'border border-[#FF9D00] text-[#FF9D00] hover:bg-[#FF9D00]/10'
-                : 'opacity-50 cursor-not-allowed border border-[#FF9D00] text-[#FF9D00]'
+                ? 'border border-[#FFB700] text-[#FFB700] hover:bg-[#FFB700]/10'
+                : 'opacity-50 cursor-not-allowed border border-[#FFB700] text-[#FFB700]'
               }`}
             onClick={() => {
               if (!allSectionsComplete) {
@@ -398,7 +398,7 @@ const CourseSection = () => {
       )}
 
       {/* Sections Grid */}
-      <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 px-5 mb-10'>
+      <div className='grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-4 lg:gap-6 px-2 lg:px-5 mb-10 w-full max-w-full'>
         {sections.filter(s => s.sectionName.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 ? (
           <div className="col-span-full text-center text-white py-20">No sections found matching "{searchQuery}"</div>
         ) : (
@@ -422,28 +422,28 @@ const CourseSection = () => {
               return (
                 <div
                   key={section._id}
-                  className={`progress-bar-container relative transform transition-transform duration-300 ${isLocked ? 'cursor-not-allowed opacity-70' : 'cursor-pointer hover:scale-105'}`}
+                  className={`progress-bar-container w-full relative transform transition-transform duration-300 ${isLocked ? 'cursor-not-allowed opacity-70' : 'cursor-pointer hover:scale-105'}`}
                   onClick={() => !isLocked && navigate(`/courses/${selectedCourse}/sections/${section._id}`)}
                 >
-                  <div className="progress-bar relative flex flex-col items-center justify-center py-8 bg-[#0F0F0F]">
+                  <div className="progress-bar w-full relative flex flex-col items-center justify-center h-[90px] min-[400px]:h-[110px] sm:h-[150px] bg-[#0F0F0F] rounded-full overflow-hidden">
                     {/* Lock Overlay */}
                     {isLocked && (
-                      <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/40 rounded-[20px]">
-                        <img src={squareLock} alt="Locked" className="w-10 h-10" />
+                      <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/40">
+                        <img src={squareLock} alt="Locked" className="w-8 h-8 sm:w-10 sm:h-10" />
                       </div>
                     )}
 
                     {/* Section number in background */}
-                    <span className="absolute top-4 left-4 text-[70px] leading-none text-white/5 font-bold select-none start-0 z-0">{i + 1}</span>
+                    <span className="absolute top-2 left-2 sm:top-4 sm:left-4 text-[60px] sm:text-[80px] leading-none text-white/10 font-bold select-none z-0">{i + 1}</span>
 
                     {/* Content */}
-                    <div className="z-10 text-center w-full px-2">
-                      <h3 className="text-xl sm:text-2xl font-bold text-white mb-2 truncate">{section.sectionName}</h3>
+                    <div className="z-10 text-center w-full px-1">
+                      <h3 className="text-[14px] sm:text-2xl font-bold text-white mb-1 sm:mb-2 truncate lowercase first-letter:uppercase px-2">{section.sectionName}</h3>
 
-                      <div className="flex items-center justify-center gap-2 text-sm text-gray-300 font-medium">
-                        <span>{section.units ? section.units.length : 0} Videos</span>
-                        <span className="text-[#FF9D00]">|</span>
-                        <span>30 Min</span>
+                      <div className="flex items-center justify-center gap-1 sm:gap-2 text-[10px] sm:text-sm text-gray-300 font-medium pb-2">
+                        <span className="whitespace-nowrap">{section.units ? section.units.length : 0} Videos</span>
+                        <span className="text-[#FFB700]">|</span>
+                        <span className="whitespace-nowrap">30 Min</span>
                       </div>
                     </div>
 
@@ -451,10 +451,8 @@ const CourseSection = () => {
                     <svg
                       id={`wave-${section._id}`}
                       viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
-                      width={WIDTH}
-                      height={HEIGHT}
                       preserveAspectRatio="none"
-                      className="absolute bottom-0 left-0 w-full h-full rounded-[100px] pointer-events-none opacity-90"
+                      className="absolute bottom-0 left-0 w-full h-full rounded-full pointer-events-none opacity-90"
                     >
                       <path
                         ref={(el) => (pathRefs.current[section._id] = el)}
@@ -470,7 +468,7 @@ const CourseSection = () => {
                           gradientUnits="userSpaceOnUse"
                         >
                           <stop offset="0.1" stopColor="#17005E" stopOpacity="0.9" />
-                          <stop offset="1" stopColor="#FF9D00" stopOpacity="0.9" />
+                          <stop offset="1" stopColor="#FFB700" stopOpacity="0.9" />
                         </linearGradient>
                       </defs>
                     </svg>
