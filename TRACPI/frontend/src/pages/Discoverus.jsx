@@ -1,8 +1,5 @@
 import React from 'react'
 import { Link } from 'react-router-dom';
-import FloatingIcons from '../components/FloatingIcons';
-
-
 const Discoverus = () => {
   const [cursorPosition, setCursorPosition] = React.useState({ x: 0, y: 0 });
   const [isMoving, setIsMoving] = React.useState(false);
@@ -34,7 +31,6 @@ const Discoverus = () => {
 
   return (
     <div className="main-wrapper">
-      <FloatingIcons />
       {/* Desktop Cursor Light Effect */}
       <div
         className="fixed pointer-events-none z-50 hidden md:block rounded-full transform -translate-x-1/2 -translate-y-1/2 transition-opacity duration-300"
