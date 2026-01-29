@@ -253,7 +253,11 @@ const CourseSection = () => {
 
 
 
-  if (loading) return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+  if (loading) return (
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="w-12 h-12 border-4 border-[#333] border-t-[#FFB700] rounded-full animate-spin"></div>
+    </div>
+  );
 
 
 
@@ -279,7 +283,7 @@ const CourseSection = () => {
               type="search"
               name="search"
               id="search"
-              placeholder='Search...'
+              placeholder='Search for Sections...'
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className='rounded-[15px] w-full sm:w-64 px-8 sm:px-10 py-1.5 text-[12px] sm:text-[14px] font-medium bg-transparent text-white roboto border border-[#333] focus:border-[#FFB700] outline-none'

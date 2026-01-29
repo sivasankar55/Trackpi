@@ -27,9 +27,9 @@ const HeaderA = () => {
   return (
     <>
       <header className='bg-black text-white'>
-        <div className='flex justify-between items-center px-6 sm:px-10 py-4'>
+        <div className='flex justify-between items-center px-6 sm:px-10 py-2'>
           {/* Logo */}
-          <img src={logo} alt="logo of trackpi" className='w-[120px] sm:w-[134px] h-auto' />
+          <img src={logo} alt="logo of trackpi" className='w-[100px] sm:w-[110px] h-auto' />
 
           {/* Desktop Nav */}
           <nav className='hidden md:flex gap-16 items-center'>
@@ -41,7 +41,7 @@ const HeaderA = () => {
           {/* Desktop Button */}
           <button
             onClick={handleSignupClick}
-            className='hidden md:flex rounded-[21px] border-2 border-[#FF9D00] py-2.5 px-6 bg-[#FFC100] text-black font-medium text-[17px] hover:bg-[#ffb300] cursor-pointer'
+            className='hidden md:flex rounded-[21px] border-2 border-[#FF9D00] py-1.5 px-6 bg-[#FFC100] text-black font-medium text-[17px] hover:bg-[#ffb300] cursor-pointer'
           >
             Login/Signup
           </button>

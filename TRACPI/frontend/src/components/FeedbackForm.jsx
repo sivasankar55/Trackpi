@@ -5,12 +5,13 @@ import { useNavigate } from 'react-router-dom';
 
 const FeedbackForm = () => {
     const [ratings, setRatings] = useState({
-        quality: 1,
-        smoothness: 1,
-        clarity: 1,
+        quality: 0,
+        smoothness: 0,
+        clarity: 0,
     });
     const [experience, setExperience] = useState('');
     const [showForm, setShowForm] = useState(true);
+    const [validationError, setValidationError] = useState('');
     const navigate = useNavigate();
 
     const handleStarClick = (category, rating) => {
@@ -25,7 +26,7 @@ const FeedbackForm = () => {
             4: { text: 'Very Good', emoji: '😄' },
             5: { text: 'Excellent', emoji: '😍' },
         };
-        return labels[rating] || labels[3];
+        return labels[rating] || { text: 'Select', emoji: '⭐' };
     };
 
     const questions = [
@@ -35,6 +36,12 @@ const FeedbackForm = () => {
     ];
 
     const handleSubmit = async () => {
+        if (ratings.quality === 0 || ratings.smoothness === 0 || ratings.clarity === 0 || !experience.trim()) {
+            setValidationError('Please complete all ratings and share your experience before submitting.');
+            return;
+        }
+        setValidationError('');
+
         const token = localStorage.getItem('token');
         try {
             await axios.post('http://localhost:5000/api/feedback', {
@@ -109,6 +116,9 @@ const FeedbackForm = () => {
                                         onChange={(e) => setExperience(e.target.value)}
                                     />
                                 </div>
+                                {validationError && (
+                                    <p className="text-red-500 text-xs sm:text-sm mt-1">{validationError}</p>
+                                )}
                             </div>
 
                             <div className="flex justify-center mt-2 sm:mt-4">
