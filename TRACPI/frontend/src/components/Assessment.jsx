@@ -6,6 +6,7 @@ import AssessmentFailedPopup from '../pages/AssessmentFailedPopup';
 import AssessmentTimeUpPopup from '../pages/AssessmentTimeUpPopup';
 import AssessmentTimeUpCongrats from '../pages/AssessmentTimeUpCongrats';
 import AssessmentMaxAttemptsPopup from '../pages/AssessmentMaxAttemptsPopup';
+import FeedbackPopup from '../pages/FeedbackPopup';
 import { AuthContext } from '../context/AuthContext';
 import { ProgressContext } from '../context/ProgressContext';
 import axios from 'axios';
@@ -28,6 +29,7 @@ const Assessment = () => {
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState(null);
   const [isTimeUp, setIsTimeUp] = useState(false);
+  const [showFeedbackIntro, setShowFeedbackIntro] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
 
   // Ref to store latest answers to avoid stale closure in timer
@@ -284,20 +286,20 @@ const Assessment = () => {
             result.passed ? (
               <AssessmentPassedPopup
                 onUnlock={() => {
-                  /* 
-                     NOTE: We are using location.state?.isFinalAssessment here.
-                     CourseSection.jsx passes this state when navigating to Assessment.
-                     We must preserve it when navigating to Feedback.
-                  */
                   const isFinalAssessment = location.state?.isFinalAssessment;
 
                   if (isFinalAssessment) {
-                    navigate('/feedback-form', { state: { isFinalFeedback: true } });
+                    navigate('/feedback-form', {
+                      state: {
+                        isFinalFeedback: true,
+                        courseId: courseId
+                      }
+                    });
                   } else {
-                    navigate('/start-course/dashboard'); // Or navigate(-1) / back to course
+                    setShowFeedbackIntro(true);
                   }
                 }}
-                buttonText={location.state?.isFinalAssessment ? "Give Feedback" : "Start Onboarding"}
+                buttonText={location.state?.isFinalAssessment ? "Give Feedback" : "Unlock Next Course"}
               />
             ) : (
               <AssessmentFailedPopup
@@ -313,6 +315,19 @@ const Assessment = () => {
             )
           )}
         </>
+      )}
+
+      {showFeedbackIntro && (
+        <FeedbackPopup
+          onStart={() => {
+            navigate('/feedback-form', {
+              state: {
+                isFinalFeedback: false,
+                courseId: courseId
+              }
+            });
+          }}
+        />
       )}
     </div>
   );

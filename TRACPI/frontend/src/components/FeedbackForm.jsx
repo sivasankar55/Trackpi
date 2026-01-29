@@ -61,7 +61,13 @@ const FeedbackForm = () => {
                 setShowCompletionPopup(true);
             } else {
                 setShowForm(false);
-                navigate('/course-section');
+                // Redirect back to specific course or generic list
+                const courseId = location.state?.courseId;
+                if (courseId) {
+                    navigate(`/course-section/${courseId}`);
+                } else {
+                    navigate('/course-section');
+                }
             }
         } catch (error) {
             console.error('Error submitting feedback:', error);
