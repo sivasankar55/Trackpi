@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useContext } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import AssessmentFirstPopup from "./AssessmentFirstPopup";
@@ -31,6 +31,9 @@ const AssessmentPage = () => {
 
   const timerRef = useRef();
   const navigate = useNavigate();
+  const location = useLocation();
+  const isFinalAssessment = location.state?.isFinalAssessment;
+  console.log("AssessmentPage State Debug:", { isFinalAssessment, state: location.state });
 
   const questions = fetchedQuestions;
   const currentQuestion = questions[currentPage - 1];
@@ -165,7 +168,14 @@ const AssessmentPage = () => {
           timeUp={result.timeUp}
           score={result.score}
           total={result.totalQuestions || questions.length}
-          onUnlock={() => navigate(`/course-section/${courseId}`)}
+          onUnlock={() => {
+            if (isFinalAssessment) {
+              navigate('/feedback-form', { state: { isFinalFeedback: true } });
+            } else {
+              navigate(`/start-course/dashboard`);
+            }
+          }}
+          buttonText={isFinalAssessment ? "Give Feedback" : "Start Onboarding"}
         />
       );
     } else {
@@ -271,6 +281,10 @@ const AssessmentPage = () => {
             {submitting ? "Submitting..." : currentPage === questions.length ? "Submit" : "Next"}
           </button>
         </div>
+      </div>
+      {/* TEMP DEBUG */}
+      <div className="fixed bottom-0 right-0 bg-red-500 text-white p-2 text-xs z-50">
+        Is Final Assessment: {isFinalAssessment ? 'YES' : 'NO'}
       </div>
     </div>
   );

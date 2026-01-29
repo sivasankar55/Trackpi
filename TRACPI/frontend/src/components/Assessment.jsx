@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo, useContext, useRef } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import AssessmentBubble from '../pages/AssessmentBubble';
 import AssessmentPassedPopup from '../pages/AssessmentPassedPopup';
 import AssessmentFailedPopup from '../pages/AssessmentFailedPopup';
@@ -17,6 +17,7 @@ const Assessment = () => {
   const { token } = useContext(AuthContext);
   const { notifyProgressChanged } = useContext(ProgressContext);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [fetchedQuestions, setFetchedQuestions] = useState([]);
   const [selectedOptions, setSelectedOptions] = useState({});
@@ -282,7 +283,21 @@ const Assessment = () => {
           ) : (
             result.passed ? (
               <AssessmentPassedPopup
-                onUnlock={() => navigate('/feedback-course')}
+                onUnlock={() => {
+                  /* 
+                     NOTE: We are using location.state?.isFinalAssessment here.
+                     CourseSection.jsx passes this state when navigating to Assessment.
+                     We must preserve it when navigating to Feedback.
+                  */
+                  const isFinalAssessment = location.state?.isFinalAssessment;
+
+                  if (isFinalAssessment) {
+                    navigate('/feedback-form', { state: { isFinalFeedback: true } });
+                  } else {
+                    navigate('/start-course/dashboard'); // Or navigate(-1) / back to course
+                  }
+                }}
+                buttonText={location.state?.isFinalAssessment ? "Give Feedback" : "Start Onboarding"}
               />
             ) : (
               <AssessmentFailedPopup

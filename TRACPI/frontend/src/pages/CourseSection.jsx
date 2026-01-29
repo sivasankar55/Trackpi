@@ -191,18 +191,33 @@ const CourseSection = () => {
   });
   const hasAnyCompletedSection = Object.values(sectionProgress).some(p => p >= 100);
 
+  const lastSection = sections.length > 0 ? sections[sections.length - 1] : null;
+  const isAssessmentPassed = lastSection && sectionStatus[lastSection._id]?.passed;
+
   // Auto-open assessment if redirected from SectionVideos
   useEffect(() => {
     if (location.state?.openAssessment && sections.length > 0) {
-      setActiveTab('assessment');
       const targetSection = [...sections].reverse().find(s => (sectionProgress[s._id] || 0) >= 100) || sections[sections.length - 1];
+
       if (targetSection) {
+        // Check if status is loaded
+        const status = sectionStatus[targetSection._id];
+        if (!status) return; // Wait for status to load
+
+        if (status.passed) {
+          // If already passed, do not open, just clear state
+          console.log("Assessment already passed, blocking auto-open.");
+          window.history.replaceState({}, document.title);
+          return;
+        }
+
+        setActiveTab('assessment');
         handleAssessmentClick(targetSection);
         // Clear state so it doesn't reopen on refresh
         window.history.replaceState({}, document.title);
       }
     }
-  }, [sections, location.state, sectionProgress]);
+  }, [sections, location.state, sectionProgress, sectionStatus]);
 
   //fetch attempt left for a section
   const fetchAttemptsLeft = async (sectionId) => {
@@ -245,7 +260,13 @@ const CourseSection = () => {
 
     setShowAssessmentPopup(false);
     if (popupSection) {
-      navigate(`/assessment/${selectedCourse}/${popupSection._id}`);
+      // Calculate if this is the final assessment with robust ID checks
+      const currentCourseIndex = courses.findIndex(c => String(c._id) === String(selectedCourse));
+      const isLastCourse = currentCourseIndex !== -1 && currentCourseIndex === courses.length - 1;
+      const isLastSection = String(popupSection._id) === String(sections[sections.length - 1]._id);
+      const isFinalAssessment = isLastCourse && isLastSection;
+
+      navigate(`/assessment/${selectedCourse}/${popupSection._id}`, { state: { isFinalAssessment } });
     }
   };
 
@@ -380,11 +401,12 @@ const CourseSection = () => {
           <button
             className={`rounded-[40px] w-[140px] h-[45px] sm:w-[200px] sm:h-[50px] flex items-center justify-center font-medium text-[14px] sm:text-base roboto transition-all ${activeTab === 'assessment'
               ? 'bg-[#FFB700] text-white shadow-[0_4px_15px_rgba(255,157,0,0.2)]'
-              : allSectionsComplete
+              : allSectionsComplete && !isAssessmentPassed
                 ? 'border border-[#FFB700] text-[#FFB700] hover:bg-[#FFB700]/10'
                 : 'opacity-50 cursor-not-allowed border border-[#FFB700] text-[#FFB700]'
               }`}
             onClick={() => {
+              if (isAssessmentPassed) return;
               if (!allSectionsComplete) {
                 alert("Please complete all sections to unlock the final assessment.");
                 return;
@@ -396,7 +418,7 @@ const CourseSection = () => {
               }
             }}
           >
-            Assessment
+            {isAssessmentPassed ? "Assessment Completed" : "Assessment"}
           </button>
         </div>
       )}

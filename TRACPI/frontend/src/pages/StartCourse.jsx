@@ -210,7 +210,16 @@ const StartCourse = () => {
               {/* Step 4: Start Onboarding Process */}
               <div className="relative flex flex-col items-center">
                 <div className="relative group flex flex-col items-center">
-                  <div className="flex flex-col rounded-[30px] border-2 border-[#FFB700] px-7.5 py-2.5 text-white text-xl itim bg-black/60 shadow-lg opacity-70 cursor-pointer text-center" style={{ minWidth: 171, minHeight: 59, display: 'flex', alignItems: 'center', justifyContent: 'center', borderColor: '#FFB700' }}>
+                  <div
+                    className={`flex flex-col rounded-[30px] border-2 border-[#FFB700] px-7.5 py-2.5 text-white text-xl itim bg-black/60 shadow-lg text-center transition-all duration-300
+                    ${percentage >= 100 ? 'cursor-pointer opacity-100 hover:scale-105 hover:bg-black/80' : 'cursor-not-allowed opacity-70'}`}
+                    style={{ minWidth: 171, minHeight: 59, display: 'flex', alignItems: 'center', justifyContent: 'center', borderColor: '#FFB700' }}
+                    onClick={() => {
+                      if (percentage >= 100) {
+                        navigate('/phone-number/enter');
+                      }
+                    }}
+                  >
                     <p>Start Onboarding </p>
                     <p>Process</p>
                   </div>

@@ -23,6 +23,7 @@ import HelpCentre from './pages/HelpCentre'
 import FeedbackForm from './components/FeedbackForm'
 import FeedbackPopup from './pages/FeedbackPopup'
 import Assessment from './components/Assessment'
+import CourseCompletionPopup from './components/CourseCompletionPopup'
 
 
 // admin components
@@ -95,6 +96,7 @@ function App() {
           <Route path='/help-centre' element={<HelpCentre />} />
           <Route path='/feedback-course' element={<FeedbackPopup />} />
           <Route path='/feedback-form' element={<FeedbackForm />} />
+          <Route path='/test-popup' element={<CourseCompletionPopup />} />
 
         </Route>
 

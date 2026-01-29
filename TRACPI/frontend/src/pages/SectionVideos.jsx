@@ -4,7 +4,7 @@ import axios from "axios";
 import Player from "@vimeo/player";
 import { AuthContext } from '../context/AuthContext'
 import { ProgressContext } from "../context/ProgressContext";
-import { Play, Pause, Search, RotateCcw, Lock, Maximize, Minimize, Volume2, VolumeX } from 'lucide-react';
+import { Play, Pause, Search, RotateCcw, Lock, Maximize, Minimize, Volume2, VolumeX, ChevronLeft, ArrowLeft } from 'lucide-react';
 import squareLock from '../assets/square-lock-02.png';
 import './css/faq.css';
 
@@ -45,6 +45,7 @@ const SectionVideos = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isLastSection, setIsLastSection] = useState(false);
   const [unlockedIndices, setUnlockedIndices] = useState([0]);
+  const [assessmentPassed, setAssessmentPassed] = useState(false);
 
   // Player State
   const [isPlaying, setIsPlaying] = useState(false);
@@ -580,6 +581,15 @@ const SectionVideos = () => {
       <div className="px-6 lg:px-12 py-8">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex flex-col gap-2">
+            {/* Back Button */}
+            <button
+              onClick={() => navigate(`/course-section/${courseId}`)}
+              className="flex items-center gap-2 text-gray-400 hover:text-[#FFB700] transition-colors self-start mb-1 group"
+            >
+              <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
+              <span className="text-sm font-medium">Back to Course</span>
+            </button>
+
             <div className="flex items-end gap-6">
               <h1 className="text-2xl font-bold tracking-wide">
                 {section?.sectionName || 'Section Name'}
@@ -847,12 +857,20 @@ const SectionVideos = () => {
                             return (
                               <div className="flex flex-row items-center justify-center gap-2 md:gap-4 flex-1">
                                 {isLastSection ? (
-                                  <button
-                                    onClick={handleTakeAssessment}
-                                    className="flex items-center justify-center gap-1.5 md:gap-2 w-full px-2 md:px-8 py-2.5 rounded-[12px] bg-[#FFB700] hover:bg-[#E68900] text-black font-bold text-[11px] md:text-sm transition-all shadow-[0_4px_20px_rgba(255,157,0,0.3)] whitespace-nowrap"
-                                  >
-                                    Unlock Assessment
-                                  </button>
+                                  assessmentPassed ? (
+                                    <button
+                                      className="flex items-center justify-center gap-1.5 md:gap-2 w-full px-2 md:px-8 py-2.5 rounded-[12px] bg-green-600 text-white font-bold text-[11px] md:text-sm transition-all shadow-lg whitespace-nowrap cursor-default opacity-80"
+                                    >
+                                      Assessment Passed
+                                    </button>
+                                  ) : (
+                                    <button
+                                      onClick={handleTakeAssessment}
+                                      className="flex items-center justify-center gap-1.5 md:gap-2 w-full px-2 md:px-8 py-2.5 rounded-[12px] bg-[#FFB700] hover:bg-[#E68900] text-black font-bold text-[11px] md:text-sm transition-all shadow-[0_4px_20px_rgba(255,157,0,0.3)] whitespace-nowrap"
+                                    >
+                                      Unlock Assessment
+                                    </button>
+                                  )
                                 ) : (
                                   <button
                                     onClick={handleUnlockAssessment}
@@ -897,7 +915,7 @@ const SectionVideos = () => {
           )}
         </div>
       </div>
-    </div>
+    </div >
   );
 };
 
