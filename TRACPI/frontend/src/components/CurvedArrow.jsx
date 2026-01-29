@@ -1,14 +1,14 @@
 import React from 'react';
-import curvedArrowImg from '../assets/curved-arrow-mobile.png';
+import Arrow21 from '../assets/Arrow 21.png';
 
-const CurvedArrow = ({ className }) => (
-    <div className={`flex items-center justify-center ${className}`}>
+const CurvedArrow = () => {
+    return (
         <img
-            src={curvedArrowImg}
+            src={Arrow21}
             alt="Curved Arrow"
-            className="w-[80px] h-auto object-contain opacity-80"
+            className="w-[80px] h-auto object-contain ml-3"
         />
-    </div>
-);
+    );
+};
 
 export default CurvedArrow;

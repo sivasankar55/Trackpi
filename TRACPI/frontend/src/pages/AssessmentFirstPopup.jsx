@@ -84,7 +84,7 @@ function AssessmentFirstPopup({ maxAttempts, onButtonClick, courseName, numQuest
           <div className="flex justify-center mt-3 md:mt-8">
             <button
               onClick={onButtonClick}
-              className="text-white font-semibold text-xs md:text-sm rounded-[40px] border border-black w-[90%] max-w-[217px] h-[38px] md:h-[43px] px-4 md:px-[20px] py-2 md:py-[12px] bg-[#FF9D00] hover:opacity-90 transition"
+              className="text-white font-semibold text-xs md:text-sm rounded-[40px] border border-black w-[90%] max-w-[217px] h-[38px] md:h-[43px] px-4 md:px-[20px] py-2 md:py-[12px] bg-[#FF9D00] hover:opacity-90 transition cursor-pointer"
             >
               Ok, Start Assessment
             </button>

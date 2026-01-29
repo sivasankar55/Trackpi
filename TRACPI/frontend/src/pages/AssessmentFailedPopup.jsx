@@ -49,13 +49,13 @@ function AssessmentFailedPopup({ wrongAnswers = [], onGoBack, onRetake }) {
 
         <div className="flex justify-center items-center gap-2 w-full max-w-[300px] whitespace-nowrap mx-auto">
           <button
-            className="border border-yellow-400 text-white text-xs px-3 py-3 rounded-full hover:bg-yellow-500 hover:text-black transition w-[135px]"
+            className="border border-yellow-400 text-white text-xs px-3 py-3 rounded-full hover:bg-yellow-500 hover:text-black transition w-[135px] cursor-pointer"
             onClick={onGoBack}
           >
             Go to Course
           </button>
           <button
-            className="bg-yellow-400 text-white text-xs px-3 py-3 rounded-full hover:bg-yellow-300 transition font-semibold w-[135px]"
+            className="bg-yellow-400 text-white text-xs px-3 py-3 rounded-full hover:bg-yellow-300 transition font-semibold w-[135px] cursor-pointer"
             onClick={onRetake}
           >
             Retake Assessment

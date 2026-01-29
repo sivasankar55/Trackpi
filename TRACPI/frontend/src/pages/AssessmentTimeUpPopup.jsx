@@ -35,14 +35,14 @@ function AssessmentTimeUpPopup({ onGoBack, onRetake }) {
           <div className="flex flex-col md:flex-row items-center justify-center gap-6 w-full max-w-[600px]">
             <button
               onClick={onGoBack}
-              className="w-full md:w-[240px] py-3 rounded-full border border-[#FFA726] bg-transparent text-white font-bold hover:bg-white/5 transition-all"
+              className="w-full md:w-[240px] py-3 rounded-full border border-[#FFA726] bg-transparent text-white font-bold hover:bg-white/5 transition-all cursor-pointer"
             >
               Go to Course
             </button>
 
             <button
               onClick={onRetake}
-              className="w-full md:w-[240px] py-3 rounded-full bg-[#FFA726] text-white font-bold hover:bg-[#FB8C00] transition-all"
+              className="w-full md:w-[240px] py-3 rounded-full bg-[#FFA726] text-white font-bold hover:bg-[#FB8C00] transition-all cursor-pointer"
             >
               Retake Assessment
             </button>
