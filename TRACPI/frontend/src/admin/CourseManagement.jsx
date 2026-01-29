@@ -207,11 +207,7 @@ const CourseManagement = () => {
                     (acc, section) => acc + (section.units?.length || 0),
                     0
                   ) || 0;
-                const totalMinutes = unitCount * 15;
-                const hours = Math.floor(totalMinutes / 60);
-                const mins = totalMinutes % 60;
-                const durationStr =
-                  hours > 0 ? `${hours} Hours` : `${totalMinutes} MINUTES`;
+                const durationStr = course.duration || '0 Mins';
 
                 return (
                   <div
