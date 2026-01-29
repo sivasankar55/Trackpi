@@ -447,7 +447,7 @@ const CourseSection = () => {
                       <div className="flex items-center justify-center gap-1 sm:gap-2 text-[10px] sm:text-sm text-gray-300 font-medium pb-2">
                         <span className="whitespace-nowrap">{section.units ? section.units.length : 0} Videos</span>
                         <span className="text-[#FFB700]">|</span>
-                        <span className="whitespace-nowrap">30 Min</span>
+                        <span className="whitespace-nowrap">{section.duration || 0} Min</span>
                       </div>
                     </div>
 

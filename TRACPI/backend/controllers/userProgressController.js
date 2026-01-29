@@ -4,6 +4,7 @@ import Section from '../models/Section.js';
 import Course from '../models/Course.js';
 import Question from '../models/Question.js';
 import Enrollment from '../models/Enrollment.js';
+import { calculateCourseDuration } from '../utils/videoUtils.js';
 
 const normalizeVideoId = (id) => {
   if (!id) return '';
@@ -472,8 +473,11 @@ export const getUserCourseStatus = async (req, res) => {
       // Final completion check: All sections' videos watched AND Assessment passed (if required)
       const isCompleted = totalSections > 0 && allSectionsVideosFinished && courseAssessmentPassed;
 
-      // Roughly calculate duration (for UI)
-      const durationMins = totalCourseVideos * 15;
+      // Calculate total duration from units in sections
+      const totalMinutes = await calculateCourseDuration(course.sections);
+      const hours = Math.floor(totalMinutes / 60);
+      const mins = totalMinutes % 60;
+      const durationStr = hours > 0 ? `${hours}h ${mins}m` : `${totalMinutes} Mins`;
 
       courseStatus.push({
         courseId: course._id,
@@ -484,7 +488,7 @@ export const getUserCourseStatus = async (req, res) => {
         totalSectionsCount: totalSections,
         totalVideosCount: totalCourseVideos,
         completedVideosCount: completedCourseVideos,
-        duration: durationMins,
+        duration: durationStr,
         courseImage: course.courseImage
       });
 

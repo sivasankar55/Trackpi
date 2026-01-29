@@ -3,6 +3,7 @@ import Section from '../models/Section.js';
 import Enrollment from '../models/Enrollment.js';
 import User from '../models/User.js';
 import UserProgress from '../models/UserProgress.js';
+import { calculateSectionDuration, calculateCourseDuration } from '../utils/videoUtils.js';
 
 /**
  * Extremely robust parser that handles:
@@ -110,16 +111,12 @@ export const getCourseStats = async (req, res) => {
     });
 
     // Total hours: Sum of all unit durations
-    let totalMinutes = 0;
-    allSections.forEach(s => {
-      s.units?.forEach(u => {
-        totalMinutes += (u.unitDuration || 15);
-      });
-    });
+    const sectionDurations = await Promise.all(allSections.map(s => calculateSectionDuration(s.units)));
+    const totalMinutes = sectionDurations.reduce((a, b) => a + b, 0);
 
     const hours = Math.floor(totalMinutes / 60);
     const minutes = totalMinutes % 60;
-    const formattedHours = `${hours}:${minutes.toString().padStart(2, '0')}`;
+    const formattedHours = hours > 0 ? `${hours}h ${minutes}m` : `${totalMinutes} Mins`;
 
     const currentStudents = (await Enrollment.distinct('user')).length;
 
@@ -210,7 +207,14 @@ export const createCourse = async (req, res) => {
 export const getAllCourses = async (req, res) => {
   try {
     const courses = await Course.find().populate('sections');
-    res.json(courses);
+    const coursesWithDuration = await Promise.all(courses.map(async course => {
+      const durationMins = await calculateCourseDuration(course.sections);
+      const h = Math.floor(durationMins / 60);
+      const m = durationMins % 60;
+      const durationStr = h > 0 ? `${h}h ${m}m` : `${durationMins} Mins`;
+      return { ...course.toObject(), duration: durationStr };
+    }));
+    res.json(coursesWithDuration);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -221,7 +225,13 @@ export const getCourseById = async (req, res) => {
   try {
     const course = await Course.findById(req.params.id).populate('sections');
     if (!course) return res.status(404).json({ error: 'Course not found' });
-    res.json(course);
+
+    const durationMins = await calculateCourseDuration(course.sections);
+    const h = Math.floor(durationMins / 60);
+    const m = durationMins % 60;
+    const durationStr = h > 0 ? `${h}h ${m}m` : `${durationMins} Mins`;
+
+    res.json({ ...course.toObject(), duration: durationStr });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -369,7 +379,7 @@ export const getAllCoursesWithGlobalStats = async (req, res) => {
       }
     });
 
-    const coursesWithStats = courses.map(course => {
+    const coursesWithStats = await Promise.all(courses.map(async course => {
       const courseIdStr = course._id.toString();
       const courseEnrollments = allEnrollments.filter(e => e.course.toString() === courseIdStr);
       const hasQuestions = course.questions && course.questions.length > 0;
@@ -392,22 +402,10 @@ export const getAllCoursesWithGlobalStats = async (req, res) => {
         return hasStarted && !isFinished;
       }).length;
 
-      let totalUnits = 0;
-      if (course.sections) {
-        course.sections.forEach(s => totalUnits += (s.units?.length || 0));
-      }
-      // calculate total duration from units
-      let totalMinutes = 0;
-      if (course.sections) {
-        course.sections.forEach(s => {
-          s.units?.forEach(u => {
-            totalMinutes += (u.unitDuration || 15);
-          });
-        });
-      }
-      const hours = Math.floor(totalMinutes / 60);
-      const minutes = totalMinutes % 60;
-      const duration = hours > 0 ? `${hours}h ${minutes}m` : `${totalMinutes} Mins`;
+      const durationMins = await calculateCourseDuration(course.sections || []);
+      const hours = Math.floor(durationMins / 60);
+      const minutes = durationMins % 60;
+      const durationStr = hours > 0 ? `${hours}h ${minutes}m` : `${durationMins} Mins`;
 
       return {
         ...course.toObject(),
@@ -415,10 +413,9 @@ export const getAllCoursesWithGlobalStats = async (req, res) => {
           completed: completedCount,
           inProgress: startedButNotFinished
         },
-        duration: duration
+        duration: durationStr
       };
-    });
-
+    }));
     res.json({
       globalStats,
       courses: coursesWithStats
