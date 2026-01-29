@@ -57,31 +57,68 @@ const CourseSection = () => {
 
 
   useEffect(() => {
-    // Fetch progress for each section
+    // Progressive Loading Optimization:
+    // Instead of waiting for ALL sections to load (Promise.all) which delays UI,
+    // we fetch in batches (CHUNKS) and update the UI incrementally.
+    // This improves "Time to Interactive" and perceived speed.
+
+    let isMounted = true;
+    const CHUNK_SIZE = 6; // Fetch 6 sections at a time (browser limit friendly)
+
     if (sections.length > 0 && token && selectedCourse) {
-      const fetchProgress = async () => {
-        const progressMap = {};
-        const statusMap = {};
-        await Promise.all(sections.map(async (section) => {
-          try {
-            const res = await axios.get(`http://localhost:5000/api/progress/section-progress?courseId=${selectedCourse}&sectionId=${section._id}`, {
-              headers: { Authorization: `Bearer ${token}` }
+      const fetchProgressChunked = async () => {
+        // Reset or keep existing logic? Better to reset if sections changed completely.
+        // But since we want to show incremental updates, we start fresh or overlay.
+        // Let's assume we want to fill data into the existing structure.
+
+        const sectionChunks = [];
+        for (let i = 0; i < sections.length; i += CHUNK_SIZE) {
+          sectionChunks.push(sections.slice(i, i + CHUNK_SIZE));
+        }
+
+        for (const chunk of sectionChunks) {
+          if (!isMounted) break;
+
+          const chunkResults = await Promise.all(chunk.map(async (section) => {
+            try {
+              const res = await axios.get(`http://localhost:5000/api/progress/section-progress?courseId=${selectedCourse}&sectionId=${section._id}`, {
+                headers: { Authorization: `Bearer ${token}` }
+              });
+              return {
+                id: section._id,
+                progress: res.data.sectionProgress,
+                passed: res.data.assessmentPassed || false,
+                completed: res.data.sectionComplete || false
+              };
+            } catch {
+              return {
+                id: section._id,
+                progress: 0,
+                passed: false,
+                completed: false
+              };
+            }
+          }));
+
+          if (isMounted) {
+            setSectionProgress(prev => {
+              const next = { ...prev };
+              chunkResults.forEach(r => next[r.id] = r.progress);
+              return next;
             });
-            progressMap[section._id] = res.data.sectionProgress;
-            statusMap[section._id] = {
-              passed: res.data.assessmentPassed || false,
-              completed: res.data.sectionComplete || false
-            };
-          } catch {
-            progressMap[section._id] = 0;
-            statusMap[section._id] = { passed: false, completed: false };
+            setSectionStatus(prev => {
+              const next = { ...prev };
+              chunkResults.forEach(r => next[r.id] = { passed: r.passed, completed: r.completed });
+              return next;
+            });
           }
-        }));
-        setSectionProgress(progressMap);
-        setSectionStatus(statusMap);
+        }
       };
-      fetchProgress();
+
+      fetchProgressChunked();
     }
+
+    return () => { isMounted = false; };
   }, [sections, token, selectedCourse, progressVersion]);
 
   // Draw the wave path
