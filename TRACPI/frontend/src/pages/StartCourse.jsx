@@ -11,6 +11,8 @@ import { ProgressContext } from '../context/ProgressContext';
 import Arrow22 from '../assets/Arrow 22.png'
 import Arrow19 from '../assets/Arrow 19.png'
 import axios from 'axios';
+import brochure from '../assets/Trackpi Brochure .pdf';
+
 
 const StartCourse = () => {
   const { user, token } = useContext(AuthContext)
@@ -132,7 +134,10 @@ const StartCourse = () => {
           <p className='xl:hidden font-extrabold text-[18px] sm:text-[24px] leading-[100%] text-white roboto'>24 Hours Cycle</p>
 
           <div className='flex flex-col xl:flex-row items-end xl:items-center gap-[6px] sm:gap-[10px]'>
-            <button className='py-2 px-4 sm:px-5 rounded-[40px] bg-[#FFB700] font-medium text-[11px] sm:text-[14px] xl:text-base cursor-pointer text-white roboto whitespace-nowrap' >Company Brochure</button>
+            <a href={brochure} download="Trackpi Brochure.pdf">
+              <button className='py-2 px-4 sm:px-5 rounded-[40px] bg-[#FFB700] font-medium text-[11px] sm:text-[14px] xl:text-base cursor-pointer text-white roboto whitespace-nowrap' >Company Brochure</button>
+            </a>
+
             <button className='py-2 px-4 sm:px-5 rounded-[40px] font-medium text-[11px] sm:text-[14px] xl:text-base cursor-pointer text-white roboto whitespace-nowrap' style={{ backgroundColor: 'rgba(255, 157, 0, 0.5)', border: '1px solid rgba(255, 157, 0, 0.5)' }}>Watch Testimonials</button>
           </div>
         </div>
@@ -146,7 +151,7 @@ const StartCourse = () => {
             <div className="flex flex-col xl:flex-row items-center xl:items-center gap-4 xl:gap-2">
 
               {/* Mobile: Horizontal Flow (Signup -> Arrow -> My Course) */}
-              <div className="flex flex-col xl:hidden items-center gap-4 sm:gap-6 mb-8 w-full">
+              <div className="flex flex-col xl:hidden items-center gap-4 sm:gap-4 mb-4 w-full">
                 <h2 className="text-white text-xl sm:text-2xl font-normal itim text-center whitespace-nowrap">Course Completion Level</h2>
                 <div className="flex items-center gap-1 sm:gap-3">
                   <button className='h-[45px] sm:h-[59px] min-w-[110px] sm:min-w-[140px] px-6 sm:px-8 rounded-[30px] border-1 border-[#FFB700] text-white text-base sm:text-xl font-normal itim cursor-pointer whitespace-nowrap'>Signup</button>
@@ -156,7 +161,7 @@ const StartCourse = () => {
                   <div className="relative">
                     <button className='h-[45px] sm:h-[59px] min-w-[110px] sm:min-w-[140px] px-6 sm:px-8 rounded-[30px] border-1 border-[#FFB700] text-white text-base sm:text-lg font-normal itim cursor-pointer whitespace-nowrap'>My Course</button>
                     {/* Mobile Only: Curved Arrow starting from exact center of My Course */}
-                    <div className="absolute top-[105%] right-[35%] z-0 pointer-events-none">
+                    <div className="absolute top-[105%] left-[-23%] z-0 pointer-events-none">
                       <CurvedArrow />
                     </div>
                   </div>

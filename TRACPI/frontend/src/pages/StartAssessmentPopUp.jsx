@@ -14,7 +14,7 @@ const StartAssessmentPopUp = ({ onClose }) => {
               <div className="w-[20.9vw] h-[5.9vh] flex items-center gap-[10px] px-[30px] py-[12px] rounded-[40px] border border-white">
                 {/* <!-- restart button--> */}
                 <button
-                  className="flex items-center gap-[0.52vw] text-white font-roboto font-medium text-[0.94vw] leading-[100%]"
+                  className="flex items-center gap-[0.52vw] text-white font-roboto font-medium text-[0.94vw] leading-[100%] cursor-pointer"
                   onClick={onClose}
                 >
                   <span className="w-[10.48vw] h-[1.95vh] text-center">Watch Again</span>
@@ -23,7 +23,7 @@ const StartAssessmentPopUp = ({ onClose }) => {
               <div className="w-[20.9vw] h-[5.9vh] flex items-center gap-[10px] px-[30px] py-[12px] rounded-[40px] border bg-[#FF9D00] border-[#FF9D00]">
                 {/* <!-- play next button --> */}
                 <button
-                  className="flex items-center gap-[0.52vw] text-white font-roboto font-medium text-[0.94vw] leading-[100%]"
+                  className="flex items-center gap-[0.52vw] text-white font-roboto font-medium text-[0.94vw] leading-[100%] cursor-pointer"
                   onClick={() => {
                     // Handle assessment unlock logic here
                     console.log("Unlock Assessment clicked");

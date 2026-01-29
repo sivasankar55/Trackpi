@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 import FloatingIcons from '../components/FloatingIcons';
+import { countries } from '../utils/countries';
 
 import hero from '../assets/hero.png';
 import facebook from '../assets/facebook.png';
@@ -23,7 +24,21 @@ const ContactPage = () => {
 
   const [errors, setErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState('');
+  const [selectedCountry, setSelectedCountry] = useState(countries.find(c => c.cca2 === 'IN') || countries[0]);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const dropdownRef = useRef(null);
   const location = useLocation();
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     if (location.hash === '#contact-form') {
@@ -41,8 +56,8 @@ const ContactPage = () => {
       newErrors.fullName = 'Full Name must be at least 3 characters.';
     }
 
-    if (!formData.contactNumber || !/^\d{10}$/.test(formData.contactNumber)) {
-      newErrors.contactNumber = 'Contact Number must be exactly 10 digits.';
+    if (!formData.contactNumber || !/^\d{7,15}$/.test(formData.contactNumber)) {
+      newErrors.contactNumber = 'Please enter a valid phone number (7-15 digits).';
     }
 
     if (!formData.email || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(formData.email)) {
@@ -78,8 +93,8 @@ const ContactPage = () => {
         return;
       }
 
-      // Enforce max length of 10
-      if (value.length > 10) {
+      // Enforce max length of 15
+      if (value.length > 15) {
         return;
       }
     }
@@ -98,7 +113,11 @@ const ContactPage = () => {
       return;
     }
     try {
-      await axios.post('http://localhost:5000/api/contact', formData);
+      const submissionData = {
+        ...formData,
+        contactNumber: `${selectedCountry.phone_code}${formData.contactNumber}`
+      };
+      await axios.post('http://localhost:5000/api/contact', submissionData);
       setSuccessMessage('Message sent successfully!');
       setFormData({
         fullName: '',
@@ -212,15 +231,65 @@ const ContactPage = () => {
             />
             {errors.fullName && <p className="text-red-500 text-sm mt-1">{errors.fullName}</p>}
 
-            <input
-              type="text"
-              placeholder="Contact Number"
-              name="contactNumber"
-              value={formData.contactNumber}
-              onChange={handleChange}
-              required
-              className="w-full max-w-full text-base p-3 rounded-md bg-white text-black outline-none"
-            />
+            <div className="relative flex items-center bg-white rounded-md border-none focus-within:ring-2 focus-within:ring-[#FF9D00] transition-all">
+              <div className="relative h-full flex items-center" ref={dropdownRef}>
+                <button
+                  type="button"
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  className="flex items-center gap-2 px-3 h-[48px] border-r border-gray-200 hover:bg-gray-50 transition-colors focus:outline-none"
+                >
+                  <svg className={`w-3 h-3 text-gray-400 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                  <img src={selectedCountry.flag} alt="" className="w-5 h-3 object-cover rounded-sm" />
+                  <span className="text-gray-700 text-sm font-medium">{selectedCountry.phone_code}</span>
+                </button>
+                {isDropdownOpen && (
+                  <div className="absolute top-full left-0 mt-1 w-64 max-h-64 bg-white border border-gray-200 rounded-md shadow-2xl z-50 flex flex-col overflow-hidden">
+                    <div className="p-2 bg-gray-50 border-b border-gray-200">
+                      <input
+                        type="text"
+                        placeholder="Search country..."
+                        className="w-full px-3 py-1.5 text-sm bg-white border border-gray-300 rounded outline-none focus:border-[#FF9D00]"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    </div>
+                    <div className="overflow-y-auto custom-scrollbar">
+                      {countries.filter(c =>
+                        c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        c.phone_code.includes(searchTerm)
+                      ).map((country) => (
+                        <button
+                          key={country.cca2}
+                          type="button"
+                          className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 text-gray-700 transition-colors text-left"
+                          onClick={() => {
+                            setSelectedCountry(country);
+                            setIsDropdownOpen(false);
+                            setSearchTerm('');
+                          }}
+                        >
+                          <img src={country.flag} alt="" className="w-5 h-3 object-cover rounded-sm" />
+                          <span className="flex-1 text-sm truncate">{country.name}</span>
+                          <span className="text-xs text-gray-400">{country.phone_code}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+              <input
+                type="text"
+                placeholder="Contact Number"
+                name="contactNumber"
+                value={formData.contactNumber}
+                onChange={handleChange}
+                required
+                className="w-full text-base p-3 bg-transparent text-black outline-none"
+              />
+            </div>
             {errors.contactNumber && <p className="text-red-500 text-sm mt-1">{errors.contactNumber}</p>}
 
             <input

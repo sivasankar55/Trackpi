@@ -46,7 +46,7 @@ function AssessmentMaxAttemptsPopup({ onGoBack }) {
                     <div className="w-full flex justify-center">
                         <button
                             onClick={onGoBack}
-                            className="w-full md:w-[280px] py-4 rounded-full bg-[#FFB700] text-black font-extrabold text-base hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_4px_20px_rgba(255,183,0,0.3)]"
+                            className="w-full md:w-[280px] py-4 rounded-full bg-[#FFB700] text-black font-extrabold text-base hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_4px_20px_rgba(255,183,0,0.3)] cursor-pointer"
                         >
                             Go to Course Dashboard
                         </button>
