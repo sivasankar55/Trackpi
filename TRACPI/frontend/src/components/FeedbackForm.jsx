@@ -52,7 +52,6 @@ const FeedbackForm = () => {
             }, {
                 headers: token ? { Authorization: `Bearer ${token}` } : {}
             });
-            alert('Thank you for your feedback!');
             setShowForm(false);
             navigate('/course-section');
         } catch (error) {
