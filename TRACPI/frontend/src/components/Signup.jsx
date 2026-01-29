@@ -65,6 +65,16 @@ const Signup = () => {
               <img src={googleLogo} alt="Google" className="w-5 h-5 object-contain" />
               Login with Google
             </button>
+
+            <p className="mt-4 text-sm text-gray-400">
+              Don't have an account?{' '}
+              <span
+                onClick={handleGoogleLogin}
+                className="text-[#FF9D00] font-semibold cursor-pointer hover:underline"
+              >
+                Sign up
+              </span>
+            </p>
           </div>
         </div>
       </div>
