@@ -46,6 +46,7 @@ const SectionVideos = () => {
   const [isLastSection, setIsLastSection] = useState(false);
   const [unlockedIndices, setUnlockedIndices] = useState([0]);
   const [assessmentPassed, setAssessmentPassed] = useState(false);
+  const [visibleItems, setVisibleItems] = useState(10); // Progressive loading state
 
   // Player State
   const [isPlaying, setIsPlaying] = useState(false);
@@ -104,6 +105,7 @@ const SectionVideos = () => {
       const isNewSection = !section || String(section._id) !== String(sectionId);
       if (isNewSection) {
         setLoading(true);
+        setVisibleItems(10);
       }
 
       setError(null);
@@ -549,6 +551,19 @@ const SectionVideos = () => {
   };
 
 
+  // Progressive Loading: Handle Scroll
+  const handleScroll = (e) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+    if (scrollHeight - scrollTop - clientHeight < 100) {
+      setVisibleItems((prev) => prev + 10);
+    }
+  };
+
+  // Reset visible items when search query changes
+  useEffect(() => {
+    setVisibleItems(10);
+  }, [searchQuery]);
+
   if (loading)
     return (
       <div className="flex items-center justify-center min-h-screen text-white bg-[#040508]">
@@ -573,7 +588,12 @@ const SectionVideos = () => {
       </div>
     );
 
+
+
   const currentVideoIndex = videos.indexOf(selectedVideo);
+
+
+
 
   return (
     <div className="min-h-screen bg-[#040508] text-white font-['Poppins'] pb-10">
@@ -617,11 +637,15 @@ const SectionVideos = () => {
       {/* Main Content */}
       <div className="px-6 lg:px-12 flex flex-col-reverse lg:flex-row gap-8 items-start">
         {/* Left: Video List (Sidebar) */}
-        <div className="w-full lg:w-[380px] flex flex-col gap-4 max-h-[calc(100vh-180px)] overflow-y-auto pr-2 custom-scrollbar">
+        <div
+          onScroll={handleScroll}
+          className="w-full lg:w-[380px] flex flex-col gap-4 max-h-[calc(100vh-180px)] overflow-y-auto pr-2 custom-scrollbar"
+        >
           {videos
             .filter((video) =>
               video.unitName?.toLowerCase().includes(searchQuery.toLowerCase())
             )
+            .slice(0, visibleItems)
             .map((video) => {
               // Use indexOf for exact object reference to handle duplicates correctly
               const idx = videos.indexOf(video);
