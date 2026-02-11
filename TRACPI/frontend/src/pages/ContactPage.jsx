@@ -99,6 +99,14 @@ const ContactPage = () => {
       }
     }
 
+    // Special handling for fullName - Allow only alphabets and spaces
+    if (name === 'fullName') {
+      const re = /^[A-Za-z\s]+$/;
+      if (value !== '' && !re.test(value)) {
+        return;
+      }
+    }
+
     setFormData({ ...formData, [name]: value });
 
     // Clear error for this field when user types
