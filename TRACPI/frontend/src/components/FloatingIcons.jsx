@@ -71,7 +71,7 @@ const FloatingIcons = () => {
                     <span className="badge">1</span>
                     <span className="hover-label">WhatsApp</span>
                 </a>
-                <Link to="/connect-us#contact-form" className="action-icon support" data-label="Contact Us">
+                <Link to="/connect-us" className="action-icon support" data-label="Contact Us">
                     <FaHandsHelping />
                     <span className="hover-label">Contact Us</span>
                 </Link>

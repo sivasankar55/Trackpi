@@ -101,20 +101,20 @@ const PhoneNUmber = () => {
                                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                                     className="flex items-center gap-2 px-3 focus:outline-none cursor-pointer group/btn border-r border-white/20 h-[60%] my-auto hover:bg-white/5 transition-colors rounded-l-[12px]"
                                 >
-                                    <svg
-                                        className={`w-3.5 h-3.5 text-white/40 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''} group-hover/btn:text-white/80`}
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                                    </svg>
                                     <img
                                         src={selectedCountry.flag}
                                         alt={selectedCountry.name}
                                         className="w-5 h-3 md:w-6 md:h-4 object-cover rounded-sm"
                                     />
                                     <span className="text-white font-medium text-sm md:text-base">{selectedCountry.phone_code}</span>
+                                    <svg
+                                        className={`w-3.5 h-3.5 text-white flex-shrink-0 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`}
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                                    </svg>
                                 </button>
 
                                 {isDropdownOpen && (
@@ -157,7 +157,7 @@ const PhoneNUmber = () => {
                             <input
                                 type="tel"
                                 placeholder="1234567890"
-                                className="border-none ml-2 md:ml-4 w-full bg-black text-white text-sm md:text-base placeholder:text-gray-500 outline-none"
+                                className="border-none ml-2 md:ml-4 flex-1 bg-black text-white text-sm md:text-base placeholder:text-gray-500 outline-none"
                                 value={phoneNumber}
                                 onChange={handlePhoneChange}
                                 required

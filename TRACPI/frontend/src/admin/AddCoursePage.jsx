@@ -277,7 +277,13 @@ const AddCoursePage = () => {
             return;
         }
         if (!currentQuestion.correctAnswer) {
-            setErrorPopup({ show: true, message: 'Please enter the correct answer' });
+            setErrorPopup({ show: true, message: 'Please select the correct answer' });
+            return;
+        }
+
+        const validOptions = quizType === 'True/False' ? ['True', 'False'] : currentQuestion.options;
+        if (!validOptions.includes(currentQuestion.correctAnswer)) {
+            setErrorPopup({ show: true, message: 'The correct answer must match one of the provided options' });
             return;
         }
 
