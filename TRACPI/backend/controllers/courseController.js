@@ -138,6 +138,13 @@ export const createCourse = async (req, res) => {
     console.log("Creating new course...");
     const { courseName, courseDetail, sections, questions, quizTime } = req.body;
 
+    // Check if course with same name already exists
+    const trimmedName = courseName?.trim();
+    const existingCourse = await Course.findOne({ courseName: { $regex: new RegExp(`^${trimmedName}$`, 'i') } });
+    if (existingCourse) {
+      return res.status(400).json({ error: 'A course with this name already exists' });
+    }
+
     const parsedQuestions = robustParse(questions);
     const parsedSections = robustParse(sections);
 
@@ -242,6 +249,18 @@ export const updateCourseById = async (req, res) => {
   try {
     const { courseName, courseDetail, sections, questions, quizTime } = req.body;
     const courseId = req.params.id;
+
+    // Check if the new course name already exists in another course
+    if (courseName) {
+      const trimmedName = courseName.trim();
+      const existingCourse = await Course.findOne({
+        courseName: { $regex: new RegExp(`^${trimmedName}$`, 'i') },
+        _id: { $ne: courseId }
+      });
+      if (existingCourse) {
+        return res.status(400).json({ error: 'A course with this name already exists' });
+      }
+    }
 
     const parsedQuestions = robustParse(questions);
     const parsedSections = robustParse(sections);
