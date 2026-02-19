@@ -57,7 +57,7 @@ const HeaderA = () => {
           <div className='flex flex-col px-6 gap-3 bg-black border-t border-white/10'>
             <Link to="/" onClick={() => setIsOpen(false)} className='font-medium text-[16px] py-2 border-b border-gray-700 hover:text-[#FFC100]'>HOME</Link>
             <Link to="/about" onClick={() => setIsOpen(false)} className='font-medium text-[16px] py-2 border-b border-gray-700 hover:text-[#FFC100]'>ABOUT</Link>
-            <Link to="/connect-us" onClick={() => setIsOpen(false)} className='font-medium text-[16px] py-2 border-b border-gray-700 hover:text-[#FFC100]'>CONNECT US</Link>
+            <div onClick={() => { navigate('/connect-us'); setIsOpen(false); }} className='cursor-pointer font-medium text-[16px] py-2 border-b border-gray-700 hover:text-[#FFC100]'>CONNECT US</div>
             <button
               onClick={handleSignupClick}
               className='mt-2 mb-2 rounded-[21px] border-2 border-[#FF9D00] py-2.5 px-6 bg-[#FFC100] text-black font-medium text-[17px] hover:bg-[#ffb300] text-center'

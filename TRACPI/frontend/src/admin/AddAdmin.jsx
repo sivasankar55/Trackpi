@@ -16,6 +16,23 @@ const AddAdmin = ({ onClose, onAdminAdded, currentUserRole }) => {
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
+
+        // Validation for Username: Only letters
+        if (name === 'username') {
+            const letterRegex = /^[A-Za-z]*$/;
+            if (!letterRegex.test(value)) {
+                return;
+            }
+        }
+
+        // Validation for Full Name: Letters and spaces
+        if (name === 'fullname') {
+            const nameRegex = /^[A-Za-z\s]*$/;
+            if (!nameRegex.test(value)) {
+                return;
+            }
+        }
+
         setFormData(prev => ({
             ...prev,
             [name]: value
