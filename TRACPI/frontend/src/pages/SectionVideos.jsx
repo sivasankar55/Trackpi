@@ -63,6 +63,10 @@ const SectionVideos = () => {
   const [isMuted, setIsMuted] = useState(false);
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
   const [error, setError] = useState(null);
+  const [maxWatched, setMaxWatched] = useState(0);
+  const maxWatchedRef = useRef(0);
+  const [playbackRate, setPlaybackRate] = useState(1);
+  const [showSpeedMenu, setShowSpeedMenu] = useState(false);
 
   const { courseId, sectionId } = useParams();
   const navigate = useNavigate();
@@ -212,6 +216,8 @@ const SectionVideos = () => {
     setIsPlaying(false);
     setCurrentTime(0);
     setDuration(0);
+    setMaxWatched(0);
+    maxWatchedRef.current = 0;
     isSeekingRef.current = false;
     setShowPopup(false);
 
@@ -244,7 +250,13 @@ const SectionVideos = () => {
 
       player.on("timeupdate", (data) => {
         if (!isSeekingRef.current) {
-          if (data.seconds !== undefined) setCurrentTime(data.seconds);
+          if (data.seconds !== undefined) {
+            setCurrentTime(data.seconds);
+            if (data.seconds > maxWatchedRef.current) {
+              maxWatchedRef.current = data.seconds;
+              setMaxWatched(data.seconds);
+            }
+          }
         }
         if (data.duration) setDuration(data.duration);
       });
@@ -253,6 +265,8 @@ const SectionVideos = () => {
         try {
           const d = await player.getDuration();
           setDuration(d);
+          // Apply saved playback rate
+          player.setPlaybackRate(playbackRate).catch(() => { });
         } catch (e) { }
       });
 
@@ -285,7 +299,8 @@ const SectionVideos = () => {
         playerRef.current.destroy();
       }
     };
-  }, [selectedVideo?.videoID, loading]);
+  }, [selectedVideo, loading]);
+
 
   // Smooth Progress Update Interval (Supports both)
   useEffect(() => {
@@ -475,15 +490,18 @@ const SectionVideos = () => {
   };
 
   const handleSeek = (e) => {
-    const time = parseFloat(e.target.value);
-    setCurrentTime(time);
+    const requestedTime = parseFloat(e.target.value);
+    // Block forward seeking beyond max watched position
+    const clampedTime = Math.min(requestedTime, maxWatchedRef.current);
+    setCurrentTime(clampedTime);
     isSeekingRef.current = true;
     if (playerRef.current) {
       if (typeof playerRef.current.setCurrentTime === 'function') {
-        playerRef.current.setCurrentTime(time).catch(() => { });
+        playerRef.current.setCurrentTime(clampedTime).catch(() => { });
       }
     }
   };
+
 
   const onSeekMouseDown = () => {
     isSeekingRef.current = true;
@@ -813,6 +831,37 @@ const SectionVideos = () => {
                         <span className="text-gray-500 mx-1">/</span>{' '}
                         {formatTime(duration)}
                       </span>
+
+                      {/* Playback Speed */}
+                      <div className="relative">
+                        <button
+                          onClick={() => setShowSpeedMenu(prev => !prev)}
+                          className="text-sm font-bold hover:text-[#FFB700] transition-colors px-2 py-0.5 border border-white/30 rounded-md"
+                          title="Playback Speed"
+                        >
+                          {playbackRate}x
+                        </button>
+                        {showSpeedMenu && (
+                          <div className="absolute bottom-10 left-0 bg-[#1A1A1A] border border-[#333] rounded-xl overflow-hidden shadow-xl z-50 min-w-[70px]">
+                            {[0.5, 1, 1.5, 2].map(rate => (
+                              <button
+                                key={rate}
+                                onClick={() => {
+                                  setPlaybackRate(rate);
+                                  if (playerRef.current) playerRef.current.setPlaybackRate(rate).catch(() => { });
+                                  setShowSpeedMenu(false);
+                                }}
+                                className={`w-full text-sm py-2 px-4 text-center transition-colors ${playbackRate === rate
+                                  ? 'bg-[#FFB700] text-black font-bold'
+                                  : 'text-white hover:bg-white/10'
+                                  }`}
+                              >
+                                {rate}x
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
 
                       {/* Volume Control */}
                       <div

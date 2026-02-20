@@ -8,6 +8,7 @@ import { ProgressContext } from '../context/ProgressContext'
 import { AuthContext } from '../context/AuthContext'
 import AssessmentFirstPopup from './AssessmentFirstPopup'
 import AssessmentMaxAttemptsPopup from './AssessmentMaxAttemptsPopup'
+
 import CourseDetailPopup from '../components/CourseDetailPopup'
 import '../components/css/CourseDetailPopup.css'
 import techThumb from '../assets/tech.jpg'
@@ -44,6 +45,7 @@ const CourseSection = () => {
   const [showMaxAttemptsPopup, setShowMaxAttemptsPopup] = useState(false);
   const [detailCourse, setDetailCourse] = useState(null);
   const [activeTab, setActiveTab] = useState('courses');
+  const [assessmentError, setAssessmentError] = useState("");
 
   const { token } = useContext(AuthContext)
   const { progressVersion } = useContext(ProgressContext)
@@ -445,7 +447,8 @@ const CourseSection = () => {
             onClick={() => {
               if (isAssessmentPassed) return;
               if (!allSectionsComplete) {
-                alert("Please complete all sections to unlock the final assessment.");
+                setAssessmentError("Please complete all sections to unlock the final assessment.");
+                setTimeout(() => setAssessmentError(""), 3000);
                 return;
               }
               setActiveTab('assessment');
@@ -458,7 +461,16 @@ const CourseSection = () => {
             {isAssessmentPassed ? "Assessment Completed" : "Assessment"}
           </button>
         </div>
-      )}
+
+      )
+      }
+      {
+        assessmentError && (
+          <div className="px-5 flex justify-center sm:justify-end">
+            <p className="text-red-500 text-sm mt-[-10px] mb-4">{assessmentError}</p>
+          </div>
+        )
+      }
 
       {/* Sections Grid */}
       <div className='grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-4 lg:gap-6 px-2 lg:px-5 mb-10 w-full max-w-full'>
@@ -541,32 +553,40 @@ const CourseSection = () => {
             })
         )}
       </div>
-      {showAssessmentPopup && popupSection && (
-        <AssessmentFirstPopup
-          maxAttempts={attemptsLeft}
-          courseName={currentCourseName}
-          numQuestions={numQuestions}
-          timeAllowed={timeLimit}
-          onButtonClick={handleStartAssessment} />
-      )}
+      {
+        showAssessmentPopup && popupSection && (
+          <AssessmentFirstPopup
+            maxAttempts={attemptsLeft}
+            courseName={currentCourseName}
+            numQuestions={numQuestions}
+            timeAllowed={timeLimit}
+            onButtonClick={handleStartAssessment} />
+        )
+      }
 
-      {showDetailPopup && detailCourse && (
-        <CourseDetailPopup
-          course={detailCourse}
-          onClose={() => setShowDetailPopup(false)}
-        />
-      )}
+      {
+        showDetailPopup && detailCourse && (
+          <CourseDetailPopup
+            course={detailCourse}
+            onClose={() => setShowDetailPopup(false)}
+          />
+        )
+      }
 
-      {showMaxAttemptsPopup && (
-        <AssessmentMaxAttemptsPopup
-          onGoBack={() => {
-            setShowMaxAttemptsPopup(false);
-            setShowAssessmentPopup(false);
-          }}
-        />
-      )}
+      {
+        showMaxAttemptsPopup && (
+          <AssessmentMaxAttemptsPopup
+            onGoBack={() => {
+              setShowMaxAttemptsPopup(false);
+              setShowAssessmentPopup(false);
+            }}
+          />
+        )
+      }
 
-    </div>
+
+
+    </div >
   );
 };
 
