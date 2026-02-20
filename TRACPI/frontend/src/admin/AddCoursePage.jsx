@@ -332,16 +332,29 @@ const AddCoursePage = () => {
     };
 
     const validateCourseDetails = () => {
-        if (!formData.courseName.trim()) {
-            setErrorPopup({ show: true, message: 'Please enter a Course Name before adding/editing sections.' });
+        const name = formData.courseName.trim();
+        if (!name) {
+            setErrorPopup({ show: true, message: 'Please enter a Course Name.' });
+            return false;
+        }
+        if (name.length < 3) {
+            setErrorPopup({ show: true, message: 'Course Name must be at least 3 characters long.' });
+            return false;
+        }
+        if (!/^[a-zA-Z0-9\s-]+$/.test(name)) {
+            setErrorPopup({ show: true, message: 'Course Name can only contain letters, numbers, spaces, and hyphens.' });
             return false;
         }
         if (!formData.courseDetail.trim()) {
-            setErrorPopup({ show: true, message: 'Please enter Course Details before adding/editing sections.' });
+            setErrorPopup({ show: true, message: 'Please enter Course Details.' });
+            return false;
+        }
+        if (Number(formData.quizTime) > 180) {
+            setErrorPopup({ show: true, message: 'Quiz Time cannot exceed 180 minutes.' });
             return false;
         }
         if (!imagePreview) {
-            setErrorPopup({ show: true, message: 'Please upload a Course Image before adding/editing sections.' });
+            setErrorPopup({ show: true, message: 'Please upload a Course Image.' });
             return false;
         }
         return true;
@@ -359,10 +372,7 @@ const AddCoursePage = () => {
     };
 
     const handleLaunchCourse = async () => {
-        if (!formData.courseName || !formData.courseDetail) {
-            setErrorPopup({ show: true, message: 'Please fill in the Course Name and Course Details.' });
-            return;
-        }
+        if (!validateCourseDetails()) return;
         setLoading(true);
         try {
             const formDataToSubmit = new FormData();
