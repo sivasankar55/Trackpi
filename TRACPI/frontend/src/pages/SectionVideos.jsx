@@ -221,6 +221,16 @@ const SectionVideos = () => {
     isSeekingRef.current = false;
     setShowPopup(false);
 
+    // If video already completed, allow unrestricted seeking
+    const normalizedId = normalizeVideoId(selectedVideo.videoID);
+    const alreadyCompleted = completedVideos.some(
+      id => normalizeVideoId(id) === normalizedId
+    );
+    if (alreadyCompleted) {
+      maxWatchedRef.current = Infinity;
+      setMaxWatched(Infinity);
+    }
+
     // Destroy existing players
     if (playerRef.current) {
       if (typeof playerRef.current.destroy === 'function') {
@@ -299,7 +309,7 @@ const SectionVideos = () => {
         playerRef.current.destroy();
       }
     };
-  }, [selectedVideo, loading]);
+  }, [selectedVideo, loading, completedVideos]);
 
 
   // Smooth Progress Update Interval (Supports both)
