@@ -35,8 +35,8 @@ const FeedbackForm = () => {
 
     const questions = [
         { id: 1, key: 'quality', text: '1. How would you rate the quality of the course content?' },
-        { id: 3, key: 'smoothness', text: '3. Did the platform perform smoothly during the course?' },
-        { id: 2, key: 'clarity', text: '2. How would you rate the instructor’s clarity and teaching style?' },
+        { id: 2, key: 'smoothness', text: '2. Did the platform perform smoothly during the course?' },
+        { id: 3, key: 'clarity', text: '3. How would you rate the instructor’s clarity and teaching style?' },
     ];
 
     const handleSubmit = async () => {

@@ -4,6 +4,7 @@ import { AdminAuthContext } from '../context/AdminAuthContext';
 import ProfileIllustration from '../assets/profile.png';
 import { FaUserCircle, FaEdit, FaCamera } from 'react-icons/fa';
 import ImageCropperPopup from './ImageCropperPopup';
+import LogoutPopup from './LogoutPopup';
 import { toast } from 'react-toastify';
 
 const Profile = () => {
@@ -22,6 +23,7 @@ const Profile = () => {
     const [profilePic, setProfilePic] = useState(null);
     const [selectedImage, setSelectedImage] = useState(null);
     const [showCropper, setShowCropper] = useState(false);
+    const [showLogoutPopup, setShowLogoutPopup] = useState(false);
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -266,7 +268,7 @@ const Profile = () => {
                         <div className="col-span-2 flex justify-center gap-8 mt-6">
                             <button
                                 type="button"
-                                onClick={logout}
+                                onClick={() => setShowLogoutPopup(true)}
                                 className="w-[140px] h-[50px] rounded-[12px] bg-[#E20000] text-white font-bold text-[15px] hover:bg-red-700 transition-all shadow-lg active:scale-95"
                             >
                                 Log out
@@ -288,6 +290,13 @@ const Profile = () => {
                         image={selectedImage}
                         onCropComplete={handleCropComplete}
                         onCancel={() => setShowCropper(false)}
+                    />
+                )}
+
+                {showLogoutPopup && (
+                    <LogoutPopup
+                        onClose={() => setShowLogoutPopup(false)}
+                        onConfirm={logout}
                     />
                 )}
             </div>
