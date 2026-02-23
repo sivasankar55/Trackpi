@@ -35,7 +35,7 @@ const Signup = () => {
 
             <p className="text-[24px] font-normal font-roboto text-center leading-[140%] text-gray-200 max-w-[634px] mx-auto px-2">
               It represents a network of freelancers in Kerala who collaborate, share opportunities,
-              and grow together in the <span className="text-yellow-400 font-medium">freelancing industry</span>.
+              and grow together in the <span className="text-gray-200 font-normal">freelancing industry</span>.
             </p>
 
             <div className="flex items-center justify-center space-x-2 mt-6 lg:mt-10 mx-auto">

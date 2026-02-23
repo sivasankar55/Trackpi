@@ -23,8 +23,8 @@ const Faq2 = () => {
 
             <section className='faq-container px-5 mt-5 sm:flex sm:flex-row-reverse sm:justify-between sm:px-12'>
                 <div className='sm:w-[650px]'>
-                    <div className='relative  '>
-                        <i className='fa fa-search text-[#848484] text-[18px] absolute left-3 top-1/2 transform -translate-y-1/2'></i>
+                    <div className='relative mb-8'>
+                        <i className='fa fa-search text-[#848484] text-[20px] absolute left-5 top-1/2 transform -translate-y-1/2'></i>
                         <input
                             type="search"
                             name="search"
@@ -32,7 +32,8 @@ const Faq2 = () => {
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             placeholder='Search...'
-                            className='rounded-[15px] w-full pl-10 px-3.5 text-3.5 font-medium' />
+                            className='rounded-full w-full pl-14 pr-6 py-3.5 text-[18px] font-medium bg-white text-black outline-none placeholder:text-[#ADADAD]'
+                        />
                     </div>
                     <div className="accordian-div">
                         <div id="accordion-collapse" data-accordion="collapse">
