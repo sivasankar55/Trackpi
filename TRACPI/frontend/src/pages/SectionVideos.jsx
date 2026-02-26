@@ -254,8 +254,14 @@ const SectionVideos = () => {
 
       playerRef.current = player;
 
-      player.on("play", () => setIsPlaying(true));
-      player.on("playing", () => setIsPlaying(true));
+      player.on("play", () => {
+        setIsPlaying(true);
+        isSeekingRef.current = false;
+      });
+      player.on("playing", () => {
+        setIsPlaying(true);
+        isSeekingRef.current = false;
+      });
       player.on("pause", () => setIsPlaying(false));
 
       player.on("timeupdate", (data) => {
