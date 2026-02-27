@@ -7,6 +7,7 @@ import FooterB from './FooterB'
 const LayoutB = () => {
   const location = useLocation();
   const isVideoPage = location.pathname.includes('/sections/');
+  const isFeedbackPage = location.pathname === '/feedback-form';
 
   return (
     <>
@@ -14,7 +15,7 @@ const LayoutB = () => {
       <main className='background-b flex flex-col'>
         <HeaderB />
         <Outlet />
-        {!isVideoPage && <FooterB />}
+        {!isVideoPage && !isFeedbackPage && <FooterB />}
       </main>
     </>
   )
