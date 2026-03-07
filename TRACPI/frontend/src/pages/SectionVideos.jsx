@@ -58,6 +58,9 @@ const SectionVideos = () => {
   const controlsTimeoutRef = useRef(null);
   const progressIntervalRef = useRef(null);
   const isSeekingRef = useRef(false);
+  const wasPlayingBeforeSeekRef = useRef(false);
+  const seekDragTimeRef = useRef(0);
+  const hasEndedRef = useRef(false);
   const vimeoHostRef = useRef(null);
   const [volume, setVolume] = useState(1);
   const [isMuted, setIsMuted] = useState(false);
@@ -76,11 +79,16 @@ const SectionVideos = () => {
   // Refs for stable access inside event listeners
   const sectionRef = useRef(section);
   const selectedVideoRef = useRef(selectedVideo);
+  const completedVideosRef = useRef(completedVideos);
 
   useEffect(() => {
     sectionRef.current = section;
     selectedVideoRef.current = selectedVideo;
   }, [section, selectedVideo]);
+
+  useEffect(() => {
+    completedVideosRef.current = completedVideos;
+  }, [completedVideos]);
 
   const playerRef = useRef(null);
   const videoContainerRef = useRef(null);
@@ -219,11 +227,12 @@ const SectionVideos = () => {
     setMaxWatched(0);
     maxWatchedRef.current = 0;
     isSeekingRef.current = false;
+    hasEndedRef.current = false;
     setShowPopup(false);
 
     // If video already completed, allow unrestricted seeking
     const normalizedId = normalizeVideoId(selectedVideo.videoID);
-    const alreadyCompleted = completedVideos.some(
+    const alreadyCompleted = completedVideosRef.current.some(
       id => normalizeVideoId(id) === normalizedId
     );
     if (alreadyCompleted) {
@@ -272,6 +281,14 @@ const SectionVideos = () => {
               maxWatchedRef.current = data.seconds;
               setMaxWatched(data.seconds);
             }
+
+            // Artificial end detection for Vimeo SDK bug where 'ended' event drops
+            if (data.duration > 0 && data.seconds >= data.duration - 0.5 && !hasEndedRef.current) {
+              hasEndedRef.current = true;
+              setIsPlaying(false);
+              markAsWatched();
+              setShowPopup(true);
+            }
           }
         }
         if (data.duration) setDuration(data.duration);
@@ -290,18 +307,15 @@ const SectionVideos = () => {
         if (data.duration) setDuration(data.duration);
       });
 
-      player.on("seeking", () => {
-        isSeekingRef.current = true;
-      });
 
-      player.on("seeked", () => {
-        isSeekingRef.current = false;
-      });
 
       player.on("ended", () => {
-        setIsPlaying(false);
-        markAsWatched(); // Fire and forget - don't block UI
-        setShowPopup(true);
+        if (!hasEndedRef.current) {
+          hasEndedRef.current = true;
+          setIsPlaying(false);
+          markAsWatched(); // Fire and forget - don't block UI
+          setShowPopup(true);
+        }
       });
 
       player.getDuration().then((d) => setDuration(d)).catch(() => { });
@@ -315,7 +329,7 @@ const SectionVideos = () => {
         playerRef.current.destroy();
       }
     };
-  }, [selectedVideo, loading, completedVideos]);
+  }, [selectedVideo, loading]);
 
 
   // Smooth Progress Update Interval (Supports both)
@@ -329,8 +343,26 @@ const SectionVideos = () => {
           // Check for Vimeo first (async)
           if (typeof playerRef.current.getCurrentTime === 'function') {
             const time = await playerRef.current.getCurrentTime();
-            // Test if it returned a promise or a value
-            setCurrentTime(typeof time === 'number' ? time : 0);
+            const currentSecs = typeof time === 'number' ? time : 0;
+            setCurrentTime(currentSecs);
+
+            // 1. Independent Max Watched Tracking
+            if (currentSecs > maxWatchedRef.current) {
+              maxWatchedRef.current = currentSecs;
+              setMaxWatched(currentSecs);
+            }
+
+            // 2. Independent Artificial End Detection (if Vimeo SDK fails to fire 'ended')
+            let currentDuration = duration;
+            if (!currentDuration && typeof playerRef.current.getDuration === 'function') {
+              currentDuration = await playerRef.current.getDuration().catch(() => 0);
+            }
+            if (currentDuration > 0 && currentSecs >= currentDuration - 0.5 && !hasEndedRef.current) {
+              hasEndedRef.current = true;
+              setIsPlaying(false);
+              markAsWatched();
+              setShowPopup(true);
+            }
           }
         } catch (e) {
           // Fallback or skip if not ready
@@ -340,7 +372,7 @@ const SectionVideos = () => {
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [isPlaying, showPopup]);
+  }, [isPlaying, showPopup, duration]);
 
 
 
@@ -384,15 +416,21 @@ const SectionVideos = () => {
 
 
   const handlePlayAgain = async () => {
-    if (playerRef.current) {
-      if (typeof playerRef.current.setCurrentTime === 'function') {
-        await playerRef.current.setCurrentTime(0);
-        playerRef.current.play();
+    try {
+      hasEndedRef.current = false;
+      if (playerRef.current) {
+        if (typeof playerRef.current.setCurrentTime === 'function') {
+          await playerRef.current.setCurrentTime(0);
+          playerRef.current.play().catch(() => { });
+        }
+        setIsPlaying(true);
+        setCurrentTime(0);
       }
-      setIsPlaying(true);
-      setCurrentTime(0);
+    } catch (err) {
+      console.error("SectionVideos: Error playing again", err);
+    } finally {
+      setShowPopup(false);
     }
-    setShowPopup(false);
   };
 
   const handlePlayNext = async () => {
@@ -499,6 +537,7 @@ const SectionVideos = () => {
   const startRewatch = async () => {
     if (playerRef.current) {
       if (typeof playerRef.current.setCurrentTime === 'function') {
+        hasEndedRef.current = false;
         await playerRef.current.setCurrentTime(0);
         playerRef.current.play();
       }
@@ -507,25 +546,44 @@ const SectionVideos = () => {
 
   const handleSeek = (e) => {
     const requestedTime = parseFloat(e.target.value);
-    // Block forward seeking beyond max watched position
-    const clampedTime = Math.min(requestedTime, maxWatchedRef.current);
-    setCurrentTime(clampedTime);
-    isSeekingRef.current = true;
-    if (playerRef.current) {
-      if (typeof playerRef.current.setCurrentTime === 'function') {
-        playerRef.current.setCurrentTime(clampedTime).catch(() => { });
-      }
-    }
-  };
 
+    // Allow seeking backward completely, but block seeking forward beyond what has been watched
+    const clampedTime = Math.min(requestedTime, maxWatchedRef.current);
+    seekDragTimeRef.current = clampedTime; // Store latest drag position for mouseup
+    setCurrentTime(clampedTime); // Update UI visuals
+  };
 
   const onSeekMouseDown = () => {
     isSeekingRef.current = true;
     setIsSeeking(true);
+    // Pause video while dragging so Vimeo doesn't get confused
+    if (playerRef.current) {
+      wasPlayingBeforeSeekRef.current = isPlaying;
+      playerRef.current.pause().catch(() => { });
+      setIsPlaying(false);
+    }
   };
+
   const onSeekMouseUp = () => {
+    // Only tell Vimeo to jump when the user finishes dragging
+    if (playerRef.current) {
+      if (typeof playerRef.current.setCurrentTime === 'function') {
+        const finalSeekTime = seekDragTimeRef.current;
+        playerRef.current.setCurrentTime(finalSeekTime).then(() => {
+          isSeekingRef.current = false; // Force clear in case 'seeked' event fails
+          // If it was playing before drag, resume playing
+          if (wasPlayingBeforeSeekRef.current) {
+            playerRef.current.play().catch(() => { });
+            setIsPlaying(true);
+          }
+        }).catch(() => {
+          isSeekingRef.current = false;
+        });
+      }
+    } else {
+      isSeekingRef.current = false;
+    }
     setIsSeeking(false);
-    // isSeekingRef will be reset by 'seeked' event from player
   };
 
   const toggleFullScreen = () => {
