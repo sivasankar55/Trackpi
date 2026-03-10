@@ -1,8 +1,17 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import logo from '../assets/targetpi logo.png';
 import { FaLocationDot, FaPhone, FaEnvelope } from "react-icons/fa6";
 
 const FooterA = () => {
+    const links = [
+        { name: "Home", path: "/" },
+        { name: "About", path: "/about" },
+        { name: "Connect Us", path: "/connect-us" },
+        { name: "Creators", path: "/creators" },
+        { name: "Terms & Conditions", path: "#" }
+    ];
+
     return (
         <div>
             <footer className="bg-[#0A0A0A] w-full py-8 px-5 lg:px-10 rounded-lg">
@@ -32,11 +41,11 @@ const FooterA = () => {
                         <div className="flex flex-col gap-4">
                             <h3 className="text-white text-[24px] font-semibold font-urbanist-600">Links</h3>
                             <ul className="flex flex-col gap-3">
-                                {["Home", "About", "Connect Us", "Creators", "Terms & Conditions"].map((item, i) => (
+                                {links.map((link, i) => (
                                     <li key={i}>
-                                        <a href="#" className="text-white text-[16px] md:text-[18px] font-urbanist-500 hover:text-[#FFB200] transition-colors">
-                                            {item}
-                                        </a>
+                                        <Link to={link.path} className="text-white text-[16px] md:text-[18px] font-urbanist-500 hover:text-[#FFB200] transition-colors">
+                                            {link.name}
+                                        </Link>
                                     </li>
                                 ))}
                             </ul>
