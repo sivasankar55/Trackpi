@@ -43,6 +43,7 @@ const LayoutC = lazy(() => import('./components/LayoutC'));
 const CourseSection = lazy(() => import('./pages/CourseSection'));
 const SectionVideos = lazy(() => import('./pages/SectionVideos'));
 const AboutPage = lazy(() => import('./pages/Aboutpage'));
+const Creators = lazy(() => import('./pages/Creators'));
 const UserManagement = lazy(() => import('./admin/UserManagement'));
 const OAuthRedirectHandler = lazy(() => import('./pages/OAuthRedirectHandler'));
 const AdminManagement = lazy(() => import('./admin/AdminManagement'));
@@ -67,6 +68,7 @@ function App() {
             <Route path='/phone-number' element={<OAuthRedirectHandler />} />
             <Route path='/phone-number/enter' element={<PhoneNUmber />} />
             <Route path='/about' element={<AboutPage />} />
+            <Route path='/creators' element={<Creators />} />
             <Route path='/connect-us' element={<ContactPage />} />
           </Route>
 

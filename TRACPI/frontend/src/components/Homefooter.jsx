@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import Trackpi from '../assets/logo2.png';
 import Location from '../assets/mdi_location.png';
 import Phone from '../assets/ion_call.png';
@@ -33,11 +34,11 @@ const App = () => {
                     <div className="flex flex-col gap-4">
                         <h3 className="text-white text-[24px] leading-[100%] font-urbanist-600 mb-2">Links</h3>
                         <ul className="flex flex-col gap-3">
-                            <li><a href="#" className="text-white text-[18px] leading-[100%] font-urbanist-500 hover:underline">Home</a></li>
-                            <li><a href="#" className="text-white text-[18px] leading-[100%] font-urbanist-500 hover:underline">About</a></li>
-                            <li><a href="#" className="text-white text-[18px] leading-[100%] font-urbanist-500 hover:underline">Connect Us</a></li>
-                            <li><a href="#" className="text-white text-[18px] leading-[100%] font-urbanist-500 hover:underline">Creators</a></li>
-                            <li><a href="#" className="text-white text-[18px] leading-[100%] font-urbanist-500 hover:underline">Terms and Condition</a></li>
+                            <li><Link to="/" className="text-white text-[18px] leading-[100%] font-urbanist-500 hover:underline">Home</Link></li>
+                            <li><Link to="/about" className="text-white text-[18px] leading-[100%] font-urbanist-500 hover:underline">About</Link></li>
+                            <li><Link to="/connect-us" className="text-white text-[18px] leading-[100%] font-urbanist-500 hover:underline">Connect Us</Link></li>
+                            <li><Link to="/creators" className="text-white text-[18px] leading-[100%] font-urbanist-500 hover:underline">Creators</Link></li>
+                            <li><Link to="#" className="text-white text-[18px] leading-[100%] font-urbanist-500 hover:underline">Terms and Condition</Link></li>
                         </ul>
                     </div>
 
