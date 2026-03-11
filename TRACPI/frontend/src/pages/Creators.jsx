@@ -1,8 +1,8 @@
 import React from 'react';
 import FloatingIcons from '../components/FloatingIcons';
-import sivasankarImg from '../assets/Sivasankar.png';
-import akhilImg from '../assets/akhil.png';
-import althafImg from '../assets/althaf.png';
+import sivasankarImg from '../creators/Sivasankar.png';
+import akhilImg from '../creators/akhil.png';
+import althafImg from '../creators/althaf.png';
 
 const Creators = () => {
     const teamMembers = [
