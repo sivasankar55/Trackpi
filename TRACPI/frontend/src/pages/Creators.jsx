@@ -3,6 +3,7 @@ import FloatingIcons from '../components/FloatingIcons';
 import sivasankarImg from '../assets/Sivasankar.png';
 import akhilImg from '../assets/akhil.png';
 import althafImg from '../assets/althaf.png';
+import aswinImg from '../assets/Aswin.png';
 
 const Creators = () => {
     const teamMembers = [
@@ -19,6 +20,11 @@ const Creators = () => {
         {
             name: "Mohammed Althaf ",
             image: althafImg,
+            role: "MERN Stack Developer"
+        },
+        {
+            name: "Aswin",
+            image: aswinImg,
             role: "MERN Stack Developer"
         }
     ];
@@ -52,11 +58,19 @@ const Creators = () => {
                         >
                             {/* Member Image Container with Glassmorphism Border */}
                             <div className="relative w-full aspect-[4/5] overflow-hidden rounded-2xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] mb-8 transition-all duration-500 group-hover:-translate-y-3 group-hover:shadow-[0_25px_60px_rgba(255,178,0,0.15)] group-hover:border-[#FFB200]/30">
-                                <img
-                                    src={member.image}
-                                    alt={member.name}
-                                    className="w-full h-full object-cover grayscale transition-all duration-1000 ease-out transform scale-100 group-hover:scale-110 group-hover:grayscale-0"
-                                />
+                                {member.image ? (
+                                    <img
+                                        src={member.image}
+                                        alt={member.name}
+                                        className="w-full h-full object-cover grayscale transition-all duration-1000 ease-out transform scale-100 group-hover:scale-110 group-hover:grayscale-0"
+                                    />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#1a0f1a] to-[#2d122d]">
+                                        <span className="text-[6rem] font-extrabold font-libre text-[#FFB200] select-none opacity-80 group-hover:opacity-100 transition-opacity duration-300">
+                                            {member.name.charAt(0).toUpperCase()}
+                                        </span>
+                                    </div>
+                                )}
 
                                 {/* Hover Glow Overlay */}
                                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 bg-gradient-to-t from-[#FFB200]/20 via-transparent to-transparent pointer-events-none" />
